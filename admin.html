@@ -76,6 +76,7 @@
 </footer>
 
 <script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentTab = 'pending';
 
   async function init() {
@@ -117,9 +118,9 @@
     const list = document.getElementById('posts-list');
     list.innerHTML = '<div class="loading">Loading...</div>';
 
-    const { data: posts, error } = await sb
+    const { data: posts, error } = await supabase
       .from('posts')
-      .select('*, profiles(username)')
+      .select('*, profiles!posts_user_id_fkey(username)')
       .eq('status', status)
       .order('created_at', { ascending: false });
 
