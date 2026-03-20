@@ -204,16 +204,27 @@
   }
 
   async function loadSection(type, sectionId) {
-    let query = sb.from('posts').select('*, profiles(username)').eq('status', 'approved').eq('type', type).order('created_at', { ascending: false }).limit(3);
+    // 1. Destructure BOTH 'data' and 'error'
+    let query = sb.from('posts')
+      .select('*, profiles(username)')
+      .eq('status', 'approved')
+      .eq('type', type)
+      .order('created_at', { ascending: false })
+      .limit(3);
+
     if (currentGame) query = query.eq('game', currentGame);
-    const { data: posts } = await query;
+    
+    const { data: posts, error } = await query; // FIXED: Added ', error' here
+
+    // 2. Check for the error correctly
     if (error) {
         console.error("Error fetching " + type, error);
         return;
     }
+
     const section = document.getElementById(sectionId);
     if (!posts?.length) {
-      section.innerHTML = `<div class="empty-state"><div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div><div class="empty-title">No ${type}s yet</div><div class="empty-sub">Be the first to share!</div><a class="empty-cta" href="create.html">Create one</a></div>`;
+      section.innerHTML = `<div class="empty-state">...</div>`;
       return;
     }
     section.innerHTML = `<div class="posts-grid">${posts.map(p => `
