@@ -79,32 +79,33 @@
     <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
   </div>
 </footer>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-
 <script>
-  async function checkAuth() {
-    // 2. Check if a user session exists
+  async function init() {
     const { data: { user } } = await sb.auth.getUser();
-    
     if (user) {
-      // 3. Fetch their username to display
       const { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
-      
       const navRight = document.querySelector('.nav-right');
-      navRight.innerHTML = `
-        <span style="font-size:13px;color:var(--text-dim);margin-right:10px;">${profile?.username || user.email}</span>
-        <button class="btn-logout" style="font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer;" onclick="logout()">Log out</button>
-      `;
+      navRight.innerHTML = `<span style="font-size:13px;color:var(--text-dim);margin-right:12px;">${profile?.username || user.email}</span><button class="btn-logout" style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>`;
     }
+    loadBlogs();
   }
 
-  async function logout() {
-    await sb.auth.signOut();
-    window.location.reload();
+  async function loadBlogs() {
+    const content = document.querySelector('.content');
+    const { data: posts, error } = await sb.from('posts').select('*, profiles(username)').eq('status', 'approved').eq('type', 'blog').order('created_at', { ascending: false });
+    if (error || !posts?.length) return;
+    content.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+      ${posts.map(p => `
+        <a class="post-card" href="post.html?id=${p.id}" style="text-decoration:none; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:20px; display:block;">
+          <div style="font-size:10px; color:var(--gold); text-transform:uppercase; margin-bottom:8px;">${p.game} · ${p.category}</div>
+          <div style="font-size:16px; color:#fff; font-weight:600; margin-bottom:12px;">${p.title}</div>
+          <div style="font-size:12px; color:var(--text-muted);">by ${p.profiles?.username || 'unknown'}</div>
+        </a>`).join('')}</div>`;
   }
-
-  checkAuth();
+  init();
 </script>
 </body>
 </html>
