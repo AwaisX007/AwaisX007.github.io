@@ -204,9 +204,13 @@
   }
 
   async function loadSection(type, sectionId) {
-    let query = supabase.from('posts').select('*, profiles(username)').eq('status', 'approved').eq('type', type).order('created_at', { ascending: false }).limit(3);
+    let query = sb.from('posts').select('*, profiles(username)').eq('status', 'approved').eq('type', type).order('created_at', { ascending: false }).limit(3);
     if (currentGame) query = query.eq('game', currentGame);
     const { data: posts } = await query;
+    if (error) {
+        console.error("Error fetching " + type, error);
+        return;
+    }
     const section = document.getElementById(sectionId);
     if (!posts?.length) {
       section.innerHTML = `<div class="empty-state"><div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div><div class="empty-title">No ${type}s yet</div><div class="empty-sub">Be the first to share!</div><a class="empty-cta" href="create.html">Create one</a></div>`;
