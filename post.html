@@ -1,166 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Post — MarineFPS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<style>
-  :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --border: #222; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-  
-  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
-  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
-  .logo span { color: #fff; }
-  .nav-right { display: flex; gap: 15px; align-items: center; }
-
-  .post-container { max-width: 850px; margin: 60px auto; padding: 0 24px; }
-  .post-header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 30px; }
-  .post-title { font-family: 'Barlow Condensed', sans-serif; font-size: 56px; font-weight: 700; color: #fff; line-height: 1.0; margin-bottom: 20px; text-transform: uppercase; }
-  .post-meta { font-size: 14px; color: var(--text-muted); display: flex; gap: 15px; }
-  
-  /* Text Formatting Fix */
-  .post-content { font-size: 19px; color: #ccc; white-space: pre-wrap; letter-spacing: 0.3px; }
-  .post-content b { color: #fff; font-weight: 700; } /* For the ** bold fix */
-  .post-content h2 { color: var(--gold); font-family: 'Barlow Condensed', sans-serif; margin: 30px 0 15px; font-size: 28px; }
-
-  /* Upvote & Comments */
-  .interaction-box { margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); }
-  .btn-upvote { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 700; transition: 0.2s; }
-  .btn-upvote:hover { background: var(--gold); color: #000; }
-  
-  .comment-form { margin-top: 40px; background: var(--bg2); padding: 20px; border-radius: 4px; border: 1px solid var(--border); }
-  .comment-input { width: 100%; height: 100px; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 4px; margin-bottom: 15px; font-family: inherit; }
-  .comment-card { background: var(--bg2); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 15px; position: relative; }
-  .comment-author { color: var(--gold); font-size: 13px; font-weight: 700; margin-bottom: 8px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post — MarineFPS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --border: #222; --text: #e0e0e0; --text-muted: #666; }
+        body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        nav { display: flex; justify-content: space-between; padding: 0 32px; height: 56px; background: #080808; border-bottom: 1px solid var(--border); align-items: center; }
+        .logo { color: var(--gold); text-decoration: none; font-weight: 700; letter-spacing: 2px; font-family: 'Barlow Condensed'; }
+        .post-container { max-width: 800px; margin: 60px auto; padding: 0 24px; }
+        .post-title { font-family: 'Barlow Condensed'; font-size: 56px; color: #fff; line-height: 1.1; margin-bottom: 20px; text-transform: uppercase; }
+        .post-content { font-size: 19px; color: #ccc; white-space: pre-wrap; margin-bottom: 50px; }
+        .post-content b { color: #fff; font-weight: 700; }
+        .post-content h2 { color: var(--gold); margin: 30px 0 15px; font-family: 'Barlow Condensed'; }
+        .interaction-bar { display: flex; align-items: center; gap: 20px; padding: 30px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .upvote-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 10px 24px; border-radius: 4px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .upvote-btn.active { background: var(--gold); color: #000; }
+        .comment-card { background: var(--bg2); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 15px; position: relative; }
+        .comment-author { color: var(--gold); font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+        .btn-delete { position: absolute; top: 15px; right: 15px; color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; }
+        .comment-input { width: 100%; height: 100px; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 4px; margin: 20px 0 10px; }
+    </style>
 </head>
 <body>
+    <nav>
+        <a class="logo" href="index.html">MARINE<span>FPS</span></a>
+        <div id="nav-right"></div>
+    </nav>
 
-<nav>
-  <a class="logo" href="index.html">MARINE<span>FPS</span></a>
-  <div class="nav-right" id="nav-right">
-    <a href="login.html" style="color:var(--text-dim); font-size:13px; text-decoration:none;">Log in</a>
-  </div>
-</nav>
+    <div id="main-content" class="post-container">
+        <p style="text-align:center; padding:100px; color:#555">Loading post content...</p>
+    </div>
 
-<div id="content-area">
-  <div class="post-container">Loading...</div>
-</div>
+    <script>
+        const postId = new URLSearchParams(window.location.search).get('id');
+        let currentUser = null;
+        let isAdmin = false;
+        let hasUpvoted = false;
 
-<script>
-  let currentUser = null;
-  let isAdmin = false;
-  const currentPostId = new URLSearchParams(window.location.search).get('id');
+        async function init() {
+            const { data: { user } } = await sb.auth.getUser();
+            currentUser = user;
+            if (user) {
+                const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+                isAdmin = profile?.is_admin || false;
+                document.getElementById('nav-right').innerHTML = `<span style="font-size:13px;color:#999;">${profile?.username}</span>`;
+                
+                const { data: vote } = await sb.from('post_upvotes').select('*').eq('post_id', postId).eq('user_id', user.id).single();
+                hasUpvoted = !!vote;
+            }
+            loadPost();
+        }
 
-  async function init() {
-    // 1. More robust auth check
-    const { data: { user } } = await sb.auth.getUser();
-    currentUser = user;
+        async function loadPost() {
+            const { data: post, error } = await sb.from('posts').select('*, profiles(username)').eq('id', postId).single();
+            if (error || !post) { document.getElementById('main-content').innerHTML = "<h2>Post not found.</h2>"; return; }
 
-    if (user) {
-      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
-      isAdmin = profile?.is_admin || false;
-      
-      document.getElementById('nav-right').innerHTML = `
-        <span style="font-size:13px;color:var(--text-dim);">${profile?.username || user.email}</span>
-        ${isAdmin ? '<a href="admin.html" style="color:var(--gold); font-size:12px; text-decoration:none; border:1px solid var(--gold); padding:4px 8px; border-radius:3px;">Admin</a>' : ''}
-        <button style="background:none; border:none; color:#666; cursor:pointer; font-size:12px;" onclick="sb.auth.signOut().then(() => location.reload())">Log out</button>
-      `;
-    }
-    
-    loadPost();
-  }
+            document.getElementById('main-content').innerHTML = `
+                <article>
+                    <div style="color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; margin-bottom:10px;">${post.game} // ${post.category}</div>
+                    <h1 class="post-title">${post.title}</h1>
+                    <div style="font-size:14px; color:#666; margin-bottom:40px;">by <b>${post.profiles?.username}</b> • ${new Date(post.created_at).toLocaleDateString()}</div>
+                    <div class="post-content">${formatText(post.content)}</div>
+                    
+                    <div class="interaction-bar">
+                        <button id="upvote-btn" class="upvote-btn ${hasUpvoted ? 'active' : ''}" onclick="toggleUpvote()">
+                            ${hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE'}
+                        </button>
+                        <span style="font-weight:700; color:#fff;" id="v-count">${post.upvotes || 0}</span>
+                    </div>
 
-  async function loadPost() {
-    const { data: post, error } = await sb.from('posts').select('*, profiles(username)').eq('id', currentPostId).single();
-    
-    if (error || !post) {
-      document.getElementById('content-area').innerHTML = `<div class="post-container">Post not found.</div>`;
-      return;
-    }
+                    <div style="margin-top:60px;">
+                        <h3 style="font-family:'Barlow Condensed'; font-size:24px; margin-bottom:30px;">Discussion</h3>
+                        <div id="comment-area">${currentUser ? `<textarea id="c-box" class="comment-input" placeholder="Join the discussion..."></textarea><button onclick="postComment()" style="background:var(--gold); color:#000; border:none; padding:10px 20px; font-weight:700; cursor:pointer; border-radius:3px;">Post Comment</button>` : `<p style="color:#666; font-size:14px;">Sign in to join the conversation.</p>`}</div>
+                        <div id="comments-list" style="margin-top:40px;"></div>
+                    </div>
+                </article>
+            `;
+            loadComments();
+        }
 
-    document.getElementById('content-area').innerHTML = `
-      <article class="post-container">
-        <div class="post-header">
-          <div class="post-category">${post.game} // ${post.category}</div>
-          <h1 class="post-title">${post.title}</h1>
-          <div class="post-meta">
-            <span>By <b>${post.profiles?.username || 'Unknown'}</b></span>
-            <span>•</span>
-            <span>${new Date(post.created_at).toLocaleDateString()}</span>
-          </div>
-        </div>
-        
-        <div class="post-content">${formatText(post.content)}</div>
+        function formatText(t) {
+            return t.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/^## (.*$)/gim, '<h2>$1</h2>').replace(/\n/g, '<br>');
+        }
 
-        <div class="interaction-box">
-          <button class="btn-upvote" onclick="upvote()">▲ UPVOTE (${post.upvotes || 0})</button>
-          
-          <div class="comment-form" id="comment-form-spot">
-            <p style="color:#666; font-size:14px;">Log in to join the discussion.</p>
-          </div>
+        async function toggleUpvote() {
+            if (!currentUser) return alert("Log in to upvote!");
+            if (hasUpvoted) {
+                await sb.from('post_upvotes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+                hasUpvoted = false; syncVote(-1);
+            } else {
+                await sb.from('post_upvotes').insert({ post_id: postId, user_id: currentUser.id });
+                hasUpvoted = true; syncVote(1);
+            }
+        }
 
-          <div id="comments-list" style="margin-top:30px;"></div>
-        </div>
-      </article>
-    `;
+        async function syncVote(change) {
+            const { data } = await sb.from('posts').select('upvotes').eq('id', postId).single();
+            const newVal = (data.upvotes || 0) + change;
+            await sb.from('posts').update({ upvotes: newVal }).eq('id', postId);
+            document.getElementById('v-count').innerText = newVal;
+            document.getElementById('upvote-btn').classList.toggle('active');
+            document.getElementById('upvote-btn').innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
+        }
 
-    if (currentUser) {
-      document.getElementById('comment-form-spot').innerHTML = `
-        <textarea id="comm-text" class="comment-input" placeholder="Write a comment..."></textarea>
-        <button onclick="sendComment()" class="btn-upvote" style="background:var(--gold); color:#000;">Post Comment</button>
-      `;
-    }
+        async function loadComments() {
+            const { data: comments } = await sb.from('post_comments').select('*, profiles(username)').eq('post_id', postId).order('created_at', { ascending: false });
+            document.getElementById('comments-list').innerHTML = comments?.map(c => `
+                <div class="comment-card">
+                    <div class="comment-author">${c.profiles?.username}</div>
+                    <div style="color:#aaa; font-size:15px;">${c.content}</div>
+                    ${(isAdmin || (currentUser && currentUser.id === c.user_id)) ? `<button class="btn-delete" onclick="deleteComment(${c.id})">Delete</button>` : ''}
+                </div>
+            `).join('') || '<p style="color:#444">No comments yet.</p>';
+        }
 
-    loadComments();
-  }
+        async function postComment() {
+            const txt = document.getElementById('c-box').value.trim();
+            if (!txt) return;
+            await sb.from('post_comments').insert({ post_id: postId, user_id: currentUser.id, content: txt });
+            document.getElementById('c-box').value = ''; loadComments();
+        }
 
-  // THE KEY FIX: Converts **Text** into <b>Text</b>
-  function formatText(text) {
-    if (!text) return '';
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold fix
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>'); // Header fix
-  }
+        async function deleteComment(id) {
+            if (confirm("Delete comment?")) { await sb.from('post_comments').delete().eq('id', id); loadComments(); }
+        }
 
-  async function upvote() {
-    if (!currentUser) return alert("Sign in to upvote!");
-    // Logic to increment upvotes in DB...
-  }
-
-  async function loadComments() {
-    const { data: comments } = await sb.from('post_comments').select('*, profiles(username)').eq('post_id', currentPostId).order('created_at', { ascending: false });
-    const list = document.getElementById('comments-list');
-    list.innerHTML = comments?.map(c => `
-      <div class="comment-card">
-        <div class="comment-author">${c.profiles?.username || 'User'}</div>
-        <div style="font-size:15px; color:#999;">${c.content}</div>
-        ${(isAdmin || (currentUser && currentUser.id === c.user_id)) ? 
-          `<button onclick="deleteComm(${c.id})" style="position:absolute; top:20px; right:20px; color:#ff4444; background:none; border:none; cursor:pointer; font-size:11px;">Delete</button>` : ''}
-      </div>
-    `).join('') || '<p style="color:#444">No comments yet.</p>';
-  }
-
-  async function sendComment() {
-    const txt = document.getElementById('comm-text').value.trim();
-    if (!txt) return;
-    const { error } = await sb.from('post_comments').insert({ post_id: currentPostId, user_id: currentUser.id, content: txt });
-    if (!error) { document.getElementById('comm-text').value = ''; loadComments(); }
-  }
-
-  async function deleteComm(id) {
-    if (confirm("Delete this comment?")) {
-      await sb.from('post_comments').delete().eq('id', id);
-      loadComments();
-    }
-  }
-
-  init();
-</script>
+        init();
+    </script>
 </body>
 </html>
