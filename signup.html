@@ -60,22 +60,58 @@
 <script>
 
   async function handleSignup() {
-// Simplifed signup logic if using the SQL Trigger
-const { data, error } = await sb.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { username } // This sends the username to the SQL trigger
-  }
-});
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('signup-btn');
+    const msg = document.getElementById('msg');
+    msg.className = 'msg';
 
-if (error) {
-  msg.className = 'msg error';
-  msg.textContent = error.message;
-} else {
-  msg.className = 'msg success';
-  msg.textContent = 'Account created! You can now log in.';
+    if (!username || !email || !password) {
+      msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
+    }
+    if (username.length < 3) {
+      msg.className = 'msg error'; msg.textContent = 'Username must be at least 3 characters.'; return;
+    }
+    if (password.length < 6) {
+      msg.className = 'msg error'; msg.textContent = 'Password must be at least 6 characters.'; return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Creating account...';
+
+    // Check username taken
+    const { data: existing } = await sb.from('profiles').select('id').eq('username', username).single();
+    if (existing) {
+      msg.className = 'msg error'; msg.textContent = 'Username already taken.';
+      btn.disabled = false; btn.textContent = 'Create Account'; return;
+    }
+
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username } } });
+    if (error) {
+      msg.className = 'msg error'; msg.textContent = error.message;
+      btn.disabled = false; btn.textContent = 'Create Account'; return;
+    }
+if (data.user) {
+  const { error: profileError } = await sb
+    .from('profiles')
+    .insert({ id: data.user.id, username: username });
+
+  if (profileError) {
+    console.error("Profile creation failed:", profileError.message);
+    msg.className = 'msg error';
+    msg.textContent = "Auth worked, but profile failed: " + profileError.message;
+    return;
+  }
 }
+    // Create profile
+    if (data.user) {
+      await sb.from('profiles').insert({ id: data.user.id, username });
+    }
+
+    msg.className = 'msg success';
+    msg.textContent = 'Account created! Check your email to confirm, then log in.';
+    btn.textContent = 'Account Created!';
+  }
 </script>
 </body>
 </html>
