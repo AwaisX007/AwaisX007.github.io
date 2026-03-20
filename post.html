@@ -55,20 +55,24 @@
   let currentPostId = new URLSearchParams(window.location.search).get('id');
   let currentUser = null;
 
-  async function init() {
-    const { data: { user } } = await sb.auth.getUser();
-    currentUser = user;
-    if (user) {
-      const { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
-      document.getElementById('nav-right').innerHTML = `<span style="color:#999;font-size:13px;margin-right:10px;">${profile?.username}</span>`;
-      document.getElementById('comment-form-area').innerHTML = `
-        <textarea id="comment-text" class="comment-input" placeholder="What do you think of this guide?"></textarea>
-        <button onclick="postComment()" class="btn-upvote" style="background:var(--gold); color:#000;">Post Comment</button>
-      `;
-    }
-    loadPost();
-    loadComments();
+  let isAdmin = false; // Add this global variable at the top
+
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  currentUser = user;
+  if (user) {
+    // Fetch both username AND is_admin status
+    const { data: profile } = await sb.from('profiles')
+      .select('username, is_admin')
+      .eq('id', user.id)
+      .single();
+    
+    isAdmin = profile?.is_admin || false;
+    // ... rest of your existing nav code ...
   }
+  loadPost();
+  loadComments();
+}
 
   async function loadPost() {
     const { data: post, error } = await sb.from('posts').select('*, profiles(username)').eq('id', currentPostId).single();
