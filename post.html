@@ -89,24 +89,61 @@
         }
 
         async function toggleUpvote() {
-            if (!currentUser) return alert("Log in to upvote!");
-            if (hasUpvoted) {
-                await sb.from('post_upvotes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
-                hasUpvoted = false; syncVote(-1);
-            } else {
-                await sb.from('post_upvotes').insert({ post_id: postId, user_id: currentUser.id });
-                hasUpvoted = true; syncVote(1);
-            }
-        }
+  if (!currentUser) return alert("Log in to upvote!");
+  const btn = document.getElementById('upvote-btn');
+  btn.disabled = true; // Prevent spam-clicking
 
-        async function syncVote(change) {
-            const { data } = await sb.from('posts').select('upvotes').eq('id', postId).single();
-            const newVal = (data.upvotes || 0) + change;
-            await sb.from('posts').update({ upvotes: newVal }).eq('id', postId);
-            document.getElementById('v-count').innerText = newVal;
-            document.getElementById('upvote-btn').classList.toggle('active');
-            document.getElementById('upvote-btn').innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
-        }
+  if (hasUpvoted) {
+    // REMOVE VOTE
+    const { error } = await sb.from('post_upvotes')
+      .delete()
+      .eq('post_id', postId)
+      .eq('user_id', currentUser.id);
+    
+    if (!error) {
+      hasUpvoted = false;
+      await refreshUpvoteCount();
+    }
+  } else {
+    // ADD VOTE
+    const { error } = await sb.from('post_upvotes')
+      .insert({ post_id: postId, user_id: currentUser.id });
+    
+    if (!error) {
+      hasUpvoted = true;
+      await refreshUpvoteCount();
+    }
+  }
+  
+  btn.disabled = false;
+}
+
+async function refreshUpvoteCount() {
+  // 1. Get the REAL count of rows in the upvotes table
+  const { count, error: countError } = await sb
+    .from('post_upvotes')
+    .select('*', { count: 'exact', head: true })
+    .eq('post_id', postId);
+
+  if (countError) {
+    console.error("Count Error:", countError);
+    return;
+  }
+
+  // 2. Update the main 'posts' table with the exact count
+  const { error: updateError } = await sb
+    .from('posts')
+    .update({ upvotes: count })
+    .eq('id', postId);
+
+  if (!updateError) {
+    // 3. Update the UI
+    document.getElementById('v-count').innerText = count;
+    const btn = document.getElementById('upvote-btn');
+    btn.classList.toggle('active', hasUpvoted);
+    btn.innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
+  }
+}
 
         async function loadComments() {
             const { data: comments } = await sb.from('post_comments').select('*, profiles(username)').eq('post_id', postId).order('created_at', { ascending: false });
