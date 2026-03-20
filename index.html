@@ -9,7 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <style>
-  :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+  :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
   nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
@@ -18,80 +18,44 @@
   .nav-links { display: flex; gap: 28px; }
   .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
   .nav-links a:hover { color: var(--gold); }
-  .nav-right { display: flex; gap: 10px; align-items: center; }
-  #nav-username { font-size: 13px; color: var(--text-dim); }
-  .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; }
-  .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; text-decoration: none; }
-  .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
+  .nav-right { display: flex; gap: 15px; align-items: center; }
+  
+  .btn-login, .btn-signup { font-size: 13px; padding: 7px 18px; border-radius: 3px; cursor: pointer; font-family: inherit; text-decoration: none; font-weight: 600; }
+  .btn-login { background: transparent; border: 1px solid var(--border2); color: var(--text-dim); }
+  .btn-signup { background: var(--gold); border: none; color: #080808; }
 
-  .hero { padding: 80px 32px 60px; background: var(--bg); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); pointer-events: none; }
-  .hero-inner { max-width: 640px; position: relative; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.2); padding: 4px 12px; border-radius: 2px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
-  .hero-badge span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
-  .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 700; line-height: 1.0; color: #fff; margin-bottom: 16px; letter-spacing: 1px; }
+  .hero { padding: 80px 32px 60px; position: relative; border-bottom: 1px solid var(--border); }
+  .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; line-height: 1.0; margin-bottom: 16px; color: #fff; }
   .hero h1 em { color: var(--gold); font-style: normal; }
-  .hero p { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
-  .hero-btns { display: flex; gap: 12px; }
-  .hero-btn-main { padding: 12px 28px; background: var(--gold); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; transition: background 0.2s; text-decoration: none; }
-  .hero-btn-main:hover { background: #f0d060; }
-  .hero-btn-sec { padding: 12px 28px; background: transparent; color: var(--text-dim); font-size: 14px; border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; }
+  .hero p { color: var(--text-muted); max-width: 480px; margin-bottom: 32px; }
 
-  .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; }
-  .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
-  .game-tab:hover { color: var(--text); }
+  .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 5px; overflow-x: auto; }
+  .game-tab { font-family: 'Barlow Condensed', sans-serif; padding: 14px 18px; cursor: pointer; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; transition: 0.2s; }
   .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
   .main { max-width: 1200px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
-  .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
-  .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
-  .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; transition: all 0.2s; }
-  .create-btn:hover { background: rgba(232,200,74,0.08); }
+  .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+  .section-label::before { content: ''; width: 16px; height: 2px; background: var(--gold); }
 
-  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
-  .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
-  .post-card:hover { border-color: #333; transform: translateY(-2px); }
-  .card-body { padding: 14px; }
-  .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-  .card-title { font-size: 13px; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
-  .card-footer { display: flex; align-items: center; justify-content: space-between; }
-  .card-author { font-size: 11px; color: var(--text-muted); }
-  .card-likes { font-size: 11px; color: var(--text-muted); }
+  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 40px; }
+  .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 15px; text-decoration: none; transition: 0.2s; display: block; }
+  .post-card:hover { border-color: #444; transform: translateY(-2px); }
+  .card-game { font-size: 10px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+  .card-title { font-size: 14px; color: #fff; line-height: 1.4; margin-bottom: 12px; height: 40px; overflow: hidden; }
+  .card-footer { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
 
-  .empty-state { background: var(--bg3); border: 1px dashed var(--border2); border-radius: 4px; padding: 50px 32px; text-align: center; margin-bottom: 32px; }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
-  .empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; color: var(--text-muted); margin-bottom: 8px; }
-  .empty-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-  .empty-cta { display: inline-block; padding: 8px 20px; background: var(--gold); color: #080808; font-weight: 600; font-size: 13px; border-radius: 3px; text-decoration: none; font-family: 'Barlow', sans-serif; }
+  .sidebar-box { background: var(--bg3); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 20px; text-align: center; }
+  .join-btn { display: block; background: var(--gold); color: #000; padding: 10px; border-radius: 3px; font-weight: 700; text-decoration: none; margin-top: 15px; font-size: 13px; }
 
-  .sidebar { display: flex; flex-direction: column; gap: 16px; }
-  .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; }
-  .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
-  .join-box { text-align: center; }
-  .join-box p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
-  .join-btn { width: 100%; padding: 10px; background: var(--gold); color: #080808; font-weight: 700; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; display: block; text-align: center; }
-  .join-login { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
-  .join-login a { color: var(--gold); text-decoration: none; }
-  .games-list { display: flex; flex-direction: column; gap: 2px; }
-  .game-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 3px; cursor: pointer; transition: background 0.2s; text-decoration: none; }
-  .game-item:hover { background: var(--bg4); }
-  .game-name { font-size: 13px; color: var(--text-dim); }
-  .game-count { font-size: 11px; color: var(--text-muted); }
-  .sidebar-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 8px 0; }
+  .empty-state { padding: 40px; text-align: center; background: var(--bg3); border: 1px dashed var(--border2); border-radius: 4px; }
+  footer { border-top: 1px solid var(--border); padding: 32px; text-align: center; font-size: 12px; color: var(--text-muted); }
 
-  footer { border-top: 1px solid var(--border); padding: 32px; background: var(--bg2); }
-  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
-  .footer-logo span { color: #555; }
-  .footer-text { font-size: 12px; color: var(--text-muted); }
-
-  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } .hero h1 { font-size: 44px; } .nav-links { display: none; } .posts-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 600px) { .posts-grid { grid-template-columns: 1fr; } nav { padding: 0 16px; } .hero { padding: 48px 16px 40px; } .main { padding: 20px 16px; } }
+  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } .posts-grid { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
 <body>
+
 <nav>
   <a class="logo" href="index.html">MARINE<span>FPS</span></a>
   <div class="nav-links">
@@ -108,13 +72,8 @@
 
 <div class="hero">
   <div class="hero-inner">
-    <div class="hero-badge"><span></span> CS2 · Valorant · Apex · More</div>
     <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
-    <p>Guides, pro settings, tier lists and blogs written by players, for players. Level up your game today.</p>
-    <div class="hero-btns">
-      <a class="hero-btn-main" href="guides.html">Browse Guides</a>
-      <a class="hero-btn-sec" href="signup.html">Join Community</a>
-    </div>
+    <p>The ultimate hub for competitive gaming intelligence.</p>
   </div>
 </div>
 
@@ -123,79 +82,56 @@
   <button class="game-tab" onclick="setGame(this, 'Counter-Strike 2')">Counter-Strike 2</button>
   <button class="game-tab" onclick="setGame(this, 'Valorant')">Valorant</button>
   <button class="game-tab" onclick="setGame(this, 'Apex Legends')">Apex Legends</button>
-  <button class="game-tab" onclick="setGame(this, 'Warzone')">Warzone</button>
-  <button class="game-tab" onclick="setGame(this, 'R6 Siege')">R6 Siege</button>
 </div>
 
 <div class="main">
   <div>
     <div class="section-head">
       <div class="section-label">Latest Guides</div>
-      <a class="create-btn" href="create.html">+ Create Guide</a>
+      <a href="create.html" style="color:var(--gold); font-size:12px; text-decoration:none;">+ Create</a>
     </div>
-    <div id="guides-section"><div style="color:var(--text-muted);font-size:13px;padding:20px 0;">Loading...</div></div>
+    <div id="guides-section"><div style="color:#444; padding:20px;">Loading guides...</div></div>
 
-    <div class="section-head">
-      <div class="section-label">Recent Blog Posts</div>
-      <a class="create-btn" href="create.html">+ Write Post</a>
+    <div class="section-head" style="margin-top:20px;">
+      <div class="section-label">Recent Blogs</div>
     </div>
-    <div id="blogs-section"><div style="color:var(--text-muted);font-size:13px;padding:20px 0;">Loading...</div></div>
+    <div id="blogs-section"><div style="color:#444; padding:20px;">Loading blogs...</div></div>
   </div>
 
   <div class="sidebar">
-    <div class="sidebar-box join-box" id="auth-sidebar">
-      <div class="sidebar-title" style="justify-content:center;">Join the Community</div>
-      <p>Create a free account to write guides, upvote posts, and be part of the MarineFPS community.</p>
+    <div class="sidebar-box" id="auth-sidebar">
+      <div style="font-size:12px; color:var(--gold); text-transform:uppercase; margin-bottom:10px;">Join the Elite</div>
+      <p style="font-size:13px; color:var(--text-muted);">Share your settings and strategies with the community.</p>
       <a class="join-btn" href="signup.html">Create Free Account</a>
-      <div class="join-login">Already a member? <a href="login.html">Log in</a></div>
-    </div>
-    <div class="sidebar-box">
-      <div class="sidebar-title">Browse by Game</div>
-      <div class="games-list">
-        <a class="game-item" href="guides.html"><span class="game-name">Counter-Strike 2</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Valorant</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Apex Legends</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Warzone</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">R6 Siege</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Overwatch 2</span></a>
-      </div>
     </div>
   </div>
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">MARINE<span>FPS</span></div>
-    <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
-  </div>
-</footer>
+<footer>© 2026 MarineFPS — Built for players, by players.</footer>
 
 <script>
-  
   let currentGame = '';
 
   async function init() {
+    // 1. Sync User Session
     const { data: { user } } = await sb.auth.getUser();
     if (user) {
-      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
-      const navRight = document.getElementById('nav-right');
-      navRight.innerHTML = `
-        <span style="font-size:13px;color:var(--text-dim);">${profile?.username || ''}</span>
-        ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;">Admin</a>' : ''}
-        <button class="btn-logout" onclick="logout()">Log out</button>
+      // Safe profile fetch
+      const { data: profiles } = await sb.from('profiles').select('username, is_admin').eq('id', user.id);
+      const profile = profiles?.[0];
+      
+      document.getElementById('nav-right').innerHTML = `
+        <span style="font-size:13px; color:var(--text-dim);">${profile?.username || user.email}</span>
+        ${profile?.is_admin ? '<a href="admin.html" style="color:var(--gold); font-size:11px; text-decoration:none; border:1px solid var(--gold); padding:4px 8px; border-radius:3px;">Admin</a>' : ''}
+        <button style="background:none; border:none; color:#555; font-size:11px; cursor:pointer;" onclick="logout()">Log out</button>
       `;
-      document.getElementById('auth-sidebar').innerHTML = `
-        <div class="sidebar-title" style="justify-content:center;">Welcome back!</div>
-        <p>You're logged in as <strong style="color:var(--text)">${profile?.username}</strong>. Share your knowledge with the community.</p>
-        <a class="join-btn" href="create.html">+ Create a Post</a>
-      `;
+
+      const sidebar = document.getElementById('auth-sidebar');
+      if (sidebar) {
+        sidebar.innerHTML = `<div style="font-size:12px; color:var(--gold); margin-bottom:10px;">Welcome Back, ${profile?.username || 'Player'}</div><a class="join-btn" href="create.html">+ Post Content</a>`;
+      }
     }
     loadPosts();
-  }
-
-  async function logout() {
-    await sb.auth.signOut();
-    window.location.reload();
   }
 
   async function loadPosts() {
@@ -204,7 +140,9 @@
   }
 
   async function loadSection(type, sectionId) {
-    // 1. FIXED: Changed 'supabase' to 'sb' and added ', error'
+    const section = document.getElementById(sectionId);
+    
+    // 2. The Fixed Query
     let query = sb.from('posts')
       .select('*, profiles(username)')
       .eq('status', 'approved')
@@ -213,45 +151,30 @@
       .limit(3);
 
     if (currentGame) query = query.eq('game', currentGame);
-    
+
     const { data: posts, error } = await query;
 
-    // 2. FIXED: Catching and showing errors in the console
     if (error) {
-        console.error("Supabase error fetching " + type + ":", error.message);
-        return;
-    }
-
-    const section = document.getElementById(sectionId);
-    
-    // If no posts are found, show the empty state
-    if (!posts || posts.length === 0) {
-      section.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div>
-          <div class="empty-title">No ${type}s yet</div>
-          <div class="empty-sub">Be the first to share!</div>
-          <a class="empty-cta" href="create.html">Create one</a>
-        </div>`;
+      console.error("Supabase Error:", error.message);
+      section.innerHTML = `<div style="color:#555; font-size:12px;">Notice: Database sync in progress...</div>`;
       return;
     }
 
-    // 3. Render the posts
-    section.innerHTML = `
-      <div class="posts-grid">
-        ${posts.map(p => `
-          <a class="post-card" href="post.html?id=${p.id}">
-            <div class="card-body">
-              <div class="card-game">${p.game} · ${p.category}</div>
-              <div class="card-title">${p.title}</div>
-              <div class="card-footer">
-                <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
-                <div class="card-likes">▲ ${p.upvotes || 0}</div>
-              </div>
-            </div>
-          </a>
-        `).join('')}
-      </div>`;
+    if (!posts || posts.length === 0) {
+      section.innerHTML = `<div class="empty-state"><div style="font-size:24px; margin-bottom:10px;">${type === 'guide' ? '🎯' : '✍️'}</div><div style="font-size:13px; color:#555;">No ${type}s approved for ${currentGame || 'all games'} yet.</div></div>`;
+      return;
+    }
+
+    // 3. Render Output
+    section.innerHTML = `<div class="posts-grid">${posts.map(p => `
+      <a class="post-card" href="post.html?id=${p.id}">
+        <div class="card-game">${p.game} · ${p.category}</div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-footer">
+          <span>by ${p.profiles?.username || 'unknown'}</span>
+          <span>▲ ${p.upvotes || 0}</span>
+        </div>
+      </a>`).join('')}</div>`;
   }
 
   function setGame(el, game) {
@@ -260,6 +183,8 @@
     currentGame = game;
     loadPosts();
   }
+
+  async function logout() { await sb.auth.signOut(); window.location.reload(); }
 
   init();
 </script>
