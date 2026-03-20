@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — MarineFPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a;
+    --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 56px;
+    background: rgba(8,8,8,0.95); border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+  .logo span { color: #fff; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+  .nav-right { display: flex; gap: 10px; }
+  .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
+  .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; }
+
+  .page-header { padding: 40px 32px 32px; border-bottom: 1px solid var(--border); }
+  .page-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .page-header p { font-size: 14px; color: var(--text-muted); }
+
+  .content { max-width: 1100px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 260px; gap: 32px; }
+
+  .featured {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
+    padding: 28px; margin-bottom: 16px; cursor: pointer;
+    transition: border-color 0.2s; text-decoration: none; display: block;
+  }
+  .featured:hover { border-color: #333; }
+  .featured-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: #080808; background: var(--gold);
+    padding: 3px 8px; border-radius: 2px; margin-bottom: 14px;
+  }
+  .featured h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 10px; }
+  .featured p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+  .featured-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); }
+
+  .blog-list { display: flex; flex-direction: column; gap: 1px; }
+  .blog-item {
+    background: var(--bg3); border: 1px solid var(--border); padding: 18px;
+    cursor: pointer; transition: background 0.2s;
+    display: flex; gap: 16px; text-decoration: none;
+  }
+  .blog-item:hover { background: var(--bg4); }
+  .blog-num { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--border2); min-width: 36px; line-height: 1; }
+  .blog-content { flex: 1; }
+  .blog-tags { display: flex; gap: 8px; margin-bottom: 6px; }
+  .blog-tag { font-size: 10px; letter-spacing: 1px; font-weight: 600; text-transform: uppercase; color: var(--gold); }
+  .blog-sep { color: var(--border2); }
+  .blog-title { font-size: 14px; color: var(--text); line-height: 1.4; margin-bottom: 6px; }
+  .blog-excerpt { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px; }
+  .blog-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
+
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
+  .category-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid var(--border); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .category-item:last-child { border-bottom: none; }
+  .category-item:hover .cat-name { color: var(--gold); }
+  .cat-name { font-size: 13px; color: var(--text-dim); }
+  .cat-count { font-size: 11px; color: var(--text-muted); }
+
+  footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); }
+  .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+  .footer-logo span { color: #555; }
+  .footer-text { font-size: 12px; color: var(--text-muted); }
+
+  @media (max-width: 900px) { .content { grid-template-columns: 1fr; } .nav-links { display: none; } }
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">MARINE<span>FPS</span></a>
+  <div class="nav-links">
+    <a href="guides.html">Guides</a>
+    <a href="blog.html" class="active">Blog</a>
+    <a href="#">Tier Lists</a>
+    <a href="#">Pro Settings</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-login">Log in</button>
+    <button class="btn-signup">Sign up</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Blog</h1>
+  <p>Opinions, patch breakdowns, meta analysis and stories from the FPS world.</p>
+</div>
+
+<div class="content">
+  <div>
+    <a class="featured" href="#">
+      <div class="featured-badge">Featured</div>
+      <h2>Is the AK-47 still the best rifle in CS2? A deep dive into the current weapon meta</h2>
+      <p>We break down the stats, spray patterns, and pro pick rates to find out if the iconic rifle still reigns supreme in the current meta — or if the M4A1-S has finally taken the crown.</p>
+      <div class="featured-meta">
+        <span>by AwaisX007</span>
+        <span>·</span>
+        <span>5 min read</span>
+        <span>·</span>
+        <span>▲ 94 upvotes</span>
+      </div>
+    </a>
+
+    <div class="blog-list">
+      <a class="blog-item" href="#">
+        <div class="blog-num">01</div>
+        <div class="blog-content">
+          <div class="blog-tags"><span class="blog-tag">Valorant</span><span class="blog-sep">·</span><span class="blog-tag">Patch Notes</span></div>
+          <div class="blog-title">Patch 9.0 breakdown — what changed and why it matters for your rank</div>
+          <div class="blog-excerpt">Everything you need to know about the latest Valorant update including agent changes, map updates, and economy shifts.</div>
+          <div class="blog-meta"><span>by ValoWriter</span><span>·</span><span>7 min read</span><span>·</span><span>▲ 67</span></div>
+        </div>
+      </a>
+      <a class="blog-item" href="#">
+        <div class="blog-num">02</div>
+        <div class="blog-content">
+          <div class="blog-tags"><span class="blog-tag">Apex</span><span class="blog-sep">·</span><span class="blog-tag">Movement</span></div>
+          <div class="blog-title">Top 5 movement mechanics every Apex Legends player needs to know in Season 22</div>
+          <div class="blog-excerpt">From bunny hops to wall jumps — master these movement techniques to gain a serious edge over your opponents.</div>
+          <div class="blog-meta"><span>by MoveMaster</span><span>·</span><span>6 min read</span><span>·</span><span>▲ 143</span></div>
+        </div>
+      </a>
+      <a class="blog-item" href="#">
+        <div class="blog-num">03</div>
+        <div class="blog-content">
+          <div class="blog-tags"><span class="blog-tag">CS2</span><span class="blog-sep">·</span><span class="blog-tag">Esports</span></div>
+          <div class="blog-title">What the IEM Katowice results tell us about the CS2 pro scene in 2025</div>
+          <div class="blog-excerpt">Breaking down the biggest surprises, upsets, and storylines from one of CS2's most prestigious tournaments.</div>
+          <div class="blog-meta"><span>by EsportsDesk</span><span>·</span><span>8 min read</span><span>·</span><span>▲ 211</span></div>
+        </div>
+      </a>
+      <a class="blog-item" href="#">
+        <div class="blog-num">04</div>
+        <div class="blog-content">
+          <div class="blog-tags"><span class="blog-tag">General</span><span class="blog-sep">·</span><span class="blog-tag">Hardware</span></div>
+          <div class="blog-title">Does a 240Hz monitor actually make you better at FPS games?</div>
+          <div class="blog-excerpt">We look at the science behind high refresh rate displays and whether the investment is worth it for competitive play.</div>
+          <div class="blog-meta"><span>by TechFPS</span><span>·</span><span>5 min read</span><span>·</span><span>▲ 178</span></div>
+        </div>
+      </a>
+      <a class="blog-item" href="#">
+        <div class="blog-num">05</div>
+        <div class="blog-content">
+          <div class="blog-tags"><span class="blog-tag">R6 Siege</span><span class="blog-sep">·</span><span class="blog-tag">Opinion</span></div>
+          <div class="blog-title">Why Rainbow Six Siege is still the most tactical FPS in 2025</div>
+          <div class="blog-excerpt">Despite competition from newer titles, R6 Siege continues to reward patience, communication and game sense like no other.</div>
+          <div class="blog-meta"><span>by SiegeGuru</span><span>·</span><span>6 min read</span><span>·</span><span>▲ 89</span></div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-box">
+      <div class="sidebar-title">Categories</div>
+      <a class="category-item" href="#"><span class="cat-name">Meta & Patch Notes</span><span class="cat-count">14</span></a>
+      <a class="category-item" href="#"><span class="cat-name">Esports & Tournaments</span><span class="cat-count">9</span></a>
+      <a class="category-item" href="#"><span class="cat-name">Hardware & Setup</span><span class="cat-count">7</span></a>
+      <a class="category-item" href="#"><span class="cat-name">Tips & Mindset</span><span class="cat-count">11</span></a>
+      <a class="category-item" href="#"><span class="cat-name">Opinion</span><span class="cat-count">6</span></a>
+      <a class="category-item" href="#"><span class="cat-name">Game Reviews</span><span class="cat-count">4</span></a>
+    </div>
+    <div class="sidebar-box">
+      <div class="sidebar-title">Top Authors</div>
+      <a class="category-item" href="#"><span class="cat-name">AwaisX007</span><span class="cat-count">12 posts</span></a>
+      <a class="category-item" href="#"><span class="cat-name">ValoWriter</span><span class="cat-count">8 posts</span></a>
+      <a class="category-item" href="#"><span class="cat-name">MoveMaster</span><span class="cat-count">6 posts</span></a>
+      <a class="category-item" href="#"><span class="cat-name">EsportsDesk</span><span class="cat-count">5 posts</span></a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">MARINE<span>FPS</span></div>
+    <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
+  </div>
+</footer>
+</body>
+</html>

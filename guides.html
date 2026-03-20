@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guides — MarineFPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a;
+    --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 56px;
+    background: rgba(8,8,8,0.95); border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+  .logo span { color: #fff; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+  .nav-right { display: flex; gap: 10px; }
+  .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
+  .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; }
+
+  .page-header { padding: 40px 32px 32px; border-bottom: 1px solid var(--border); }
+  .page-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .page-header p { font-size: 14px; color: var(--text-muted); }
+
+  .filters { padding: 0 32px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; gap: 4px; overflow-x: auto; }
+  .filter-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
+  .filter-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .filter-tab:hover { color: var(--text); }
+
+  .content { max-width: 1100px; margin: 0 auto; padding: 32px; }
+  .guides-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .guide-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
+  .guide-card:hover { border-color: #333; transform: translateY(-2px); }
+  .card-thumb { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  .thumb-cs { background: #0a140a; } .thumb-val { background: #14080a; } .thumb-apex { background: #0a0a14; } .thumb-wz { background: #100e08; } .thumb-r6 { background: #0a100e; }
+  .card-body { padding: 14px; }
+  .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .card-title { font-size: 14px; color: var(--text); line-height: 1.4; margin-bottom: 12px; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .card-author { font-size: 11px; color: var(--text-muted); }
+  .card-likes { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
+
+  footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); }
+  .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+  .footer-logo span { color: #555; }
+  .footer-text { font-size: 12px; color: var(--text-muted); }
+
+  @media (max-width: 900px) { .guides-grid { grid-template-columns: repeat(2, 1fr); } .nav-links { display: none; } }
+  @media (max-width: 600px) { .guides-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">MARINE<span>FPS</span></a>
+  <div class="nav-links">
+    <a href="guides.html" class="active">Guides</a>
+    <a href="blog.html">Blog</a>
+    <a href="#">Tier Lists</a>
+    <a href="#">Pro Settings</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-login">Log in</button>
+    <button class="btn-signup">Sign up</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Guides</h1>
+  <p>Step-by-step guides written by experienced players across all FPS titles.</p>
+</div>
+
+<div class="filters">
+  <button class="filter-tab active" onclick="setFilter(this)">All Games</button>
+  <button class="filter-tab" onclick="setFilter(this)">Counter-Strike 2</button>
+  <button class="filter-tab" onclick="setFilter(this)">Valorant</button>
+  <button class="filter-tab" onclick="setFilter(this)">Apex Legends</button>
+  <button class="filter-tab" onclick="setFilter(this)">Warzone</button>
+  <button class="filter-tab" onclick="setFilter(this)">R6 Siege</button>
+</div>
+
+<div class="content">
+  <div class="guides-grid">
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-cs">🎯</div>
+      <div class="card-body">
+        <div class="card-game">CS2 · Aim Training</div>
+        <div class="card-title">Best crosshair settings for ranked in 2025</div>
+        <div class="card-footer"><div class="card-author">by AwaisX007</div><div class="card-likes">▲ 248</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-cs">🗺️</div>
+      <div class="card-body">
+        <div class="card-game">CS2 · Smokes</div>
+        <div class="card-title">Mirage A-site smokes — complete lineup guide</div>
+        <div class="card-footer"><div class="card-author">by ProSmoke</div><div class="card-likes">▲ 189</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-cs">⚙️</div>
+      <div class="card-body">
+        <div class="card-game">CS2 · Settings</div>
+        <div class="card-title">Pro player configs — sensitivity & video settings</div>
+        <div class="card-footer"><div class="card-author">by ConfigKing</div><div class="card-likes">▲ 312</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-val">🔫</div>
+      <div class="card-body">
+        <div class="card-game">Valorant · Agents</div>
+        <div class="card-title">Jett movement guide — dash cancels and updraft tricks</div>
+        <div class="card-footer"><div class="card-author">by ValoWriter</div><div class="card-likes">▲ 201</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-apex">🏃</div>
+      <div class="card-body">
+        <div class="card-game">Apex · Movement</div>
+        <div class="card-title">Bunny hopping and slide jumping — complete movement guide</div>
+        <div class="card-footer"><div class="card-author">by MoveMaster</div><div class="card-likes">▲ 143</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-r6">🛡️</div>
+      <div class="card-body">
+        <div class="card-game">R6 Siege · Strategy</div>
+        <div class="card-title">Best attacking operators for beginners in Year 9</div>
+        <div class="card-footer"><div class="card-author">by SiegeGuru</div><div class="card-likes">▲ 97</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-cs">💣</div>
+      <div class="card-body">
+        <div class="card-game">CS2 · Grenades</div>
+        <div class="card-title">Inferno B-site mollies — stop the rush every time</div>
+        <div class="card-footer"><div class="card-author">by NadeKing</div><div class="card-likes">▲ 176</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-wz">🪂</div>
+      <div class="card-body">
+        <div class="card-game">Warzone · Loadout</div>
+        <div class="card-title">Best Warzone loadout for ranked — Season 3 meta</div>
+        <div class="card-footer"><div class="card-author">by WZPro</div><div class="card-likes">▲ 88</div></div>
+      </div>
+    </a>
+    <a class="guide-card" href="#">
+      <div class="card-thumb thumb-val">💨</div>
+      <div class="card-body">
+        <div class="card-game">Valorant · Smokes</div>
+        <div class="card-title">Omen one-way smokes every player should know</div>
+        <div class="card-footer"><div class="card-author">by SmokeGod</div><div class="card-likes">▲ 154</div></div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">MARINE<span>FPS</span></div>
+    <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
+  </div>
+</footer>
+<script>
+  function setFilter(el) { document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
+</script>
+</body>
+</html>

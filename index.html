@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarineFPS — FPS Guides, Blogs & Pro Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #e8c84a;
+    --gold-dim: #b89a2e;
+    --bg: #080808;
+    --bg2: #0f0f0f;
+    --bg3: #141414;
+    --bg4: #1a1a1a;
+    --border: #222;
+    --border2: #2a2a2a;
+    --text: #e0e0e0;
+    --text-muted: #666;
+    --text-dim: #999;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 56px;
+    background: rgba(8,8,8,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--gold); letter-spacing: 2px;
+  }
+  .logo span { color: #fff; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a {
+    font-size: 13px; font-weight: 500;
+    color: var(--text-dim); text-decoration: none;
+    letter-spacing: 0.5px; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-right { display: flex; gap: 10px; align-items: center; }
+  .btn-login {
+    font-size: 13px; padding: 7px 18px;
+    background: transparent; border: 1px solid var(--border2);
+    color: var(--text-dim); border-radius: 3px; cursor: pointer;
+    transition: all 0.2s; font-family: 'Barlow', sans-serif;
+  }
+  .btn-login:hover { border-color: #444; color: var(--text); }
+  .btn-signup {
+    font-size: 13px; padding: 7px 18px;
+    background: var(--gold); border: none;
+    color: #080808; border-radius: 3px; cursor: pointer;
+    font-weight: 600; font-family: 'Barlow', sans-serif;
+    transition: background 0.2s;
+  }
+  .btn-signup:hover { background: #f0d060; }
+
+  /* HERO */
+  .hero {
+    padding: 80px 32px 60px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 640px; position: relative; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--gold);
+    border: 1px solid rgba(232,200,74,0.2);
+    padding: 4px 12px; border-radius: 2px;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero-badge span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
+  .hero h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 64px; font-weight: 700;
+    line-height: 1.0; color: #fff;
+    margin-bottom: 16px; letter-spacing: 1px;
+  }
+  .hero h1 em { color: var(--gold); font-style: normal; }
+  .hero p {
+    font-size: 16px; color: var(--text-muted);
+    line-height: 1.7; max-width: 480px; margin-bottom: 32px;
+  }
+  .hero-btns { display: flex; gap: 12px; }
+  .hero-btn-main {
+    padding: 12px 28px; background: var(--gold); color: #080808;
+    font-weight: 600; font-size: 14px; border: none;
+    border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif;
+    letter-spacing: 0.5px; transition: background 0.2s;
+  }
+  .hero-btn-main:hover { background: #f0d060; }
+  .hero-btn-sec {
+    padding: 12px 28px; background: transparent; color: var(--text-dim);
+    font-size: 14px; border: 1px solid var(--border2);
+    border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif;
+    transition: all 0.2s;
+  }
+  .hero-btn-sec:hover { border-color: #444; color: var(--text); }
+
+  /* GAME FILTER BAR */
+  .game-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; gap: 4px; overflow-x: auto;
+  }
+  .game-tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 1px;
+    padding: 14px 18px; cursor: pointer;
+    color: var(--text-muted); border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none;
+  }
+  .game-tab:hover { color: var(--text); }
+  .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 1200px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+
+  /* SECTION HEADERS */
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--text-muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before {
+    content: ''; display: inline-block;
+    width: 16px; height: 2px; background: var(--gold);
+  }
+  .see-all {
+    font-size: 12px; color: var(--gold); text-decoration: none;
+    letter-spacing: 0.5px; transition: opacity 0.2s;
+  }
+  .see-all:hover { opacity: 0.7; }
+
+  /* GUIDE CARDS */
+  .guides-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  .guide-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none; display: block;
+  }
+  .guide-card:hover { border-color: #333; transform: translateY(-2px); }
+  .card-thumb {
+    height: 90px; display: flex; align-items: center; justify-content: center;
+    font-size: 36px; position: relative; overflow: hidden;
+  }
+  .thumb-cs { background: #0a140a; }
+  .thumb-val { background: #14080a; }
+  .thumb-apex { background: #0a0a14; }
+  .thumb-wz { background: #100e08; }
+  .thumb-r6 { background: #0a100e; }
+  .card-body { padding: 12px; }
+  .card-game {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 13px; color: var(--text); line-height: 1.4;
+    margin-bottom: 10px; font-weight: 400;
+  }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-author { font-size: 11px; color: var(--text-muted); }
+  .card-likes {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text-muted);
+  }
+  .like-icon { color: var(--gold); font-size: 12px; }
+
+  /* BLOG CARDS */
+  .blogs-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 32px; }
+  .blog-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    padding: 16px; cursor: pointer; transition: background 0.2s;
+    display: flex; gap: 16px; align-items: flex-start;
+    text-decoration: none;
+  }
+  .blog-card:hover { background: var(--bg4); }
+  .blog-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--border2); min-width: 40px; line-height: 1;
+  }
+  .blog-content { flex: 1; }
+  .blog-tags { display: flex; gap: 8px; margin-bottom: 6px; }
+  .blog-tag {
+    font-size: 10px; letter-spacing: 1px; font-weight: 600;
+    text-transform: uppercase; color: var(--gold);
+  }
+  .blog-tag-sep { color: var(--border2); }
+  .blog-title {
+    font-size: 14px; color: var(--text); line-height: 1.4;
+    margin-bottom: 6px; font-weight: 400;
+  }
+  .blog-excerpt { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .blog-meta { display: flex; gap: 12px; margin-top: 8px; }
+  .blog-meta span { font-size: 11px; color: var(--text-muted); }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .sidebar-box {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px;
+  }
+  .sidebar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-title::before {
+    content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block;
+  }
+  .trending-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .trending-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .trending-n {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px; font-weight: 700; color: var(--border2);
+    line-height: 1; min-width: 28px;
+  }
+  .trending-text { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+  .trending-game { font-size: 10px; color: var(--text-muted); margin-top: 3px; letter-spacing: 0.5px; }
+  .join-box { text-align: center; }
+  .join-box p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+  .join-btn {
+    width: 100%; padding: 10px;
+    background: var(--gold); color: #080808;
+    font-weight: 700; font-size: 13px;
+    border: none; border-radius: 3px; cursor: pointer;
+    font-family: 'Barlow', sans-serif; letter-spacing: 0.5px;
+    transition: background 0.2s;
+  }
+  .join-btn:hover { background: #f0d060; }
+  .join-login { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+  .join-login a { color: var(--gold); text-decoration: none; }
+  .games-list { display: flex; flex-direction: column; gap: 2px; }
+  .game-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border-radius: 3px; cursor: pointer;
+    transition: background 0.2s; text-decoration: none;
+  }
+  .game-item:hover { background: var(--bg4); }
+  .game-name { font-size: 13px; color: var(--text-dim); }
+  .game-count { font-size: 11px; color: var(--text-muted); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px;
+    background: var(--bg2);
+  }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700; color: var(--gold);
+  }
+  .footer-logo span { color: #555; }
+  .footer-text { font-size: 12px; color: var(--text-muted); }
+
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .guides-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 44px; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .guides-grid { grid-template-columns: 1fr; }
+    nav { padding: 0 16px; }
+    .hero { padding: 48px 16px 40px; }
+    .main { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">MARINE<span>FPS</span></div>
+  <div class="nav-links">
+    <a href="guides.html">Guides</a>
+    <a href="blog.html">Blog</a>
+    <a href="#">Tier Lists</a>
+    <a href="#">Pro Settings</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-login" onclick="alert('Login coming soon!')">Log in</button>
+    <button class="btn-signup" onclick="alert('Sign up coming soon!')">Sign up</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><span></span> CS2 &bull; Valorant &bull; Apex &bull; More</div>
+    <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
+    <p>Guides, pro settings, tier lists and blogs written by players, for players. Level up your game today.</p>
+    <div class="hero-btns">
+      <button class="hero-btn-main" onclick="window.location='guides.html'">Browse Guides</button>
+      <button class="hero-btn-sec" onclick="alert('Sign up coming soon!')">Join Community</button>
+    </div>
+  </div>
+</div>
+
+<div class="game-bar">
+  <button class="game-tab active" onclick="setGame(this)">Counter-Strike 2</button>
+  <button class="game-tab" onclick="setGame(this)">Valorant</button>
+  <button class="game-tab" onclick="setGame(this)">Apex Legends</button>
+  <button class="game-tab" onclick="setGame(this)">Warzone</button>
+  <button class="game-tab" onclick="setGame(this)">R6 Siege</button>
+  <button class="game-tab" onclick="setGame(this)">Overwatch 2</button>
+</div>
+
+<div class="main">
+  <div>
+    <div class="section-head">
+      <div class="section-label">Latest Guides</div>
+      <a class="see-all" href="guides.html">See all →</a>
+    </div>
+    <div class="guides-grid">
+      <a class="guide-card" href="#">
+        <div class="card-thumb thumb-cs">🎯</div>
+        <div class="card-body">
+          <div class="card-game">CS2 · Aim</div>
+          <div class="card-title">Best crosshair settings for ranked in 2025</div>
+          <div class="card-footer">
+            <div class="card-author">by AwaisX007</div>
+            <div class="card-likes"><span class="like-icon">▲</span> 248</div>
+          </div>
+        </div>
+      </a>
+      <a class="guide-card" href="#">
+        <div class="card-thumb thumb-cs">🗺️</div>
+        <div class="card-body">
+          <div class="card-game">CS2 · Maps</div>
+          <div class="card-title">Mirage A-site smokes — complete lineup guide</div>
+          <div class="card-footer">
+            <div class="card-author">by ProSmoke</div>
+            <div class="card-likes"><span class="like-icon">▲</span> 189</div>
+          </div>
+        </div>
+      </a>
+      <a class="guide-card" href="#">
+        <div class="card-thumb thumb-cs">⚙️</div>
+        <div class="card-body">
+          <div class="card-game">CS2 · Settings</div>
+          <div class="card-title">Pro player configs — sensitivity & video settings</div>
+          <div class="card-footer">
+            <div class="card-author">by ConfigKing</div>
+            <div class="card-likes"><span class="like-icon">▲</span> 312</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="section-head">
+      <div class="section-label">Recent Blog Posts</div>
+      <a class="see-all" href="blog.html">See all →</a>
+    </div>
+    <div class="blogs-list">
+      <a class="blog-card" href="#">
+        <div class="blog-num">01</div>
+        <div class="blog-content">
+          <div class="blog-tags">
+            <span class="blog-tag">CS2</span>
+            <span class="blog-tag-sep">·</span>
+            <span class="blog-tag">Meta</span>
+          </div>
+          <div class="blog-title">Is the AK-47 still the best rifle in CS2? A deep dive into the current weapon meta</div>
+          <div class="blog-excerpt">We break down the stats, spray patterns, and pro pick rates to find out if the iconic rifle still reigns supreme.</div>
+          <div class="blog-meta">
+            <span>by AwaisX007</span>
+            <span>·</span>
+            <span>5 min read</span>
+            <span>·</span>
+            <span>▲ 94</span>
+          </div>
+        </div>
+      </a>
+      <a class="blog-card" href="#">
+        <div class="blog-num">02</div>
+        <div class="blog-content">
+          <div class="blog-tags">
+            <span class="blog-tag">Valorant</span>
+            <span class="blog-tag-sep">·</span>
+            <span class="blog-tag">Patch Notes</span>
+          </div>
+          <div class="blog-title">Patch 9.0 breakdown — what changed and why it matters for your rank</div>
+          <div class="blog-excerpt">Everything you need to know about the latest Valorant update including agent changes, map updates, and economy shifts.</div>
+          <div class="blog-meta">
+            <span>by ValoWriter</span>
+            <span>·</span>
+            <span>7 min read</span>
+            <span>·</span>
+            <span>▲ 67</span>
+          </div>
+        </div>
+      </a>
+      <a class="blog-card" href="#">
+        <div class="blog-num">03</div>
+        <div class="blog-content">
+          <div class="blog-tags">
+            <span class="blog-tag">Apex</span>
+            <span class="blog-tag-sep">·</span>
+            <span class="blog-tag">Movement</span>
+          </div>
+          <div class="blog-title">Top 5 movement mechanics every Apex Legends player needs to know in Season 22</div>
+          <div class="blog-excerpt">From bunny hops to wall jumps — master these movement techniques to gain a serious edge over your opponents.</div>
+          <div class="blog-meta">
+            <span>by MoveMaster</span>
+            <span>·</span>
+            <span>6 min read</span>
+            <span>·</span>
+            <span>▲ 143</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-box">
+      <div class="sidebar-title">Trending</div>
+      <div class="trending-item">
+        <div class="trending-n">01</div>
+        <div>
+          <div class="trending-text">Nuke B-site flash lineups</div>
+          <div class="trending-game">CS2 · Guide</div>
+        </div>
+      </div>
+      <div class="trending-item">
+        <div class="trending-n">02</div>
+        <div>
+          <div class="trending-text">Best DPI for CS2 in 2025</div>
+          <div class="trending-game">CS2 · Settings</div>
+        </div>
+      </div>
+      <div class="trending-item">
+        <div class="trending-n">03</div>
+        <div>
+          <div class="trending-text">Jett one-way smokes on Bind</div>
+          <div class="trending-game">Valorant · Guide</div>
+        </div>
+      </div>
+      <div class="trending-item">
+        <div class="trending-n">04</div>
+        <div>
+          <div class="trending-text">Wraith rotation tips Season 22</div>
+          <div class="trending-game">Apex · Blog</div>
+        </div>
+      </div>
+      <div class="trending-item">
+        <div class="trending-n">05</div>
+        <div>
+          <div class="trending-text">Best operators for attacking — R6</div>
+          <div class="trending-game">R6 Siege · Guide</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-box join-box">
+      <div class="sidebar-title" style="justify-content:center;">Join the Community</div>
+      <p>Create a free account to upvote guides, save your favorites, and submit your own content.</p>
+      <button class="join-btn" onclick="alert('Sign up coming soon!')">Create Free Account</button>
+      <div class="join-login">Already a member? <a href="#">Log in</a></div>
+    </div>
+
+    <div class="sidebar-box">
+      <div class="sidebar-title">Browse by Game</div>
+      <div class="games-list">
+        <a class="game-item" href="#"><span class="game-name">Counter-Strike 2</span><span class="game-count">48 posts</span></a>
+        <a class="game-item" href="#"><span class="game-name">Valorant</span><span class="game-count">31 posts</span></a>
+        <a class="game-item" href="#"><span class="game-name">Apex Legends</span><span class="game-count">24 posts</span></a>
+        <a class="game-item" href="#"><span class="game-name">Warzone</span><span class="game-count">18 posts</span></a>
+        <a class="game-item" href="#"><span class="game-name">R6 Siege</span><span class="game-count">12 posts</span></a>
+        <a class="game-item" href="#"><span class="game-name">Overwatch 2</span><span class="game-count">9 posts</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">MARINE<span>FPS</span></div>
+    <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
+  </div>
+</footer>
+
+<script>
+  function setGame(el) {
+    document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
