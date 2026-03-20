@@ -94,35 +94,24 @@
     <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
   </div>
 </footer>
-<script>
-  function setFilter(el) { document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-
 <script>
-  async function checkAuth() {
-    // 2. Check if a user session exists
+  async function syncAuth() {
+    // Check if user is logged in
     const { data: { user } } = await sb.auth.getUser();
-    
     if (user) {
-      // 3. Fetch their username to display
       const { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
-      
       const navRight = document.querySelector('.nav-right');
+      
+      // Update the UI so it doesn't show "Log in / Sign up"
       navRight.innerHTML = `
-        <span style="font-size:13px;color:var(--text-dim);margin-right:10px;">${profile?.username || user.email}</span>
-        <button class="btn-logout" style="font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer;" onclick="logout()">Log out</button>
+        <span style="font-size:13px;color:var(--text-dim);margin-right:12px;">${profile?.username || user.email}</span>
+        <button class="btn-logout" style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
       `;
     }
   }
-
-  async function logout() {
-    await sb.auth.signOut();
-    window.location.reload();
-  }
-
-  checkAuth();
+  syncAuth();
 </script>
 </body>
 </html>
