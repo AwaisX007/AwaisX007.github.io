@@ -138,7 +138,7 @@
     const container = document.getElementById(sectionId);
     
     let query = sb.from('posts')
-      .select('*, profiles(username)')
+      .select('*, profiles!user_id(username)') // The !user_id tells Supabase exactly which link to use
       .eq('status', 'approved')
       .eq('type', type)
       .order('created_at', { ascending: false })
