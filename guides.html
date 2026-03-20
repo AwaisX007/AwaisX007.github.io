@@ -94,24 +94,81 @@
     <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
   </div>
 </footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+
 <script>
-  async function syncAuth() {
-    // Check if user is logged in
+  let currentFilter = '';
+
+  async function init() {
+    // 2. Sync Login Status
     const { data: { user } } = await sb.auth.getUser();
     if (user) {
       const { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
       const navRight = document.querySelector('.nav-right');
-      
-      // Update the UI so it doesn't show "Log in / Sign up"
       navRight.innerHTML = `
         <span style="font-size:13px;color:var(--text-dim);margin-right:12px;">${profile?.username || user.email}</span>
-        <button class="btn-logout" style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
+        <button class="btn-logout" style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="logout()">Log out</button>
       `;
     }
+    loadGuides();
   }
-  syncAuth();
+
+  async function loadGuides() {
+    const content = document.querySelector('.content');
+    content.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading guides...</div>';
+
+    // 3. Fetch only APPROVED GUIDES
+    let query = sb.from('posts')
+      .select('*, profiles(username)')
+      .eq('status', 'approved')
+      .eq('type', 'guide') // Specifically look for 'guide' type
+      .order('created_at', { ascending: false });
+
+    if (currentFilter) query = query.eq('game', currentFilter);
+
+    const { data: posts, error } = await query;
+
+    if (error || !posts?.length) {
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🎯</div>
+          <div class="empty-title">No guides found</div>
+          <div class="empty-sub">Be the first to share your knowledge for ${currentFilter || 'the community'}.</div>
+          <button class="empty-cta" onclick="window.location='create.html'">Write a guide</button>
+        </div>`;
+      return;
+    }
+
+    // Render the grid
+    content.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+      ${posts.map(p => `
+        <a class="post-card" href="post.html?id=${p.id}" style="text-decoration:none; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:20px; display:block;">
+          <div class="card-game" style="font-size:10px; color:var(--gold); text-transform:uppercase; margin-bottom:8px;">${p.game} · ${p.category}</div>
+          <div class="card-title" style="font-size:16px; color:#fff; font-weight:600; margin-bottom:12px;">${p.title}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-muted);">
+            <span>by ${p.profiles?.username || 'unknown'}</span>
+            <span>▲ ${p.upvotes || 0}</span>
+          </div>
+        </a>
+      `).join('')}
+    </div>`;
+  }
+
+  function setFilter(el) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = el.innerText === 'All Games' ? '' : el.innerText;
+    loadGuides();
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    window.location.reload();
+  }
+
+  init();
 </script>
 </body>
 </html>
