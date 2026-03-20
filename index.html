@@ -204,7 +204,7 @@
   }
 
   async function loadSection(type, sectionId) {
-    // 1. Destructure BOTH 'data' and 'error'
+    // 1. FIXED: Changed 'supabase' to 'sb' and added ', error'
     let query = sb.from('posts')
       .select('*, profiles(username)')
       .eq('status', 'approved')
@@ -214,30 +214,44 @@
 
     if (currentGame) query = query.eq('game', currentGame);
     
-    const { data: posts, error } = await query; // FIXED: Added ', error' here
+    const { data: posts, error } = await query;
 
-    // 2. Check for the error correctly
+    // 2. FIXED: Catching and showing errors in the console
     if (error) {
-        console.error("Error fetching " + type, error);
+        console.error("Supabase error fetching " + type + ":", error.message);
         return;
     }
 
     const section = document.getElementById(sectionId);
-    if (!posts?.length) {
-      section.innerHTML = `<div class="empty-state">...</div>`;
+    
+    // If no posts are found, show the empty state
+    if (!posts || posts.length === 0) {
+      section.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div>
+          <div class="empty-title">No ${type}s yet</div>
+          <div class="empty-sub">Be the first to share!</div>
+          <a class="empty-cta" href="create.html">Create one</a>
+        </div>`;
       return;
     }
-    section.innerHTML = `<div class="posts-grid">${posts.map(p => `
-      <a class="post-card" href="post.html?id=${p.id}">
-        <div class="card-body">
-          <div class="card-game">${p.game} · ${p.category}</div>
-          <div class="card-title">${p.title}</div>
-          <div class="card-footer">
-            <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
-            <div class="card-likes">▲ ${p.upvotes}</div>
-          </div>
-        </div>
-      </a>`).join('')}</div>`;
+
+    // 3. Render the posts
+    section.innerHTML = `
+      <div class="posts-grid">
+        ${posts.map(p => `
+          <a class="post-card" href="post.html?id=${p.id}">
+            <div class="card-body">
+              <div class="card-game">${p.game} · ${p.category}</div>
+              <div class="card-title">${p.title}</div>
+              <div class="card-footer">
+                <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
+                <div class="card-likes">▲ ${p.upvotes || 0}</div>
+              </div>
+            </div>
+          </a>
+        `).join('')}
+      </div>`;
   }
 
   function setGame(el, game) {
