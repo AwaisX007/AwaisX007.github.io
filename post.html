@@ -57,8 +57,16 @@
         }
 
         async function loadPost() {
-            const { data: post, error } = await sb.from('posts').select('*, profiles(username)').eq('id', postId).single();
-            if (error || !post) { document.getElementById('main-content').innerHTML = "<h2>Post not found.</h2>"; return; }
+    const { data: post, error } = await sb.from('posts')
+        .select('*, profiles(username)')
+        .eq('id', postId)
+        .single();
+
+    if (error) {
+        console.error("Supabase Error:", error); // This will show in your F12 console
+        document.getElementById('main-content').innerHTML = `<h2>Post not found.</h2><p>${error.message}</p>`;
+        return;
+    }
 
             document.getElementById('main-content').innerHTML = `
                 <article>
