@@ -1,136 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarineFPS — FPS Guides & Blogs</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
-    <style>
-        :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --border: #222; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
-        nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
-        .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); text-decoration: none; letter-spacing: 2px; }
-        .logo span { color: #fff; }
-        .nav-links a { font-size: 13px; color: var(--text-dim); text-decoration: none; margin-right: 25px; }
-        .nav-right { display: flex; gap: 10px; align-items: center; }
-        .btn-login { font-size: 13px; color: var(--text-dim); text-decoration: none; border: 1px solid var(--border); padding: 6px 15px; border-radius: 3px; }
-        .btn-signup { font-size: 13px; background: var(--gold); color: #000; padding: 7px 18px; border-radius: 3px; text-decoration: none; font-weight: 600; }
-        .hero { padding: 80px 32px; border-bottom: 1px solid var(--border); }
-        .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; color: #fff; line-height: 1; }
-        .hero h1 em { color: var(--gold); font-style: normal; }
-        .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; overflow-x: auto; }
-        .game-tab { font-family: 'Barlow Condensed', sans-serif; padding: 15px 20px; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; }
-        .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-        .main { max-width: 1200px; margin: 0 auto; padding: 40px 32px; display: grid; grid-template-columns: 1fr 280px; gap: 30px; }
-        .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .section-label::before { content: ''; width: 20px; height: 2px; background: var(--gold); }
-        .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 50px; }
-        .post-card { background: var(--bg3); border: 1px solid var(--border); padding: 18px; border-radius: 4px; text-decoration: none; transition: 0.2s; }
-        .post-card:hover { transform: translateY(-3px); border-color: #444; }
-        .card-game { font-size: 10px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
-        .card-title { font-size: 15px; color: #fff; line-height: 1.4; margin-bottom: 15px; font-weight: 600; }
-        .card-footer { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
-        .sidebar-box { background: var(--bg3); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-        .join-btn { display: block; width: 100%; background: var(--gold); color: #000; text-align: center; padding: 10px; border-radius: 3px; font-weight: 700; text-decoration: none; margin-top: 15px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarineFPS — FPS Guides, Blogs & Pro Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<style>
+  :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --border: #222; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  
+  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); text-decoration: none; letter-spacing: 2px; }
+  .logo span { color: #fff; }
+  
+  .nav-links { display: flex; gap: 25px; }
+  .nav-links a { font-size: 13px; color: var(--text-dim); text-decoration: none; transition: 0.2s; }
+  .nav-links a:hover { color: var(--gold); }
+  
+  .nav-right { display: flex; gap: 15px; align-items: center; }
+  .btn-login { font-size: 13px; color: var(--text-dim); text-decoration: none; border: 1px solid var(--border); padding: 6px 15px; border-radius: 3px; }
+  .btn-signup { font-size: 13px; background: var(--gold); color: #000; padding: 7px 18px; border-radius: 3px; text-decoration: none; font-weight: 600; }
+
+  .hero { padding: 80px 32px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; color: #fff; line-height: 1.0; }
+  .hero h1 em { color: var(--gold); font-style: normal; }
+  .hero p { color: var(--text-muted); margin-top: 15px; max-width: 500px; }
+
+  .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 5px; overflow-x: auto; }
+  .game-tab { font-family: 'Barlow Condensed', sans-serif; padding: 15px 20px; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.2s; }
+  .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .main { max-width: 1200px; margin: 0 auto; padding: 40px 32px; display: grid; grid-template-columns: 1fr 280px; gap: 30px; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .section-label::before { content: ''; width: 20px; height: 2px; background: var(--gold); }
+
+  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 50px; }
+  .post-card { background: var(--bg3); border: 1px solid var(--border); padding: 18px; border-radius: 4px; text-decoration: none; transition: 0.2s; display: block; }
+  .post-card:hover { transform: translateY(-3px); border-color: #444; }
+  .card-game { font-size: 10px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+  .card-title { font-size: 15px; color: #fff; line-height: 1.4; margin-bottom: 15px; height: 42px; overflow: hidden; }
+  .card-footer { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+
+  .sidebar-box { background: var(--bg3); border: 1px solid var(--border); padding: 25px; border-radius: 4px; margin-bottom: 20px; text-align: center; }
+  .join-btn { display: block; width: 100%; background: var(--gold); color: #000; padding: 12px; border-radius: 3px; font-weight: 700; text-decoration: none; margin-top: 15px; font-size: 13px; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px; text-align: center; font-size: 12px; color: var(--text-muted); background: var(--bg2); }
+  
+  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } .posts-grid { grid-template-columns: 1fr 1fr; } }
+</style>
 </head>
 <body>
-    <nav>
-        <a class="logo" href="index.html">MARINE<span>FPS</span></a>
-        <div class="nav-links">
-            <a href="guides.html">Guides</a>
-            <a href="blog.html">Blog</a>
-            <a href="tierlists.html">Tier Lists</a>
-        </div>
-        <div class="nav-right" id="nav-right">
-            <a class="btn-login" href="login.html">Log in</a>
-            <a class="btn-signup" href="signup.html">Sign up</a>
-        </div>
-    </nav>
 
-    <div class="hero">
-        <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
+<nav>
+  <a class="logo" href="index.html">MARINE<span>FPS</span></a>
+  <div class="nav-links">
+    <a href="guides.html">Guides</a>
+    <a href="blog.html">Blog</a>
+    <a href="tierlists.html">Tier Lists</a>
+    <a href="prosettings.html">Pro Settings</a>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <a class="btn-login" href="login.html">Log in</a>
+    <a class="btn-signup" href="signup.html">Sign up</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
+  <p>Pro settings, tactical guides, and meta analysis for the world's most competitive shooters.</p>
+</div>
+
+<div class="game-bar">
+  <button class="game-tab active" onclick="setGame(this, '')">All Games</button>
+  <button class="game-tab" onclick="setGame(this, 'Counter-Strike 2')">Counter-Strike 2</button>
+  <button class="game-tab" onclick="setGame(this, 'Valorant')">Valorant</button>
+  <button class="game-tab" onclick="setGame(this, 'Apex Legends')">Apex Legends</button>
+  <button class="game-tab" onclick="setGame(this, 'Warzone')">Warzone</button>
+  <button class="game-tab" onclick="setGame(this, 'R6 Siege')">R6 Siege</button>
+</div>
+
+<div class="main">
+  <div>
+    <div class="section-label">Latest Guides</div>
+    <div id="guides-section" class="posts-grid"><p style="color:#444">Loading guides...</p></div>
+    
+    <div class="section-label">Recent Blog Posts</div>
+    <div id="blogs-section" class="posts-grid"><p style="color:#444">Loading blogs...</p></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-box" id="auth-sidebar">
+      <div style="font-size:12px; color:var(--gold); text-transform:uppercase; margin-bottom:10px; font-weight:700;">Join the Community</div>
+      <p style="font-size:13px; color:var(--text-muted)">Create a free account to write guides and share pro settings.</p>
+      <a class="join-btn" href="signup.html">Join MarineFPS</a>
     </div>
+  </div>
+</div>
 
-    <div class="game-bar">
-        <button class="game-tab active" onclick="setGame(this, '')">All Games</button>
-        <button class="game-tab" onclick="setGame(this, 'Valorant')">Valorant</button>
-        <button class="game-tab" onclick="setGame(this, 'Counter-Strike 2')">CS2</button>
-    </div>
+<footer>© 2026 MarineFPS — Built for players, by players.</footer>
 
-    <div class="main">
-        <div>
-            <div class="section-label">Latest Guides</div>
-            <div id="guides-section" class="posts-grid"><p style="color:#555">Loading guides...</p></div>
-            
-            <div class="section-label">Recent Blogs</div>
-            <div id="blogs-section" class="posts-grid"><p style="color:#555">Loading blogs...</p></div>
+<script>
+  let currentGame = '';
+
+  async function init() {
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
+      const { data: profiles } = await sb.from('profiles').select('username, is_admin').eq('id', user.id);
+      const profile = profiles?.[0];
+      
+      document.getElementById('nav-right').innerHTML = `
+        <span style="font-size:13px; color:var(--text-dim); margin-right:15px;">${profile?.username || user.email}</span>
+        ${profile?.is_admin ? '<a href="admin.html" style="color:var(--gold); font-size:11px; text-decoration:none; border:1px solid var(--gold); padding:4px 8px; border-radius:3px;">Admin</a>' : ''}
+        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:11px;" onclick="sb.auth.signOut().then(()=>location.reload())">Log out</button>
+      `;
+
+      const sidebar = document.getElementById('auth-sidebar');
+      if (sidebar) {
+        sidebar.innerHTML = `
+          <div style="font-size:12px; color:var(--gold); margin-bottom:10px; font-weight:700;">Welcome back!</div>
+          <p style="font-size:13px; color:#fff; margin-bottom:15px;">Logged in as <b>${profile?.username || 'User'}</b></p>
+          <a class="join-btn" href="create.html">+ Create a Post</a>
+        `;
+      }
+    }
+    loadPosts();
+  }
+
+  async function loadPosts() {
+    await loadSection('guide', 'guides-section');
+    await loadSection('blog', 'blogs-section');
+  }
+
+  async function loadSection(type, sectionId) {
+    const container = document.getElementById(sectionId);
+    
+    let query = sb.from('posts')
+      .select('*, profiles(username)')
+      .eq('status', 'approved')
+      .eq('type', type)
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (currentGame) query = query.eq('game', currentGame);
+    
+    const { data, error } = await query;
+
+    if (error) { 
+      console.error(error);
+      container.innerHTML = `<p style="color:#555; font-size:12px">Syncing with database...</p>`;
+      return; 
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `<p style="color:#444; font-size:13px">No ${type}s found for ${currentGame || 'all games'}.</p>`;
+      return;
+    }
+
+    container.innerHTML = data.map(p => `
+      <a class="post-card" href="post.html?id=${p.id}">
+        <div class="card-game">${p.game} · ${p.category}</div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-footer">
+          <span>by ${p.profiles?.username || 'unknown'}</span>
+          <span>▲ ${p.upvotes || 0}</span>
         </div>
-        <div class="sidebar">
-            <div class="sidebar-box" id="auth-sidebar">
-                <p style="font-size:13px; color:var(--text-muted)">Join MarineFPS to share your settings and strategies.</p>
-                <a class="join-btn" href="signup.html">Join Now</a>
-            </div>
-        </div>
-    </div>
+      </a>
+    `).join('');
+  }
 
-    <script>
-        let currentGame = '';
+  function setGame(el, game) {
+    document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentGame = game;
+    loadPosts();
+  }
 
-        async function init() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (user) {
-                const { data: profiles } = await sb.from('profiles').select('username, is_admin').eq('id', user.id);
-                const profile = profiles?.[0];
-                document.getElementById('nav-right').innerHTML = `
-                    <span style="font-size:13px; color:var(--text-dim); margin-right:15px;">${profile?.username || user.email}</span>
-                    <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:11px;" onclick="sb.auth.signOut().then(()=>location.reload())">Log out</button>
-                `;
-                document.getElementById('auth-sidebar').innerHTML = `<h3>Welcome!</h3><a class="join-btn" href="create.html">+ Create Post</a>`;
-            }
-            loadPosts();
-        }
-
-        async function loadPosts() {
-            await loadSection('guide', 'guides-section');
-            await loadSection('blog', 'blogs-section');
-        }
-
-        async function loadSection(type, sectionId) {
-            const container = document.getElementById(sectionId);
-            let query = sb.from('posts').select('*, profiles(username)').eq('status', 'approved').eq('type', type).order('created_at', { ascending: false }).limit(3);
-            if (currentGame) query = query.eq('game', currentGame);
-            
-            const { data, error } = await query;
-            if (error) { 
-                container.innerHTML = `<p style="color:#555; font-size:12px">Syncing database...</p>`;
-                console.error(error); return;
-            }
-            if (!data?.length) { container.innerHTML = `<p style="color:#444; font-size:13px">No ${type}s found.</p>`; return; }
-
-            container.innerHTML = data.map(p => `
-                <a class="post-card" href="post.html?id=${p.id}">
-                    <div class="card-game">${p.game}</div>
-                    <div class="card-title">${p.title}</div>
-                    <div class="card-footer">
-                        <span>by ${p.profiles?.username || 'User'}</span>
-                        <span>▲ ${p.upvotes || 0}</span>
-                    </div>
-                </a>
-            `).join('');
-        }
-
-        function setGame(el, game) {
-            document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            currentGame = game;
-            loadPosts();
-        }
-
-        init();
-    </script>
+  init();
+</script>
 </body>
 </html>
