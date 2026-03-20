@@ -52,38 +52,65 @@
   <div class="post-container">Loading...</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
 <script>
+  // Global States
+  const currentPostId = new URLSearchParams(window.location.search).get('id');
   let currentUser = null;
   let isAdmin = false;
-  const currentPostId = new URLSearchParams(window.location.search).get('id');
+  let hasUpvoted = false;
 
   async function init() {
-    // 1. More robust auth check
+    if (!currentPostId) {
+      showError("No post selected.");
+      return;
+    }
+
+    // 1. Sync Authentication State
     const { data: { user } } = await sb.auth.getUser();
     currentUser = user;
 
     if (user) {
-      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
-      isAdmin = profile?.is_admin || false;
+      const { data: profile } = await sb.from('profiles')
+        .select('username, is_admin')
+        .eq('id', user.id)
+        .single();
       
-      document.getElementById('nav-right').innerHTML = `
-        <span style="font-size:13px;color:var(--text-dim);">${profile?.username || user.email}</span>
-        ${isAdmin ? '<a href="admin.html" style="color:var(--gold); font-size:12px; text-decoration:none; border:1px solid var(--gold); padding:4px 8px; border-radius:3px;">Admin</a>' : ''}
-        <button style="background:none; border:none; color:#666; cursor:pointer; font-size:12px;" onclick="sb.auth.signOut().then(() => location.reload())">Log out</button>
-      `;
+      isAdmin = profile?.is_admin || false;
+      updateNavbar(profile?.username || user.email);
+      
+      // Check if user has already upvoted
+      const { data: upvote } = await sb.from('post_upvotes')
+        .select('*')
+        .eq('post_id', currentPostId)
+        .eq('user_id', user.id)
+        .single();
+      
+      hasUpvoted = !!upvote;
     }
-    
-    loadPost();
+
+    // 2. Load Content
+    await loadPost();
+    await loadComments();
+    updateUpvoteUI();
   }
 
+  // --- CONTENT LOADING ---
+
   async function loadPost() {
-    const { data: post, error } = await sb.from('posts').select('*, profiles(username)').eq('id', currentPostId).single();
-    
+    const { data: post, error } = await sb.from('posts')
+      .select('*, profiles(username)')
+      .eq('id', currentPostId)
+      .single();
+
     if (error || !post) {
-      document.getElementById('content-area').innerHTML = `<div class="post-container">Post not found.</div>`;
+      showError("Post not found or pending approval.");
       return;
     }
 
+    // Render Post HTML
     document.getElementById('content-area').innerHTML = `
       <article class="post-container">
         <div class="post-header">
@@ -95,46 +122,96 @@
             <span>${new Date(post.created_at).toLocaleDateString()}</span>
           </div>
         </div>
-        
         <div class="post-content">${formatText(post.content)}</div>
-
-        <div class="interaction-box">
-          <button class="btn-upvote" onclick="upvote()">▲ UPVOTE (${post.upvotes || 0})</button>
-          
-          <div class="comment-form" id="comment-form-spot">
-            <p style="color:#666; font-size:14px;">Log in to join the discussion.</p>
-          </div>
-
-          <div id="comments-list" style="margin-top:30px;"></div>
-        </div>
       </article>
     `;
 
-    if (currentUser) {
-      document.getElementById('comment-form-spot').innerHTML = `
-        <textarea id="comm-text" class="comment-input" placeholder="Write a comment..."></textarea>
-        <button onclick="sendComment()" class="btn-upvote" style="background:var(--gold); color:#000;">Post Comment</button>
-      `;
-    }
-
-    loadComments();
+    document.getElementById('upvote-count').innerText = post.upvotes || 0;
+    setupCommentForm();
   }
 
-  // THE KEY FIX: Converts **Text** into <b>Text</b>
   function formatText(text) {
     if (!text) return '';
     return text
-      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold fix
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>'); // Header fix
+      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold: **text**
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>') // H2: ## text
+      .replace(/\n/g, '<br>'); // Line breaks
   }
 
-  async function upvote() {
-    if (!currentUser) return alert("Sign in to upvote!");
-    // Logic to increment upvotes in DB...
+  // --- UPVOTE SYSTEM ---
+
+  async function handleUpvote() {
+    if (!currentUser) {
+      alert("Please log in to upvote.");
+      return;
+    }
+
+    const btn = document.getElementById('upvote-btn');
+    btn.disabled = true;
+
+    if (hasUpvoted) {
+      // Remove Upvote
+      const { error } = await sb.from('post_upvotes').delete()
+        .eq('post_id', currentPostId).eq('user_id', currentUser.id);
+      if (!error) {
+        hasUpvoted = false;
+        await syncVoteCount(-1);
+      }
+    } else {
+      // Add Upvote
+      const { error } = await sb.from('post_upvotes').insert({
+        post_id: currentPostId,
+        user_id: currentUser.id
+      });
+      if (!error) {
+        hasUpvoted = true;
+        await syncVoteCount(1);
+      }
+    }
+    btn.disabled = false;
+  }
+
+  async function syncVoteCount(amount) {
+    const { data: post } = await sb.from('posts').select('upvotes').eq('id', currentPostId).single();
+    const newTotal = (post.upvotes || 0) + amount;
+    
+    await sb.from('posts').update({ upvotes: newTotal }).eq('id', currentPostId);
+    document.getElementById('upvote-count').innerText = newTotal;
+    updateUpvoteUI();
+  }
+
+  function updateUpvoteUI() {
+    const btn = document.getElementById('upvote-btn');
+    if (hasUpvoted) {
+      btn.innerHTML = '▲ UPVOTED';
+      btn.style.background = 'var(--gold)';
+      btn.style.color = '#000';
+    } else {
+      btn.innerHTML = '▲ UPVOTE';
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--gold)';
+    }
+  }
+
+  // --- COMMENT SYSTEM ---
+
+  function setupCommentForm() {
+    const spot = document.getElementById('comment-form-spot');
+    if (currentUser) {
+      spot.innerHTML = `
+        <div class="comment-form">
+          <textarea id="comm-text" class="comment-input" placeholder="Join the discussion..."></textarea>
+          <button onclick="sendComment()" class="btn-upvote" style="background:var(--gold); color:#000;">Post Comment</button>
+        </div>`;
+    }
   }
 
   async function loadComments() {
-    const { data: comments } = await sb.from('post_comments').select('*, profiles(username)').eq('post_id', currentPostId).order('created_at', { ascending: false });
+    const { data: comments } = await sb.from('post_comments')
+      .select('*, profiles(username)')
+      .eq('post_id', currentPostId)
+      .order('created_at', { ascending: false });
+
     const list = document.getElementById('comments-list');
     list.innerHTML = comments?.map(c => `
       <div class="comment-card">
@@ -149,7 +226,11 @@
   async function sendComment() {
     const txt = document.getElementById('comm-text').value.trim();
     if (!txt) return;
-    const { error } = await sb.from('post_comments').insert({ post_id: currentPostId, user_id: currentUser.id, content: txt });
+    const { error } = await sb.from('post_comments').insert({ 
+      post_id: currentPostId, 
+      user_id: currentUser.id, 
+      content: txt 
+    });
     if (!error) { document.getElementById('comm-text').value = ''; loadComments(); }
   }
 
@@ -158,6 +239,20 @@
       await sb.from('post_comments').delete().eq('id', id);
       loadComments();
     }
+  }
+
+  // --- UTILS ---
+
+  function updateNavbar(name) {
+    document.getElementById('nav-right').innerHTML = `
+      <span style="font-size:13px;color:var(--text-dim);">${name}</span>
+      ${isAdmin ? '<a href="admin.html" class="admin-badge">Admin</a>' : ''}
+      <button class="logout-link" onclick="sb.auth.signOut().then(() => location.reload())">Log out</button>
+    `;
+  }
+
+  function showError(msg) {
+    document.getElementById('content-area').innerHTML = `<div class="error-screen"><h2>Oops!</h2><p>${msg}</p></div>`;
   }
 
   init();
