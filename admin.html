@@ -118,7 +118,7 @@
     const list = document.getElementById('posts-list');
     list.innerHTML = '<div class="loading">Loading...</div>';
 
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await sb
       .from('posts')
       .select('*, profiles(username)')
       .eq('status', status)
