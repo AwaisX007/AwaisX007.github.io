@@ -171,7 +171,7 @@
 </footer>
 
 <script>
-  
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentGame = '';
 
   async function init() {
@@ -204,54 +204,25 @@
   }
 
   async function loadSection(type, sectionId) {
-    // 1. FIXED: Changed 'supabase' to 'sb' and added ', error'
-    let query = sb.from('posts')
-      .select('*, profiles(username)')
-      .eq('status', 'approved')
-      .eq('type', type)
-      .order('created_at', { ascending: false })
-      .limit(3);
-
+    let query = sb.from('posts').select('*, profiles!posts_user_id_fkey(username)').eq('status', 'approved').eq('type', type).order('created_at', { ascending: false }).limit(3);
     if (currentGame) query = query.eq('game', currentGame);
-    
-    const { data: posts, error } = await query;
-
-    // 2. FIXED: Catching and showing errors in the console
-    if (error) {
-        console.error("Supabase error fetching " + type + ":", error.message);
-        return;
-    }
-
+    const { data: posts } = await query;
     const section = document.getElementById(sectionId);
-    
-    // If no posts are found, show the empty state
-    if (!posts || posts.length === 0) {
-      section.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div>
-          <div class="empty-title">No ${type}s yet</div>
-          <div class="empty-sub">Be the first to share!</div>
-          <a class="empty-cta" href="create.html">Create one</a>
-        </div>`;
+    if (!posts?.length) {
+      section.innerHTML = `<div class="empty-state"><div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div><div class="empty-title">No ${type}s yet</div><div class="empty-sub">Be the first to share!</div><a class="empty-cta" href="create.html">Create one</a></div>`;
       return;
     }
-
-    // 3. Render the posts
-    section.innerHTML = `
-      <div class="posts-grid">
-        ${posts.map(p => `
-          <a class="post-card" href="post.html?id=${p.id}">
-            <div class="card-body">
-              <div class="card-game">${p.game} · ${p.category}</div>
-              <div class="card-title">${p.title}</div>
-              <div class="card-footer">
-                <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
-                <div class="card-likes">▲ ${p.upvotes || 0}</div>
-              </div>
-            </div>
-          </a>
-        `).join('')}
-      </div>`;
+    section.innerHTML = `<div class="posts-grid">${posts.map(p => `
+      <a class="post-card" href="post.html?id=${p.id}">
+        <div class="card-body">
+          <div class="card-game">${p.game} · ${p.category}</div>
+          <div class="card-title">${p.title}</div>
+          <div class="card-footer">
+            <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
+            <div class="card-likes">▲ ${p.upvotes}</div>
+          </div>
+        </div>
+      </a>`).join('')}</div>`;
   }
 
   function setGame(el, game) {
