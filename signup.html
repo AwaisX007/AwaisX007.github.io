@@ -58,7 +58,7 @@
   </div>
 </div>
 <script>
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function handleSignup() {
     const username = document.getElementById('username').value.trim();
@@ -81,13 +81,13 @@
     btn.disabled = true; btn.textContent = 'Creating account...';
 
     // Check username taken
-    const { data: existing } = await supabase.from('profiles').select('id').eq('username', username).single();
+    const { data: existing } = await sb.from('profiles').select('id').eq('username', username).single();
     if (existing) {
       msg.className = 'msg error'; msg.textContent = 'Username already taken.';
       btn.disabled = false; btn.textContent = 'Create Account'; return;
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
+    const { data, error } = await sb.auth.signUp({ email, password, options: { data: { username } } });
     if (error) {
       msg.className = 'msg error'; msg.textContent = error.message;
       btn.disabled = false; btn.textContent = 'Create Account'; return;
@@ -95,7 +95,7 @@
 
     // Create profile
     if (data.user) {
-      await supabase.from('profiles').insert({ id: data.user.id, username });
+      await sb.from('profiles').insert({ id: data.user.id, username });
     }
 
     msg.className = 'msg success';

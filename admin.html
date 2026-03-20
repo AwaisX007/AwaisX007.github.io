@@ -76,14 +76,14 @@
 </footer>
 
 <script>
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentTab = 'pending';
 
   async function init() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await sb.auth.getUser();
     if (!user) { showDenied('You must be logged in.'); return; }
 
-    const { data: profile } = await supabase.from('profiles').select('is_admin, username').eq('id', user.id).single();
+    const { data: profile } = await sb.from('profiles').select('is_admin, username').eq('id', user.id).single();
     if (!profile?.is_admin) { showDenied('You do not have admin access.'); return; }
 
     renderAdmin(profile.username);
@@ -164,7 +164,7 @@
   }
 
   async function updatePost(id, status) {
-    const { error } = await supabase.from('posts').update({ status }).eq('id', id);
+    const { error } = await sb.from('posts').update({ status }).eq('id', id);
     if (!error) {
       document.getElementById('post-' + id).remove();
       const list = document.getElementById('posts-list');
@@ -175,7 +175,7 @@
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     window.location.href = 'index.html';
   }
 
