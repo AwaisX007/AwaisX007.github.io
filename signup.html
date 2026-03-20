@@ -91,7 +91,18 @@
       msg.className = 'msg error'; msg.textContent = error.message;
       btn.disabled = false; btn.textContent = 'Create Account'; return;
     }
+if (data.user) {
+  const { error: profileError } = await sb
+    .from('profiles')
+    .insert({ id: data.user.id, username: username });
 
+  if (profileError) {
+    console.error("Profile creation failed:", profileError.message);
+    msg.className = 'msg error';
+    msg.textContent = "Auth worked, but profile failed: " + profileError.message;
+    return;
+  }
+}
     // Create profile
     if (data.user) {
       await sb.from('profiles').insert({ id: data.user.id, username });
