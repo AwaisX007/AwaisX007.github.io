@@ -126,6 +126,13 @@
   <button class="game-tab" onclick="setGame(this, 'Warzone')">Warzone</button>
   <button class="game-tab" onclick="setGame(this, 'R6 Siege')">R6 Siege</button>
 </div>
+  <div style="max-width: 1200px; margin: 0 auto; padding: 24px 32px 0;">
+  <div style="position: relative;">
+    <input type="text" id="main-search" placeholder="Search guides, players, or games..." 
+      style="width: 100%; background: var(--bg3); border: 1px solid var(--border); color: #fff; padding: 14px 20px; border-radius: 4px; font-family: 'Barlow', sans-serif; outline: none; font-size: 15px; transition: border-color 0.2s;">
+    <span style="position: absolute; right: 20px; top: 14px; color: var(--text-muted); pointer-events: none;">🔍</span>
+  </div>
+</div>
 
 <div class="main">
   <div>
@@ -205,15 +212,33 @@
     await loadSection('blog', 'blogs-section');
   }
 
-  async function loadSection(type, sectionId) {
-    let query = sb.from('posts').select('*, profiles!posts_user_id_fkey(username)').eq('status', 'approved').eq('type', type).order('created_at', { ascending: false }).limit(3);
+  async function loadSection(type, sectionId, searchTerm = '') {
+    let query = sb.from('posts')
+      .select('*, profiles!posts_user_id_fkey(username)')
+      .eq('status', 'approved')
+      .eq('type', type)
+      .order('created_at', { ascending: false });
+
     if (currentGame) query = query.eq('game', currentGame);
-    const { data: posts } = await query;
+    
+    // Search Filter Logic
+    if (searchTerm) {
+      query = query.ilike('title', `%${searchTerm}%`);
+    }
+
+    const { data: posts } = await query.limit(searchTerm ? 12 : 3);
+    
     const section = document.getElementById(sectionId);
     if (!posts?.length) {
-      section.innerHTML = `<div class="empty-state"><div class="empty-icon">${type === 'guide' ? '🎯' : '✍️'}</div><div class="empty-title">No ${type}s yet</div><div class="empty-sub">Be the first to share!</div><a class="empty-cta" href="create.html">Create one</a></div>`;
+      section.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">No ${type}s found</div>
+          <div class="empty-sub">${searchTerm ? `No results matching "${searchTerm}"` : 'Be the first to share!'}</div>
+        </div>`;
       return;
     }
+
     section.innerHTML = `<div class="posts-grid">${posts.map(p => `
       <a class="post-card" href="post.html?id=${p.id}">
         <div class="card-body">
@@ -225,13 +250,19 @@
           </div>
         </div>
       </a>`).join('')}</div>`;
-  }
+}
 
   function setGame(el, game) {
     document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     currentGame = game;
     loadPosts();
+    // Add this inside the init() function at the bottom
+document.getElementById('main-search').addEventListener('input', (e) => {
+    const term = e.target.value.trim();
+    loadSection('guide', 'guides-section', term);
+    loadSection('blog', 'blogs-section', term);
+});
   }
 
   init();
