@@ -62,6 +62,7 @@
                 const { data: vote } = await sb.from('post_upvotes').select('*').eq('post_id', postId).eq('user_id', user.id).single();
                 hasUpvoted = !!vote;
             }
+            incrementViews();
             loadPost();
         }
 
@@ -81,7 +82,7 @@
                 <article>
                     <div style="color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; margin-bottom:10px;">${post.game} // ${post.category}</div>
                     <h1 class="post-title">${post.title}</h1>
-                    <div style="font-size:14px; color:#666; margin-bottom:40px;">by <b>${post.profiles?.username}</b> • ${new Date(post.created_at).toLocaleDateString()}</div>
+                    <div style="font-size:14px; color:#666; margin-bottom:40px;">by <b>${post.profiles?.username}</b> • ${new Date(post.created_at).toLocaleDateString()}• 👁️ ${post.views || 0} views</div>
                     <div class="post-content">${formatText(post.content)}</div>
                     
                     <div class="interaction-bar">
@@ -211,6 +212,11 @@ async function refreshUpvoteCount() {
         async function deleteComment(id) {
             if (confirm("Delete comment?")) { await sb.from('post_comments').delete().eq('id', id); loadComments(); }
         }
+        async function incrementViews() {
+    if (!postId) return;
+    const { error } = await sb.rpc('increment_views', { post_id: postId });
+    if (error) console.error("Error incrementing views:", error);
+  }
 
         init();
     </script>
