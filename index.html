@@ -200,6 +200,12 @@
       `;
     }
     loadPosts();
+    // Add this inside the init() function at the bottom
+document.getElementById('main-search').addEventListener('input', (e) => {
+    const term = e.target.value.trim();
+    loadSection('guide', 'guides-section', term);
+    loadSection('blog', 'blogs-section', term);
+});
   }
 
   async function logout() {
@@ -257,12 +263,7 @@
     el.classList.add('active');
     currentGame = game;
     loadPosts();
-    // Add this inside the init() function at the bottom
-document.getElementById('main-search').addEventListener('input', (e) => {
-    const term = e.target.value.trim();
-    loadSection('guide', 'guides-section', term);
-    loadSection('blog', 'blogs-section', term);
-});
+    
   }
 
   init();
