@@ -171,7 +171,12 @@
     if (user) {
       currentUser = user;
       const { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
-      document.getElementById('nav-user').textContent = profile?.username || user.email;
+      document.getElementById('nav-user').innerHTML = `
+  <a href="profile.html" style="text-decoration:none; color:inherit;">
+    <span style="cursor:pointer; margin-right:12px;">${profile?.username || user.email}</span>
+  </a>
+`;
+// Ensure the logout button is also updated if needed, but the username link is the priority here.
       document.getElementById('logout-btn').style.display = 'block';
       document.getElementById('post-form').style.display = 'block';
     } else {
