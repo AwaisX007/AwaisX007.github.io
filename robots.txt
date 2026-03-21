@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /create.html
+Disallow: /profile.html
+
+Sitemap: https://marineofps.dev/sitemap.xml
