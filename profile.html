@@ -8,94 +8,358 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <style>
-        :root { --gold: #e8c84a; --bg: #080808; --border: #222; --text: #e0e0e0; --text-muted: #666; }
-        body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-        nav { display: flex; justify-content: space-between; padding: 0 32px; height: 56px; border-bottom: 1px solid var(--border); align-items: center; }
-        .logo { color: var(--gold); text-decoration: none; font-weight: 700; font-family: 'Barlow Condensed'; letter-spacing: 2px; }
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
-        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--border); }
-        .username { font-family: 'Barlow Condensed'; font-size: 48px; color: #fff; text-transform: uppercase; margin: 0; }
-        .stat-card { background: #111; padding: 20px; border-radius: 4px; border: 1px solid var(--border); min-width: 150px; }
-        .stat-val { display: block; font-size: 24px; font-weight: 700; color: var(--gold); }
-        .stat-lab { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .post-list-item { background: #0f0f0f; border: 1px solid var(--border); padding: 20px; margin-bottom: 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .status-badge { font-size: 10px; padding: 4px 8px; border-radius: 2px; text-transform: uppercase; font-weight: 700; }
-        .status-pending { background: rgba(232, 200, 74, 0.1); color: var(--gold); }
-        .status-approved { background: rgba(92, 219, 149, 0.1); color: #5cdb95; }
+        :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+        nav { display: flex; justify-content: space-between; padding: 0 32px; height: 56px; border-bottom: 1px solid var(--border); align-items: center; background: rgba(8,8,8,0.97); position: sticky; top: 0; z-index: 100; }
+        .logo { color: var(--gold); text-decoration: none; font-weight: 700; font-family: 'Barlow Condensed'; letter-spacing: 2px; font-size: 22px; }
+        .logo span { color: #fff; }
+        .nav-right { display: flex; gap: 12px; align-items: center; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+        .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+        /* PROFILE HEADER */
+        .profile-header { display: flex; gap: 32px; align-items: flex-start; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--border); }
+        .avatar-section { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .avatar-wrap { position: relative; width: 100px; height: 100px; }
+        .avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border2); background: var(--bg3); }
+        .avatar-initials { width: 100px; height: 100px; border-radius: 50%; background: var(--bg3); border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 36px; font-weight: 700; color: var(--gold); }
+        .avatar-upload-btn { font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.3); padding: 4px 10px; border-radius: 3px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .avatar-upload-btn:hover { background: rgba(232,200,74,0.08); }
+        #avatar-input { display: none; }
+
+        .profile-info { flex: 1; }
+        .username { font-family: 'Barlow Condensed'; font-size: 40px; color: #fff; margin-bottom: 4px; }
+        .member-since { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+        .bio-text { font-size: 14px; color: var(--text-dim); line-height: 1.6; max-width: 500px; }
+        .profile-details { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+        .profile-detail { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+
+        .stats-row { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+        .stat-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 16px 24px; min-width: 120px; }
+        .stat-val { display: block; font-size: 28px; font-weight: 700; color: var(--gold); font-family: 'Barlow Condensed'; }
+        .stat-lab { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* TABS */
+        .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .tab { font-family: 'Barlow Condensed'; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 12px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; background: none; border-left: none; border-right: none; border-top: none; transition: all 0.2s; }
+        .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+        /* EDIT FORM */
+        .edit-form { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 28px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+        input, select, textarea { background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 10px 14px; outline: none; transition: border-color 0.2s; width: 100%; }
+        input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+        input::placeholder, textarea::placeholder { color: var(--text-muted); }
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+        select option { background: var(--bg3); }
+        textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+        .save-btn { padding: 11px 32px; background: var(--gold); color: #080808; font-weight: 700; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; transition: background 0.2s; }
+        .save-btn:hover { background: #f0d060; }
+        .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .msg { padding: 11px 14px; border-radius: 3px; font-size: 13px; margin-bottom: 18px; display: none; }
+        .msg.error { background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.3); color: #ff6b6b; display: block; }
+        .msg.success { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5cdb95; display: block; }
+
+        /* POSTS */
+        .post-list-item { background: var(--bg2); border: 1px solid var(--border); padding: 18px 20px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        .post-game { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .post-title-link { color: #fff; text-decoration: none; font-size: 15px; font-weight: 500; transition: color 0.2s; }
+        .post-title-link:hover { color: var(--gold); }
+        .post-actions { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .status-badge { font-size: 10px; padding: 3px 8px; border-radius: 2px; text-transform: uppercase; font-weight: 700; }
+        .status-pending { background: rgba(232,200,74,0.1); color: var(--gold); }
+        .status-approved { background: rgba(92,219,149,0.1); color: #5cdb95; }
+        .status-rejected { background: rgba(255,68,68,0.1); color: #ff6b6b; }
+        .upvote-count { font-size: 12px; color: var(--text-muted); }
+        .btn-edit { border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600; }
+        .btn-delete { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: #ff4444; padding: 6px 12px; border-radius: 3px; font-size: 12px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; }
+        .empty-posts { color: var(--text-muted); font-size: 14px; text-align: center; padding: 40px 0; }
+
+        footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 60px; }
+        .footer-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; }
+        .footer-logo { font-family: 'Barlow Condensed'; font-size: 18px; font-weight: 700; color: var(--gold); }
+        .footer-logo span { color: #555; }
+        .footer-text { font-size: 12px; color: var(--text-muted); }
+
+        @media (max-width: 700px) { .profile-header { flex-direction: column; } .form-grid { grid-template-columns: 1fr; } .stats-row { gap: 8px; } .post-list-item { flex-direction: column; align-items: flex-start; } }
     </style>
 </head>
 <body>
-    <nav>
-        <a class="logo" href="index.html">MARINE<span>FPS</span></a>
-        <a href="index.html" style="color:#aaa; text-decoration:none; font-size:13px;">← Back to Home</a>
-    </nav>
+<nav>
+    <a class="logo" href="index.html">MARINE<span>FPS</span></a>
+    <div class="nav-right">
+        <a class="nav-link" href="index.html">← Home</a>
+        <button class="btn-logout" onclick="logout()">Log out</button>
+    </div>
+</nav>
 
-    <div class="container">
-        <div id="profile-ui">
-            <p>Loading your profile...</p>
-        </div>
+<div class="container">
+    <div id="profile-header-section"></div>
+    <div class="stats-row" id="stats-row"></div>
 
-        <h3 style="font-family:'Barlow Condensed'; font-size:24px; margin-bottom:20px;">Your Submissions</h3>
-        <div id="my-posts"></div>
+    <div class="tabs">
+        <button class="tab active" id="tab-posts" onclick="switchTab('posts')">My Posts</button>
+        <button class="tab" id="tab-edit" onclick="switchTab('edit')">Edit Profile</button>
     </div>
 
-    <script>
-        async function init() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) { window.location.href = 'login.html'; return; }
+    <div id="tab-posts-content">
+        <div id="my-posts"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
 
-            const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-            const { data: stats } = await sb.from('user_stats').select('*').eq('user_id', user.id).single();
-
-            document.getElementById('profile-ui').innerHTML = `
-                <div class="profile-header">
-                    <div style="flex:1">
-                        <p style="color:var(--gold); font-size:12px; margin-bottom:5px;">COMMUNITY MEMBER</p>
-                        <h1 class="username">${profile.username}</h1>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-val">${stats?.total_upvotes || 0}</span>
-                        <span class="stat-lab">Total Upvotes</span>
-                    </div>
+    <div id="tab-edit-content" style="display:none">
+        <div class="edit-form">
+            <div class="msg" id="edit-msg"></div>
+            <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+                <div id="edit-avatar-preview"></div>
+                <div>
+                    <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Profile photo</div>
+                    <label class="avatar-upload-btn" for="avatar-input">Upload photo</label>
+                    <input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(this)">
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">JPG, PNG or GIF. Max 2MB.</div>
                 </div>
-            `;
-            loadMyPosts(user.id);
-        }
-        async function deletePost(id) {
-    if (!confirm("Are you sure you want to delete this post? This cannot be undone.")) return;
-
-    const { error } = await sb.from('posts').delete().eq('id', id);
-
-    if (error) {
-        alert("Error deleting post: " + error.message);
-    } else {
-        // Refresh the list immediately
-        const { data: { user } } = await sb.auth.getUser();
-        loadMyPosts(user.id);
-    }
-}
-
-        async function loadMyPosts(userId) {
-            const { data: posts } = await sb.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
-            
-      document.getElementById('my-posts').innerHTML = posts.map(p => `
-    <div class="post-list-item">
-        <div style="flex: 1;">
-            <div style="font-size:11px; color:#666; margin-bottom:5px;">${p.game} // ${p.type}</div>
-            <a href="post.html?id=${p.id}" style="color:#fff; text-decoration:none; font-weight:600; font-size:18px;">${p.title}</a>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="text-align: right; margin-right: 10px;">
-                <span class="status-badge status-${p.status}">${p.status}</span>
-                <div style="font-size:12px; color:#444; margin-top:8px;">▲ ${p.upvotes} upvotes</div>
             </div>
-            <a href="edit.html?id=${p.id}" style="border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600;">Edit</a>
-            <button onclick="deletePost(${p.id})" style="background: rgba(255, 68, 68, 0.1); border: 1px solid rgba(255, 68, 68, 0.3); color: #ff4444; padding: 6px 12px; border-radius: 3px; font-size: 12px; cursor: pointer; font-weight: 600;">Delete</button>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="edit-username" placeholder="Your username" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="edit-gender">
+                        <option value="">Prefer not to say</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="edit-dob">
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <select id="edit-country">
+                        <option value="">Select country...</option>
+                        <option>Pakistan</option>
+                        <option>United States</option>
+                        <option>United Kingdom</option>
+                        <option>India</option>
+                        <option>Canada</option>
+                        <option>Australia</option>
+                        <option>Germany</option>
+                        <option>France</option>
+                        <option>Turkey</option>
+                        <option>Brazil</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Bio</label>
+                    <textarea id="edit-bio" placeholder="Tell the community about yourself..." maxlength="300"></textarea>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Max 300 characters.</div>
+                </div>
+            </div>
+            <button class="save-btn" id="save-btn" onclick="saveProfile()">Save Changes</button>
         </div>
     </div>
-`).join('') || '<p style="color:#444">You haven\'t posted anything yet.</p>';
+</div>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-logo">MARINE<span>FPS</span></div>
+        <div class="footer-text">© 2025 MarineFPS. Built for players, by players.</div>
+    </div>
+</footer>
+
+<script>
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+    let currentProfile = null;
+    let newAvatarFile = null;
+
+    async function init() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) { window.location.href = 'login.html'; return; }
+        currentUser = user;
+
+        const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+        currentProfile = profile;
+
+        renderHeader(profile);
+        renderStats(profile);
+        loadMyPosts(user.id);
+        populateEditForm(profile);
+    }
+
+    function renderHeader(p) {
+        const initials = (p.username || '?').substring(0, 2).toUpperCase();
+        const avatarHtml = p.avatar_url
+            ? `<img class="avatar" src="${p.avatar_url}" alt="avatar">`
+            : `<div class="avatar-initials">${initials}</div>`;
+
+        const dobAge = p.date_of_birth ? ` · ${calcAge(p.date_of_birth)} years old` : '';
+        const gender = p.gender ? ` · ${capitalize(p.gender)}` : '';
+        const country = p.country ? ` · ${p.country}` : '';
+
+        document.getElementById('profile-header-section').innerHTML = `
+            <div class="profile-header">
+                <div class="avatar-section">
+                    ${avatarHtml}
+                </div>
+                <div class="profile-info">
+                    <div style="font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">COMMUNITY MEMBER</div>
+                    <div class="username">${p.username}</div>
+                    <div class="member-since">Joined ${new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}${dobAge}${gender}${country}</div>
+                    ${p.bio ? `<div class="bio-text">${p.bio}</div>` : '<div class="bio-text" style="opacity:0.4">No bio yet — add one in Edit Profile.</div>'}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderStats(p) {
+        document.getElementById('stats-row').innerHTML = `
+            <div class="stat-card"><span class="stat-val" id="stat-posts">—</span><span class="stat-lab">Posts</span></div>
+            <div class="stat-card"><span class="stat-val" id="stat-approved">—</span><span class="stat-lab">Approved</span></div>
+            <div class="stat-card"><span class="stat-val" id="stat-upvotes">—</span><span class="stat-lab">Upvotes</span></div>
+        `;
+    }
+
+    async function loadMyPosts(userId) {
+        const { data: posts } = await sb.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+
+        const total = posts?.length || 0;
+        const approved = posts?.filter(p => p.status === 'approved').length || 0;
+        const upvotes = posts?.reduce((sum, p) => sum + (p.upvotes || 0), 0) || 0;
+
+        if (document.getElementById('stat-posts')) {
+            document.getElementById('stat-posts').textContent = total;
+            document.getElementById('stat-approved').textContent = approved;
+            document.getElementById('stat-upvotes').textContent = upvotes;
         }
-        init();
-    </script>
+
+        if (!posts?.length) {
+            document.getElementById('my-posts').innerHTML = `<div class="empty-posts">You haven't posted anything yet. <a href="create.html" style="color:var(--gold)">Create your first post →</a></div>`;
+            return;
+        }
+
+        document.getElementById('my-posts').innerHTML = posts.map(p => `
+            <div class="post-list-item">
+                <div style="flex:1">
+                    <div class="post-game">${p.game} // ${p.type}</div>
+                    <a class="post-title-link" href="post.html?id=${p.id}">${p.title}</a>
+                </div>
+                <div class="post-actions">
+                    <span class="upvote-count">▲ ${p.upvotes || 0}</span>
+                    <span class="status-badge status-${p.status}">${p.status}</span>
+                    <button class="btn-delete" onclick="deletePost(${p.id})">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function deletePost(id) {
+        if (!confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
+        const { error } = await sb.from('posts').delete().eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        loadMyPosts(currentUser.id);
+    }
+
+    function populateEditForm(p) {
+        document.getElementById('edit-username').value = p.username || '';
+        document.getElementById('edit-bio').value = p.bio || '';
+        document.getElementById('edit-gender').value = p.gender || '';
+        document.getElementById('edit-dob').value = p.date_of_birth || '';
+        document.getElementById('edit-country').value = p.country || '';
+
+        const initials = (p.username || '?').substring(0, 2).toUpperCase();
+        document.getElementById('edit-avatar-preview').innerHTML = p.avatar_url
+            ? `<img class="avatar" src="${p.avatar_url}" alt="avatar">`
+            : `<div class="avatar-initials">${initials}</div>`;
+    }
+
+    function previewAvatar(input) {
+        if (!input.files?.length) return;
+        const file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB.'); return; }
+        newAvatarFile = file;
+        const url = URL.createObjectURL(file);
+        document.getElementById('edit-avatar-preview').innerHTML = `<img class="avatar" src="${url}" alt="preview">`;
+    }
+
+    async function saveProfile() {
+        const username = document.getElementById('edit-username').value.trim();
+        const bio = document.getElementById('edit-bio').value.trim();
+        const gender = document.getElementById('edit-gender').value;
+        const dob = document.getElementById('edit-dob').value;
+        const country = document.getElementById('edit-country').value;
+        const btn = document.getElementById('save-btn');
+        const msg = document.getElementById('edit-msg');
+        msg.className = 'msg';
+
+        if (!username) { msg.className = 'msg error'; msg.textContent = 'Username cannot be empty.'; return; }
+        if (username.length < 3) { msg.className = 'msg error'; msg.textContent = 'Username must be at least 3 characters.'; return; }
+
+        btn.disabled = true; btn.textContent = 'Saving...';
+
+        let avatar_url = currentProfile.avatar_url;
+
+        // Upload avatar if new one selected
+        if (newAvatarFile) {
+            const ext = newAvatarFile.name.split('.').pop();
+            const path = `avatars/${currentUser.id}.${ext}`;
+            const { error: uploadError } = await sb.storage.from('avatars').upload(path, newAvatarFile, { upsert: true });
+            if (uploadError) {
+                msg.className = 'msg error'; msg.textContent = 'Avatar upload failed: ' + uploadError.message;
+                btn.disabled = false; btn.textContent = 'Save Changes'; return;
+            }
+            const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+            avatar_url = urlData.publicUrl;
+        }
+
+        const { error } = await sb.from('profiles').update({
+            username, bio, gender,
+            date_of_birth: dob || null,
+            country: country || null,
+            avatar_url
+        }).eq('id', currentUser.id);
+
+        if (error) {
+            msg.className = 'msg error'; msg.textContent = error.message;
+            btn.disabled = false; btn.textContent = 'Save Changes'; return;
+        }
+
+        currentProfile = { ...currentProfile, username, bio, gender, date_of_birth: dob, country, avatar_url };
+        renderHeader(currentProfile);
+        msg.className = 'msg success'; msg.textContent = '✓ Profile updated successfully!';
+        btn.disabled = false; btn.textContent = 'Save Changes';
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('tab-posts-content').style.display = tab === 'posts' ? 'block' : 'none';
+        document.getElementById('tab-edit-content').style.display = tab === 'edit' ? 'block' : 'none';
+    }
+
+    function calcAge(dob) {
+        const diff = Date.now() - new Date(dob).getTime();
+        return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+    }
+
+    function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+    async function logout() {
+        await sb.auth.signOut();
+        window.location.href = 'index.html';
+    }
+
+    init();
+</script>
 </body>
 </html>
