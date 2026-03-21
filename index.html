@@ -278,19 +278,16 @@ document.getElementById('main-search').addEventListener('input', (e) => {
     }
 
     section.innerHTML = `<div class="posts-grid">${posts.map(p => `
-  <a class="post-card" href="post.html?id=${p.id}">
-    <div class="card-body">
-      <div class="card-game">${p.game} · ${p.category}</div>
-      <div class="card-title">${p.title}</div>
-      <div class="card-footer">
-        <div class="card-author">by ${p.profiles?.username || 'unknown'} • ${timeAgo(p.created_at)}</div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <div class="card-likes" title="Views">👁️ ${p.views || 0}</div>
-            <div class="card-likes" title="Upvotes">▲ ${p.upvotes || 0}</div>
+      <a class="post-card" href="post.html?id=${p.id}">
+        <div class="card-body">
+          <div class="card-game">${p.game} · ${p.category}</div>
+          <div class="card-title">${p.title}</div>
+          <div class="card-footer">
+            <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
+            <div class="card-likes">▲ ${p.upvotes}</div>
+          </div>
         </div>
-      </div>
-    </div>
-  </a>`).join('')}</div>`;
+      </a>`).join('')}</div>`;
 }
 
   function setGame(el, game) {
@@ -300,21 +297,7 @@ document.getElementById('main-search').addEventListener('input', (e) => {
     loadPosts();
     
   }
-function timeAgo(date) {
-  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-  let interval = Math.floor(seconds / 31536000);
 
-  if (interval >= 1) return interval + "y ago";
-  interval = Math.floor(seconds / 2592000);
-  if (interval >= 1) return interval + "mo ago";
-  interval = Math.floor(seconds / 86400;
-  if (interval >= 1) return interval + "d ago";
-  interval = Math.floor(seconds / 3600);
-  if (interval >= 1) return interval + "h ago";
-  interval = Math.floor(seconds / 60);
-  if (interval >= 1) return interval + "m ago";
-  return "just now";
-}
   init();
 </script>
 </body>
