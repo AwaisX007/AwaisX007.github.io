@@ -161,6 +161,11 @@
       <div class="join-login">Already a member? <a href="login.html">Log in</a></div>
     </div>
     <div class="sidebar-box">
+  <div class="sidebar-title">Trending Now</div>
+  <div id="trending-list" class="games-list">
+    <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Loading trends...</div>
+  </div>
+</div>
       <div class="sidebar-title">Browse by Game</div>
       <div class="games-list">
         <a class="game-item" href="guides.html"><span class="game-name">Counter-Strike 2</span></a>
@@ -204,6 +209,7 @@
       `;
     }
     loadPosts();
+    loadTrending();
     // Add this inside the init() function at the bottom
 document.getElementById('main-search').addEventListener('input', (e) => {
     const term = e.target.value.trim();
@@ -221,6 +227,28 @@ document.getElementById('main-search').addEventListener('input', (e) => {
     await loadSection('guide', 'guides-section');
     await loadSection('blog', 'blogs-section');
   }
+  async function loadTrending() {
+    const { data: posts, error } = await sb.from('posts')
+        .select('id, title, views, game')
+        .eq('status', 'approved')
+        .order('views', { ascending: false }) // Sort by highest views
+        .limit(3); // Only show top 3
+
+    const list = document.getElementById('trending-list');
+    
+    if (error || !posts?.length) {
+        list.innerHTML = '<div class="sidebar-empty">No trends yet.</div>';
+        return;
+    }
+
+    list.innerHTML = posts.map(p => `
+        <a class="game-item" href="post.html?id=${p.id}" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px;">${p.game}</div>
+            <div class="game-name" style="font-weight: 600; line-height: 1.2;">${p.title}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">👁️ ${p.views || 0} views</div>
+        </a>
+    `).join('');
+}
 
   async function loadSection(type, sectionId, searchTerm = '') {
     let query = sb.from('posts')
