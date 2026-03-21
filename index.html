@@ -180,13 +180,15 @@
       const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
       const navRight = document.getElementById('nav-right');
       navRight.innerHTML = `
-        <span style="font-size:13px;color:var(--text-dim);">${profile?.username || ''}</span>
-        ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;">Admin</a>' : ''}
-        <button class="btn-logout" onclick="logout()">Log out</button>
-      `;
+  <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+    <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
+  </a>
+  ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
+  <button class="btn-logout" onclick="logout()">Log out</button>
+`;
       document.getElementById('auth-sidebar').innerHTML = `
         <div class="sidebar-title" style="justify-content:center;">Welcome back!</div>
-        <p>You're logged in as <strong style="color:var(--text)">${profile?.username}</strong>. Share your knowledge with the community.</p>
+       <p>You're logged in as <a href="profile.html" style="color:var(--gold); text-decoration:none; font-weight:600;">${profile?.username}</a>. Share your knowledge with the community.</p>
         <a class="join-btn" href="create.html">+ Create a Post</a>
       `;
     }
