@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post — MarineoFPS</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <style>
@@ -98,32 +99,60 @@
 
         async function toggleUpvote() {
   if (!currentUser) return alert("Log in to upvote!");
-  const btn = document.getElementById('upvote-btn');
-  btn.disabled = true; // Prevent spam-clicking
-
-  if (hasUpvoted) {
-    // REMOVE VOTE
-    const { error } = await sb.from('post_upvotes')
-      .delete()
-      .eq('post_id', postId)
-      .eq('user_id', currentUser.id);
-    
-    if (!error) {
-      hasUpvoted = false;
-      await refreshUpvoteCount();
-    }
-  } else {
-    // ADD VOTE
-    const { error } = await sb.from('post_upvotes')
-      .insert({ post_id: postId, user_id: currentUser.id });
-    
-    if (!error) {
-      hasUpvoted = true;
-      await refreshUpvoteCount();
-    }
-  }
   
-  btn.disabled = false;
+  const btn = document.getElementById('upvote-btn');
+  btn.disabled = true; // Prevent spam-clicking during the sync
+
+  // 1. OPTIMISTIC UI: Change look immediately for a "snappy" feel
+  hasUpvoted = !hasUpvoted; 
+  btn.classList.toggle('active', hasUpvoted);
+  btn.innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
+
+  // 2. TRIGGER CONFETTI: Only if they are adding an upvote
+  if (hasUpvoted) {
+    celebrate(); 
+  }
+
+  try {
+    if (!hasUpvoted) {
+      // REMOVE VOTE
+      const { error } = await sb.from('post_upvotes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', currentUser.id);
+      
+      if (error) throw error;
+    } else {
+      // ADD VOTE
+      const { error } = await sb.from('post_upvotes')
+        .insert({ post_id: postId, user_id: currentUser.id });
+      
+      if (error) throw error;
+    }
+
+    // 3. Update the counter from the database
+    await refreshUpvoteCount();
+
+  } catch (err) {
+    console.error("Upvote failed:", err);
+    // Revert UI if the database call actually failed
+    hasUpvoted = !hasUpvoted;
+    btn.classList.toggle('active', hasUpvoted);
+    btn.innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
+    alert("Interaction failed. Please try again.");
+  } finally {
+    btn.disabled = false; // Re-enable button
+  }
+}
+
+// Helper function for the confetti burst
+function celebrate() {
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.9 },
+    colors: ['#e8c84a', '#ffffff', '#5cdb95'] // Gold, White, and Green for success
+  });
 }
 
 async function refreshUpvoteCount() {
