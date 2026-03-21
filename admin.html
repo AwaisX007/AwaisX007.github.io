@@ -95,9 +95,9 @@
   }
 
   function renderAdmin(username) {
-    document.getElementById('main-content').innerHTML = `
-      <div class="page-title">Admin Panel</div>
-      <div class="page-sub">Welcome, ${username}. Review and moderate submitted posts.</div>
+  document.getElementById('main-content').innerHTML = `
+    <div class="page-title">Admin Panel</div>
+    <div class="page-sub">Welcome, <a href="profile.html" style="color:var(--gold); text-decoration:none;">${username}</a>. Review and moderate submitted posts.</div>
       <div class="tabs">
         <button class="tab active" id="tab-pending" onclick="switchTab('pending')">Pending Review</button>
         <button class="tab" id="tab-approved" onclick="switchTab('approved')">Approved</button>
