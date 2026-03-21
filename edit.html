@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post — MarineFPS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        :root { --gold: #e8c84a; --bg: #080808; --border: #222; --text: #e0e0e0; }
+        body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        input, select, textarea { width: 100%; background: #111; border: 1px solid var(--border); color: #fff; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-family: inherit; }
+        label { display: block; font-size: 12px; color: #666; margin-bottom: 8px; text-transform: uppercase; }
+        .save-btn { background: var(--gold); color: #000; border: none; padding: 15px 30px; font-weight: 700; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="font-family:'Barlow Condensed'; font-size: 32px;">Edit Your Post</h1>
+        <div id="edit-form">
+            <label>Title</label>
+            <input type="text" id="edit-title">
+            
+            <label>Content (Markdown supported)</label>
+            <textarea id="edit-content" style="height: 400px;"></textarea>
+            
+            <button class="save-btn" onclick="updatePost()">Save Changes</button>
+            <a href="profile.html" style="color:#666; margin-left: 20px; text-decoration: none;">Cancel</a>
+        </div>
+    </div>
+
+    <script>
+        const postId = new URLSearchParams(window.location.search).get('id');
+        let currentUser = null;
+
+        async function loadPostData() {
+            const { data: { user } } = await sb.auth.getUser();
+            currentUser = user;
+
+            const { data: post, error } = await sb.from('posts').select('*').eq('id', postId).single();
+            
+            if (error || post.user_id !== user.id) {
+                alert("Unauthorized or post not found.");
+                window.location.href = 'profile.html';
+                return;
+            }
+
+            document.getElementById('edit-title').value = post.title;
+            document.getElementById('edit-content').value = post.content;
+        }
+
+        async function updatePost() {
+            const newTitle = document.getElementById('edit-title').value;
+            const newContent = document.getElementById('edit-content').value;
+
+            const { error } = await sb.from('posts')
+                .update({ 
+                    title: newTitle, 
+                    content: newContent,
+                    status: 'pending' // Re-set to pending for re-moderation
+                })
+                .eq('id', postId);
+
+            if (!error) {
+                alert("Post updated and sent for re-review!");
+                window.location.href = 'profile.html';
+            } else {
+                alert(error.message);
+            }
+        }
+        loadPostData();
+    </script>
+</body>
+</html>
