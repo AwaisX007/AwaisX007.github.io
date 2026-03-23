@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign Up — MarineoFPS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,6 +34,7 @@
   .msg.success { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5cdb95; display: block; }
   .switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
   .switch a { color: var(--gold); text-decoration: none; }
+  .cf-turnstile { margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -53,13 +56,15 @@
       <label>Password</label>
       <input type="password" id="password" placeholder="At least 6 characters...">
     </div>
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAACu3ttLPmMW90mOW" data-theme="dark"></div>
     <button class="submit-btn" id="signup-btn" onclick="handleSignup()">Create Account</button>
     <div class="switch">Already have an account? <a href="login.html">Log in</a></div>
   </div>
 </div>
 <script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
- async function handleSignup() {
+  async function handleSignup() {
     const username = document.getElementById('username').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -67,7 +72,6 @@
     const msg = document.getElementById('msg');
     msg.className = 'msg';
 
-    // Basic validation
     if (!username || !email || !password) {
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
@@ -75,34 +79,33 @@
       msg.className = 'msg error'; msg.textContent = 'Password must be at least 6 characters.'; return;
     }
 
+    const token = document.querySelector('[name="cf-turnstile-response"]')?.value;
+    if (!token) {
+      msg.className = 'msg error'; msg.textContent = 'Please complete the security check.'; return;
+    }
+
     btn.disabled = true; btn.textContent = 'Creating account...';
 
-    // 1. Sign up the user 
-    // We send the username inside 'options' so the database trigger can find it
-    const { data, error } = await sb.auth.signUp({ 
-      email, 
-      password, 
-      options: { 
-        data: { username: username } 
-      } 
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username: username },
+        captchaToken: token
+      }
     });
 
     if (error) {
-      msg.className = 'msg error'; 
+      msg.className = 'msg error';
       msg.textContent = error.message;
-      btn.disabled = false; 
-      btn.textContent = 'Create Account'; 
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
       return;
     }
 
-    // 2. Success! 
-    // We removed the manual 'sb.from(profiles).insert' line. 
-    // That line was causing the red error because it ran before the email was confirmed.
     msg.className = 'msg success';
     msg.textContent = '✓ Welcome to MarineoFPS! We sent a confirmation link to your email. Please click it to activate your account.';
     btn.textContent = 'Check Your Email';
-    
-    // Clear the form
     document.getElementById('username').value = '';
     document.getElementById('email').value = '';
     document.getElementById('password').value = '';

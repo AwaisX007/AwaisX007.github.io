@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Log In — MarineoFPS</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
   :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,8 +32,9 @@
   .msg { padding: 12px 14px; border-radius: 3px; font-size: 13px; margin-bottom: 18px; display: none; }
   .msg.error { background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.3); color: #ff6b6b; display: block; }
   .msg.success { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5cdb95; display: block; }
-  .switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+  .switch { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted); }
   .switch a { color: var(--gold); text-decoration: none; }
+  .cf-turnstile { margin-bottom: 12px; }
 </style>
 </head>
 <body>
@@ -49,8 +52,9 @@
       <label>Password</label>
       <input type="password" id="password" placeholder="Your password...">
     </div>
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAACu3ttLPmMW90mOW" data-theme="dark"></div>
     <button class="submit-btn" id="login-btn" onclick="handleLogin()">Log In</button>
-    <div class="switch" style="margin-bottom:10px;"><a href="forgot-password.html">Forgot your password?</a></div>
+    <div class="switch"><a href="forgot-password.html">Forgot your password?</a></div>
     <div class="switch">Don't have an account? <a href="signup.html">Sign up free</a></div>
   </div>
 </div>
@@ -68,9 +72,19 @@
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
 
+    const token = document.querySelector('[name="cf-turnstile-response"]')?.value;
+    if (!token) {
+      msg.className = 'msg error'; msg.textContent = 'Please complete the security check.'; return;
+    }
+
     btn.disabled = true; btn.textContent = 'Logging in...';
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
+    const { error } = await sb.auth.signInWithPassword({ 
+      email, 
+      password,
+      options: { captchaToken: token }
+    });
+
     if (error) {
       msg.className = 'msg error'; msg.textContent = error.message;
       btn.disabled = false; btn.textContent = 'Log In'; return;
@@ -79,7 +93,6 @@
     window.location.href = 'index.html';
   }
 
-  // Allow enter key
   document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 </script>
 </body>
