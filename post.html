@@ -214,9 +214,12 @@ async function refreshUpvoteCount() {
         }
         async function incrementViews() {
     if (!postId) return;
+    const viewKey = `viewed_post_${postId}`;
+    if (sessionStorage.getItem(viewKey)) return;
+    sessionStorage.setItem(viewKey, 'true');
     const { error } = await sb.rpc('increment_views', { post_id: postId });
     if (error) console.error("Error incrementing views:", error);
-  }
+}
 function timeAgo(date) {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
   let interval = Math.floor(seconds / 31536000);
