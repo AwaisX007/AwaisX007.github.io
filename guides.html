@@ -141,7 +141,7 @@ navRight.innerHTML = `
       return;
     }
 
-    content.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+    content.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 300px)); gap:16px; justify-content:center;">
       ${posts.map(p => `
         <a class="post-card" href="post.html?id=${p.id}" style="text-decoration:none; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:20px; display:block;">
           <div style="font-size:10px; color:var(--gold); text-transform:uppercase; margin-bottom:8px;">${p.game} · ${p.category}</div>
