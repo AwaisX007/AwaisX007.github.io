@@ -258,6 +258,7 @@
                 <div class="post-actions">
                     <span class="upvote-count">▲ ${p.upvotes || 0}</span>
                     <span class="status-badge status-${p.status}">${p.status}</span>
+                    <a href="edit.html?id=${p.id}" style="border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600; margin-right: 6px;">Edit</a>
                     <button class="btn-delete" onclick="deletePost(${p.id})">Delete</button>
                 </div>
             </div>
