@@ -153,12 +153,12 @@ navRight.innerHTML = `
         </a>`).join('')}</div>`;
   }
 
-  function setFilter(el) {
+ function setFilter(el) {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    currentFilter = el.innerText === 'All Games' ? '' : el.innerText;
+    currentFilter = el.innerText.trim() === 'All Games' ? '' : el.innerText.trim();
     loadGuides();
-  }
+}
 
   async function logout() { await sb.auth.signOut(); window.location.reload(); }
   init();
