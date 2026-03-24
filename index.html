@@ -126,7 +126,7 @@
     <p>Guides, pro settings, tier lists and blogs written by players, for players. Level up your game today.</p>
     <div class="hero-btns">
       <a class="hero-btn-main" href="guides.html">Browse Guides</a>
-      <a class="hero-btn-sec" href="signup.html">Join Community</a>
+      <a class="hero-btn-sec" href="signup.html" id="community-btn">Join Community</a>
     </div>
   </div>
 </div>
@@ -209,6 +209,8 @@
     const { data: { user } } = await sb.auth.getUser();
     if (user) {
       const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+      document.getElementById('community-btn').href = 'create.html';
+document.getElementById('community-btn').textContent = 'Create a Post';
       const navRight = document.getElementById('nav-right');
       navRight.innerHTML = `
   <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
