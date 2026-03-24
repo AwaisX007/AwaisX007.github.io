@@ -127,7 +127,7 @@ navRight.innerHTML = `
     content.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading guides...</div>';
 
     let query = sb.from('posts')
-      .select('*, profiles(username)')
+      .select('*, profiles!posts_user_id_fkey(username)')
       .eq('status', 'approved')
       .eq('type', 'guide')
       .order('created_at', { ascending: false });
