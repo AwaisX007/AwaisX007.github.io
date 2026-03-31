@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>User Profile — MarineoFPS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+    .logo span { color: #fff; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+    
+    .profile-header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 60px 32px; text-align: center; }
+    .avatar { width: 100px; height: 100px; background: var(--bg4); border: 2px solid var(--gold); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-family: 'Barlow Condensed'; font-weight: 700; color: var(--gold); }
+    .username { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; color: #fff; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .user-role { display: inline-block; background: rgba(232, 200, 74, 0.1); color: var(--gold); border: 1px solid rgba(232, 200, 74, 0.3); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    
+    .content { max-width: 1000px; margin: 40px auto; padding: 0 32px; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 24px; text-transform: uppercase; }
+    
+    .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; transition: border-color 0.2s; }
+    .post-card:hover { border-color: var(--gold); }
+    .post-meta { font-size: 10px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; font-weight: 600; letter-spacing: 1px; }
+    .post-title { font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 16px; line-height: 1.4; }
+    .post-stats { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border2); padding-top: 12px; }
+    
+    .empty { text-align: center; padding: 40px; color: var(--text-muted); background: var(--bg2); border: 1px dashed var(--border2); border-radius: 6px; }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
+  <div class="nav-links">
+    <a href="guides.html">Guides</a>
+    <a href="blog.html">Blog</a>
+    <a href="about.html">About Us</a>
+  </div>
+  <div style="width: 100px;"></div> </nav>
+
+<div class="profile-header">
+  <div class="avatar" id="user-avatar">?</div>
+  <div class="username" id="user-name">Loading...</div>
+  <div id="user-badges"></div>
+</div>
+
+<div class="content">
+  <h2 class="section-title">Published Guides & Posts</h2>
+  <div class="posts-grid" id="user-posts">
+    <div style="color: var(--text-muted);">Loading posts...</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  // Get the user ID from the URL (e.g., user.html?id=12345)
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get('id');
+
+  async function loadUserProfile() {
+    if (!userId) {
+      document.getElementById('user-name').innerText = "User Not Found";
+      document.getElementById('user-posts').innerHTML = `<div class="empty">Invalid profile link.</div>`;
+      return;
+    }
+
+    // 1. Fetch User Profile Data
+    const { data: profile, error: profileErr } = await sb.from('profiles').select('*').eq('id', userId).single();
+    
+    if (profileErr || !profile) {
+      document.getElementById('user-name').innerText = "User Not Found";
+      return;
+    }
+
+    // Update UI with user info
+    document.getElementById('user-name').innerText = profile.username || "Unknown User";
+    document.getElementById('user-avatar').innerText = (profile.username || "?").charAt(0).toUpperCase();
+    
+    if (profile.is_admin) {
+      document.getElementById('user-badges').innerHTML = `<div class="user-role">MarineoFPS Staff</div>`;
+    } else {
+      document.getElementById('user-badges').innerHTML = `<div class="user-role" style="color:#aaa; border-color:#333;">Community Member</div>`;
+    }
+
+    // 2. Fetch User's Approved Posts
+    const { data: posts, error: postsErr } = await sb.from('posts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+
+    const postsContainer = document.getElementById('user-posts');
+    
+    if (postsErr || !posts || posts.length === 0) {
+      postsContainer.innerHTML = `<div class="empty">${profile.username} hasn't published any guides yet.</div>`;
+      return;
+    }
+
+    // Render the post cards
+    postsContainer.innerHTML = posts.map(p => `
+      <a class="post-card" href="post.html?id=${p.id}">
+        <div>
+          <div class="post-meta">${p.game} · ${p.category}</div>
+          <div class="post-title">${p.title}</div>
+        </div>
+        <div class="post-stats">
+          <span>👁️ ${p.views || 0}</span>
+          <span style="color:var(--text);">▲ ${p.upvotes || 0}</span>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  loadUserProfile();
+</script>
+</body>
+</html>
