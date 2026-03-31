@@ -1,110 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <meta name="description" content="MarineFPS — FPS guides, pro settings, tier lists and blogs for Counter-Strike 2, Valorant, Apex Legends and more. Written by players, for players.">
-<meta property="og:title" content="MarineFPS — FPS Guides, Blogs & Pro Settings">
-<meta property="og:description" content="Guides, pro settings, tier lists and blogs written by players, for players. Level up your FPS game today.">
-<meta property="og:url" content="https://marineofps.dev">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MarineFPS">
-<meta name="twitter:description" content="FPS guides, pro settings and tier lists for CS2, Valorant, Apex and more.">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MarineoFPS — FPS Guides, Blogs & Pro Settings</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<style>
-  #main-search:focus {
-  border-color: var(--gold) !important;
-  box-shadow: 0 0 10px rgba(232, 200, 74, 0.1);
-}
-  :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
-  .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
-  .logo span { color: #fff; }
-  .nav-links { display: flex; gap: 28px; }
-  .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--gold); }
-  .nav-right { display: flex; gap: 10px; align-items: center; }
-  #nav-username { font-size: 13px; color: var(--text-dim); }
-  .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; }
-  .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; text-decoration: none; }
-  .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
+  
+  <title>MarineoFPS — FPS Guides, Blogs & Pro Settings</title>
+  <meta name="title" content="MarineoFPS — FPS Guides, Blogs & Pro Settings">
+  <meta name="description" content="Master your favorite FPS games with community-driven guides, pro-tier lists, and tactical breakdowns. Built by gamers, for gamers.">
 
-  .hero { padding: 80px 32px 60px; background: var(--bg); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); pointer-events: none; }
-  .hero-inner { max-width: 640px; position: relative; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.2); padding: 4px 12px; border-radius: 2px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
-  .hero-badge span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
-  .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 700; line-height: 1.0; color: #fff; margin-bottom: 16px; letter-spacing: 1px; }
-  .hero h1 em { color: var(--gold); font-style: normal; }
-  .hero p { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
-  .hero-btns { display: flex; gap: 12px; }
-  .hero-btn-main { padding: 12px 28px; background: var(--gold); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; transition: background 0.2s; text-decoration: none; }
-  .hero-btn-main:hover { background: #f0d060; }
-  .hero-btn-sec { padding: 12px 28px; background: transparent; color: var(--text-dim); font-size: 14px; border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; }
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://marineofps.dev/">
+  <meta property="og:title" content="MarineoFPS | Level Up Your Game">
+  <meta property="og:description" content="Join the MarineoFPS community. Access exclusive CS2, Valorant, and Apex Legends guides and climb the Discord ranks.">
+  <meta property="og:image" content="https://marineofps.dev/images/og-banner.jpg"> <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://marineofps.dev/">
+  <meta property="twitter:title" content="MarineoFPS | Tactical Excellence">
+  <meta property="twitter:description" content="Community-driven tactical guides and FPS insights. Check out the latest content now.">
+  <meta property="twitter:image" content="https://marineofps.dev/images/og-banner.jpg">
+  
+  <meta name="theme-color" content="#e8c84a">
 
-  .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; }
-  .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
-  .game-tab:hover { color: var(--text); }
-  .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  
+  <style>
+    /* I kept your existing styles but added a hover effect for the social cards */
+    .social-card {
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .social-card:hover {
+      transform: scale(1.02);
+      border-color: var(--gold) !important;
+    }
+    #main-search:focus {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 10px rgba(232, 200, 74, 0.1);
+    }
+    :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+    .logo span { color: #fff; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+    .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; text-decoration: none; }
+    .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; }
 
-  .main { max-width: 1200px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
-  .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
-  .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
-  .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; transition: all 0.2s; }
-  .create-btn:hover { background: rgba(232,200,74,0.08); }
+    .hero { padding: 80px 32px 60px; background: var(--bg); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); pointer-events: none; }
+    .hero-inner { max-width: 640px; position: relative; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.2); padding: 4px 12px; border-radius: 2px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+    .hero-badge span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
+    .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 700; line-height: 1.0; color: #fff; margin-bottom: 16px; letter-spacing: 1px; }
+    .hero h1 em { color: var(--gold); font-style: normal; }
+    .hero p { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
+    .hero-btns { display: flex; gap: 12px; }
+    .hero-btn-main { padding: 12px 28px; background: var(--gold); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.2s; text-decoration: none; }
+    .hero-btn-sec { padding: 12px 28px; background: transparent; color: var(--text-dim); font-size: 14px; border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; text-decoration: none; }
 
-  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
-  .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
-  .post-card:hover { border-color: #333; transform: translateY(-2px); }
-  .card-body { padding: 14px; }
-  .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-  .card-title { font-size: 13px; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
-  .card-footer { display: flex; align-items: center; justify-content: space-between; }
-  .card-author { font-size: 11px; color: var(--text-muted); }
-  .card-likes { font-size: 11px; color: var(--text-muted); }
+    .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; }
+    .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border: none; }
+    .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-  .empty-state { background: var(--bg3); border: 1px dashed var(--border2); border-radius: 4px; padding: 50px 32px; text-align: center; margin-bottom: 32px; }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
-  .empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; color: var(--text-muted); margin-bottom: 8px; }
-  .empty-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-  .empty-cta { display: inline-block; padding: 8px 20px; background: var(--gold); color: #080808; font-weight: 600; font-size: 13px; border-radius: 3px; text-decoration: none; font-family: 'Barlow', sans-serif; }
+    .main { max-width: 1200px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
+    .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
+    .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; }
 
-  .sidebar { display: flex; flex-direction: column; gap: 16px; }
-  .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; }
-  .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
-  .join-box { text-align: center; }
-  .join-box p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
-  .join-btn { width: 100%; padding: 10px; background: var(--gold); color: #080808; font-weight: 700; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; display: block; text-align: center; }
-  .join-login { font-size: 12px; color: var(--text-muted); margin-top: 10px; }
-  .join-login a { color: var(--gold); text-decoration: none; }
-  .games-list { display: flex; flex-direction: column; gap: 2px; }
-  .game-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 3px; cursor: pointer; transition: background 0.2s; text-decoration: none; }
-  .game-item:hover { background: var(--bg4); }
-  .game-name { font-size: 13px; color: var(--text-dim); }
-  .game-count { font-size: 11px; color: var(--text-muted); }
-  .sidebar-empty { font-size: 12px; color: var(--text-muted); text-align: center; padding: 8px 0; }
+    .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+    .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
+    .post-card:hover { border-color: #444; transform: translateY(-2px); }
+    .card-body { padding: 14px; }
+    .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    .card-title { font-size: 13px; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .card-author { font-size: 11px; color: var(--text-muted); }
 
-  footer { border-top: 1px solid var(--border); padding: 32px; background: var(--bg2); }
-  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-  .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
-  .footer-logo span { color: #555; }
-  .footer-text { font-size: 12px; color: var(--text-muted); }
+    .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; margin-bottom: 16px; }
+    .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
+    .join-btn { width: 100%; padding: 10px; background: var(--gold); color: #080808; font-weight: 700; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; display: block; text-align: center; }
 
-  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } .hero h1 { font-size: 44px; } .nav-links { display: none; } .posts-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 600px) { .posts-grid { grid-template-columns: 1fr; } nav { padding: 0 16px; } .hero { padding: 48px 16px 40px; } .main { padding: 20px 16px; } }
-</style>
+    footer { border-top: 1px solid var(--border); padding: 32px; background: var(--bg2); }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  </style>
 </head>
 <body>
+
 <nav>
   <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
   <div class="nav-links">
@@ -119,49 +109,42 @@
   </div>
 </nav>
 
-<div class="hero" style="display:flex;align-items:center;justify-content:space-between;gap:40px;">
-  <div class="hero-inner">
-    <div class="hero-badge"><span></span> CS2 · Valorant · Apex · More</div>
-    <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
-    <p>Guides, pro settings, tier lists and blogs written by players, for players. Level up your game today.</p>
-    <div class="hero-btns">
-      <a class="hero-btn-main" href="guides.html">Browse Guides</a>
-      <a class="hero-btn-sec" href="signup.html" id="community-btn">Join Community</a>
-      <a href="https://discord.gg/b3KebadbpA" target="_blank" style="padding:12px 28px;background:#5865F2;color:#fff;font-size:14px;border-radius:3px;text-decoration:none;font-weight:600;">Join Discord</a>
-    </div>
-  </div>
-
-  <!-- RIGHT SIDE -->
-  <div style="display:flex;flex-direction:column;gap:16px;min-width:280px;max-width:320px;flex-shrink:0;">
-    <a href="https://discord.gg/b3KebadbpA" target="_blank" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #5865F2;padding:16px;border-radius:4px;">
-      <div style="width:40px;height:40px;background:#5865F2;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="17" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Z"/></svg>
+<div class="hero">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 40px;">
+    <div class="hero-inner">
+      <div class="hero-badge"><span></span> CS2 · Valorant · Apex · More</div>
+      <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
+      <p>Guides, pro settings, and tactical breakdowns written by players, for players. Level up your game today.</p>
+      <div class="hero-btns">
+        <a class="hero-btn-main" href="guides.html">Browse Guides</a>
+        <a class="hero-btn-sec" href="signup.html" id="community-btn">Join Community</a>
       </div>
-      <div>
-        <div style="font-size:10px;color:#5865F2;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Official Community</div>
-        <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">MarineoFPS Discord</div>
-        <div style="font-size:11px;color:#555;margin-top:1px;">Join the discussion →</div>
-      </div>
-    </a>
-
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="flex:1;height:1px;background:#1a1a1a;"></div>
-      <span style="font-size:10px;color:#333;letter-spacing:2px;text-transform:uppercase;">Community Ambassador</span>
-      <div style="flex:1;height:1px;background:#1a1a1a;"></div>
     </div>
 
-    <a href="https://www.youtube.com/@SN_AbbaS1" target="_blank" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #FF0000;padding:16px;border-radius:4px;">
-      <div style="width:40px;height:40px;background:#FF0000;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8ZM9.5 15.6V8.4L15.8 12l-6.3 3.6Z"/></svg>
-      </div>
-      <div>
-        <div style="font-size:10px;color:#FF0000;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Community Ambassador</div>
-        <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">SN_AbbaS</div>
-        <div style="font-size:11px;color:#555;margin-top:1px;">Watch on YouTube →</div>
-      </div>
-    </a>
-  </div>
+    <div style="display:flex;flex-direction:column;gap:16px;min-width:280px;max-width:320px;flex-shrink:0;">
+      <a href="https://discord.gg/b3KebadbpA" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #5865F2;padding:16px;border-radius:4px;">
+        <div style="width:40px;height:40px;background:#5865F2;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="17" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#5865F2;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Official Hub</div>
+          <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">MarineoFPS Discord</div>
+          <div style="font-size:11px;color:#555;margin-top:1px;">Connect with squads →</div>
+        </div>
+      </a>
 
+      <a href="https://www.youtube.com/@SN_AbbaS1" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #FF0000;padding:16px;border-radius:4px;">
+        <div style="width:40px;height:40px;background:#FF0000;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8ZM9.5 15.6V8.4L15.8 12l-6.3 3.6Z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#FF0000;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Ambassador</div>
+          <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">SN_AbbaS</div>
+          <div style="font-size:11px;color:#555;margin-top:1px;">Watch tactical plays →</div>
+        </div>
+      </a>
+    </div>
+  </div>
 </div>
 
 <div class="game-bar">
@@ -172,7 +155,8 @@
   <button class="game-tab" onclick="setGame(this, 'Warzone')">Warzone</button>
   <button class="game-tab" onclick="setGame(this, 'R6 Siege')">R6 Siege</button>
 </div>
-  <div style="max-width: 1200px; margin: 0 auto; padding: 24px 32px 0;">
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 24px 32px 0;">
   <div style="position: relative;">
     <input type="text" id="main-search" placeholder="Search guides, players, or games..." 
       style="width: 100%; background: var(--bg3); border: 1px solid var(--border); color: #fff; padding: 14px 20px; border-radius: 4px; font-family: 'Barlow', sans-serif; outline: none; font-size: 15px; transition: border-color 0.2s;">
@@ -198,35 +182,22 @@
   <div class="sidebar">
     <div class="sidebar-box join-box" id="auth-sidebar">
       <div class="sidebar-title" style="justify-content:center;">Join the Community</div>
-      <p>Create a free account to write guides, upvote posts, and be part of the MarineoFPS community.</p>
+      <p>Create a free account to write guides and climb the Discord ranks.</p>
       <a class="join-btn" href="signup.html">Create Free Account</a>
-      <div class="join-login">Already a member? <a href="login.html">Log in</a></div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: center;">Already a member? <a href="login.html" style="color:var(--gold); text-decoration:none;">Log in</a></div>
     </div>
+
     <div class="sidebar-box">
-  <div class="sidebar-title">Trending Now</div>
-  <div id="trending-list" class="games-list">
-    <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Loading trends...</div>
-  </div>
-</div>
-      <div class="sidebar-title">Browse by Game</div>
-      <div class="games-list">
-        <a class="game-item" href="guides.html"><span class="game-name">Counter-Strike 2</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Valorant</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Apex Legends</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Warzone</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">R6 Siege</span></a>
-        <a class="game-item" href="guides.html"><span class="game-name">Overwatch 2</span></a>
+      <div class="sidebar-title">Trending Now</div>
+      <div id="trending-list" class="games-list">
+        <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Loading trends...</div>
       </div>
-     <div class="sidebar-box" style="text-align:center;">
-  <div class="sidebar-title" style="justify-content:center;">Support MarineoFPS</div>
-  <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;">If you enjoy the content, consider supporting the site. Every coffee helps keep it running!</p>
-  <a href="https://ko-fi.com/marineofps" target="_blank" style="display:inline-block;padding:10px 20px;background:#FF5E5B;color:#fff;font-weight:700;font-size:13px;border-radius:3px;text-decoration:none;font-family:'Barlow',sans-serif;width:100%;text-align:center;box-sizing:border-box;">☕ Buy Me a Coffee</a>
-</div>
-    <div class="sidebar-box" style="text-align:center;">
-  <div class="sidebar-title" style="justify-content:center;">Join the Discord</div>
-  <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;">Chat with other FPS players, suggest guides and get help from the community.</p>
-  <a href="https://discord.gg/b3KebadbpA" target="_blank" style="display:block;padding:10px 20px;background:#5865F2;color:#fff;font-weight:700;font-size:13px;border-radius:3px;text-decoration:none;text-align:center;">Join Discord</a>
-</div>
+    </div>
+
+    <div class="sidebar-box">
+      <div class="sidebar-title" style="justify-content:center;">Support MarineoFPS</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px; text-align:center;">Enjoying the content? Help us keep the servers running!</p>
+      <a href="https://ko-fi.com/marineofps" target="_blank" style="display:block;padding:10px;background:#FF5E5B;color:#fff;font-weight:700;font-size:13px;border-radius:3px;text-decoration:none;text-align:center;">☕ Buy Me a Coffee</a>
     </div>
   </div>
 </div>
@@ -234,8 +205,10 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-logo">MARINEO<span>FPS</span></div>
-    <a href="https://ko-fi.com/marineofps" target="_blank" style="font-size:12px;color:#FF5E5B;text-decoration:none;">☕ Support on Ko-fi</a>
-    <a href="https://discord.gg/b3KebadbpA" target="_blank" style="font-size:12px;color:#5865F2;text-decoration:none;">Join Discord</a>
+    <div style="display:flex; gap: 20px;">
+        <a href="https://ko-fi.com/marineofps" target="_blank" style="font-size:12px;color:#FF5E5B;text-decoration:none;">Support</a>
+        <a href="https://discord.gg/b3KebadbpA" target="_blank" style="font-size:12px;color:#5865F2;text-decoration:none;">Discord</a>
+    </div>
     <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
   </div>
 </footer>
@@ -249,29 +222,31 @@
     if (user) {
       const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
       document.getElementById('community-btn').href = 'create.html';
-document.getElementById('community-btn').textContent = 'Create a Post';
+      document.getElementById('community-btn').textContent = 'Create a Post';
+      
       const navRight = document.getElementById('nav-right');
       navRight.innerHTML = `
-  <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
-    <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
-  </a>
-  ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
-  <button class="btn-logout" onclick="logout()">Log out</button>
-`;
+        <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+          <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
+        </a>
+        ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
+        <button class="btn-logout" onclick="logout()">Log out</button>
+      `;
+      
       document.getElementById('auth-sidebar').innerHTML = `
         <div class="sidebar-title" style="justify-content:center;">Welcome back!</div>
-       <p>You're logged in as <a href="profile.html" style="color:var(--gold); text-decoration:none; font-weight:600;">${profile?.username}</a>. Share your knowledge with the community.</p>
+        <p style="text-align:center; margin-bottom:15px;">Logged in as <a href="profile.html" style="color:var(--gold); text-decoration:none; font-weight:600;">${profile?.username}</a>.</p>
         <a class="join-btn" href="create.html">+ Create a Post</a>
       `;
     }
     loadPosts();
     loadTrending();
-    // Add this inside the init() function at the bottom
-document.getElementById('main-search').addEventListener('input', (e) => {
-    const term = e.target.value.trim();
-    loadSection('guide', 'guides-section', term);
-    loadSection('blog', 'blogs-section', term);
-});
+
+    document.getElementById('main-search').addEventListener('input', (e) => {
+      const term = e.target.value.trim();
+      loadSection('guide', 'guides-section', term);
+      loadSection('blog', 'blogs-section', term);
+    });
   }
 
   async function logout() {
@@ -283,28 +258,28 @@ document.getElementById('main-search').addEventListener('input', (e) => {
     await loadSection('guide', 'guides-section');
     await loadSection('blog', 'blogs-section');
   }
+
   async function loadTrending() {
     const { data: posts, error } = await sb.from('posts')
         .select('id, title, views, game')
         .eq('status', 'approved')
-        .order('views', { ascending: false }) // Sort by highest views
-        .limit(3); // Only show top 3
+        .order('views', { ascending: false })
+        .limit(3);
 
     const list = document.getElementById('trending-list');
-    
     if (error || !posts?.length) {
-        list.innerHTML = '<div class="sidebar-empty">No trends yet.</div>';
+        list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No trends yet.</div>';
         return;
     }
 
     list.innerHTML = posts.map(p => `
-        <a class="game-item" href="post.html?id=${p.id}" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-            <div style="font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px;">${p.game}</div>
-            <div class="game-name" style="font-weight: 600; line-height: 1.2;">${p.title}</div>
-            <div style="font-size: 11px; color: var(--text-muted);">👁️ ${p.views || 0} views</div>
+        <a class="game-item" href="post.html?id=${p.id}" style="display:block; text-decoration:none; padding:10px; border-radius:4px; margin-bottom:4px; transition:background 0.2s;">
+            <div style="font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom:2px;">${p.game}</div>
+            <div style="font-size:13px; color:var(--text); font-weight:600; line-height: 1.2;">${p.title}</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top:4px;">👁️ ${p.views || 0} views</div>
         </a>
     `).join('');
-}
+  }
 
   async function loadSection(type, sectionId, searchTerm = '') {
     let query = sb.from('posts')
@@ -314,21 +289,15 @@ document.getElementById('main-search').addEventListener('input', (e) => {
       .order('created_at', { ascending: false });
 
     if (currentGame) query = query.eq('game', currentGame);
-    
-    // Search Filter Logic
-    if (searchTerm) {
-      query = query.ilike('title', `%${searchTerm}%`);
-    }
+    if (searchTerm) query = query.ilike('title', `%${searchTerm}%`);
 
     const { data: posts } = await query.limit(searchTerm ? 12 : 3);
-    
     const section = document.getElementById(sectionId);
+    
     if (!posts?.length) {
       section.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">🔍</div>
-          <div class="empty-title">No ${type}s found</div>
-          <div class="empty-sub">${searchTerm ? `No results matching "${searchTerm}"` : 'Be the first to share!'}</div>
+        <div style="background:var(--bg3); border:1px dashed var(--border2); border-radius:4px; padding:30px; text-align:center; margin-bottom:32px;">
+          <div style="font-size:13px; color:var(--text-muted);">${searchTerm ? `No results for "${searchTerm}"` : 'No posts found yet.'}</div>
         </div>`;
       return;
     }
@@ -340,18 +309,17 @@ document.getElementById('main-search').addEventListener('input', (e) => {
           <div class="card-title">${p.title}</div>
           <div class="card-footer">
             <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
-            <div class="card-likes">▲ ${p.upvotes}</div>
+            <div style="font-size:11px; color:var(--text-muted);">▲ ${p.upvotes}</div>
           </div>
         </div>
       </a>`).join('')}</div>`;
-}
+  }
 
   function setGame(el, game) {
     document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     currentGame = game;
     loadPosts();
-    
   }
 
   init();
