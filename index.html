@@ -309,7 +309,7 @@
           <div class="card-game">${p.game} · ${p.category}</div>
           <div class="card-title">${p.title}</div>
           <div class="card-footer">
-            <div class="card-author">by ${p.profiles?.username || 'unknown'}</div>
+            <div class="card-author">by <a href="user.html?id=${p.user_id}" style="color:var(--gold); text-decoration:none;">${p.profiles?.username || 'unknown'}</a></div>
             <div style="font-size:11px; color:var(--text-muted);">▲ ${p.upvotes}</div>
           </div>
         </div>
