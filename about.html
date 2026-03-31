@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="description" content="Meet the MarineoFPS staff team, the SN collaboration, and get in touch.">
+  <title>About Us & Contact — MarineoFPS</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+    .logo span { color: #fff; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-right { display: flex; gap: 10px; }
+    .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; }
+    .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; text-decoration: none; }
+
+    .page-header { padding: 60px 32px; border-bottom: 1px solid var(--border); text-align: center; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); }
+    .page-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .page-header p { font-size: 16px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    .content { max-width: 1000px; margin: 0 auto; padding: 60px 32px; }
+    
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; }
+    
+    /* Staff Grid */
+    .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 60px; }
+    .staff-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 30px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+    .staff-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+    .staff-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--bg4); margin: 0 auto 16px; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 32px; font-weight: 700; color: var(--gold); }
+    .staff-role { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .staff-name { font-size: 22px; color: #fff; font-family: 'Barlow Condensed'; font-weight: 600; margin-bottom: 12px; }
+    .staff-bio { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* Contact Section */
+    .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 40px; }
+    .contact-info h3 { font-family: 'Barlow Condensed'; font-size: 24px; color: #fff; margin-bottom: 16px; }
+    .contact-info p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+    .social-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: #5865F2; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 3px; transition: opacity 0.2s; }
+    .social-btn:hover { opacity: 0.9; }
+    
+    .contact-form { display: flex; flex-direction: column; gap: 16px; }
+    .contact-form input, .contact-form textarea { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 12px 16px; outline: none; }
+    .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold); }
+    .contact-form textarea { resize: vertical; min-height: 120px; }
+    .submit-btn { padding: 12px; background: var(--gold); color: #080808; font-weight: 700; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow'; transition: background 0.2s; }
+    .submit-btn:hover { background: #f0d060; }
+
+    footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 40px; }
+    .footer-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+    .footer-logo span { color: #555; }
+    .footer-text { font-size: 12px; color: var(--text-muted); }
+
+    @media (max-width: 800px) { .contact-wrapper { grid-template-columns: 1fr; } .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
+  <div class="nav-links">
+    <a href="guides.html">Guides</a>
+    <a href="blog.html">Blog</a>
+    <a href="tierlists.html">Tier Lists</a>
+    <a href="about.html" class="active">About Us</a>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <a class="btn-login" href="login.html">Log in</a>
+    <a class="btn-signup" href="signup.html">Sign up</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Built for Players, By Players</h1>
+  <p>MarineoFPS is a community-driven platform dedicated to leveling up your tactical gameplay. Discover the minds behind the project and our official partners.</p>
+</div>
+
+<div class="content">
+  <h2 class="section-title">Meet the Team</h2>
+  <div class="staff-grid">
+    <div class="staff-card">
+      <div class="staff-avatar">M</div>
+      <div class="staff-role">Founder & Lead Dev</div>
+      <div class="staff-name">Marineo</div>
+      <div class="staff-bio">An electrical engineering student with a passion for gaming mechanics and coding. Built MarineoFPS to give the community a dedicated home for high-tier tactical guides.</div>
+    </div>
+
+    <div class="staff-card" style="border-top: 3px solid #FF0000;">
+      <div class="staff-avatar">SN</div>
+      <div class="staff-role">Official Partner / SN Team</div>
+      <div class="staff-name">SN_AbbaS</div>
+      <div class="staff-bio">Content creator and tactical ambassador for MarineoFPS. Bringing high-level gameplay analysis and bridging the gap between raw mechanics and competitive strategy.</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Get In Touch</h2>
+  <div class="contact-wrapper">
+    <div class="contact-info">
+      <h3>Let's Collaborate</h3>
+      <p>Have a question, a business inquiry, or want to report a bug? Reach out to the team directly.</p>
+      <p>The fastest way to get support is by joining our official Discord server and opening a ticket, or by pinging the admin team.</p>
+      <a href="https://discord.gg/b3KebadbpA" target="_blank" class="social-btn">
+        Join the Discord Server
+      </a>
+    </div>
+    
+    <div class="contact-form">
+      <input type="text" placeholder="Your Name">
+      <input type="email" placeholder="Your Email">
+      <textarea placeholder="How can we help you?"></textarea>
+      <button class="submit-btn" onclick="alert('Form submission connected soon! Please use Discord for now.')">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">MARINEO<span>FPS</span></div>
+    <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  async function init() {
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
+      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+      document.getElementById('nav-right').innerHTML = `
+        <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+          <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
+        </a>
+        ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
+        <button onclick="sb.auth.signOut().then(() => window.location.reload())" style="font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer;">Log out</button>
+      `;
+    }
+  }
+  init();
+</script>
+</body>
+</html>
