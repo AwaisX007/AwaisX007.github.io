@@ -26,6 +26,7 @@
   input { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 11px 14px; outline: none; transition: border-color 0.2s; }
   input:focus { border-color: var(--gold); }
   input::placeholder { color: var(--text-muted); }
+  .field-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
   .submit-btn { width: 100%; padding: 12px; background: var(--gold); color: #080808; font-weight: 700; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; margin-top: 8px; transition: background 0.2s; }
   .submit-btn:hover { background: #f0d060; }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -47,6 +48,8 @@
     <div class="form-group">
       <label>Username</label>
       <input type="text" id="username" placeholder="Choose a username..." maxlength="20">
+      <!-- FIX: hint added so users know what's allowed -->
+      <div class="field-hint">Letters, numbers and underscores only. 3–20 characters.</div>
     </div>
     <div class="form-group">
       <label>Email</label>
@@ -75,6 +78,15 @@
     if (!username || !email || !password) {
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
+
+    // FIX: enforce username format — alphanumeric + underscore, 3–20 chars
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+      msg.className = 'msg error';
+      msg.textContent = 'Username must be 3–20 characters and contain only letters, numbers, or underscores.';
+      return;
+    }
+
     if (password.length < 6) {
       msg.className = 'msg error'; msg.textContent = 'Password must be at least 6 characters.'; return;
     }

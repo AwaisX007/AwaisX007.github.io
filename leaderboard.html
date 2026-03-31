@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Leaderboard — MarineoFPS</title>
+  <meta name="description" content="Top ranked MarineoFPS Discord members by XP. Earn XP by being active in the community.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); }
+
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+    .logo span { color: #fff; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-right { display: flex; gap: 10px; }
+    .btn-login  { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
+    .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; }
+
+    /* Page header */
+    .page-header { padding: 48px 32px 36px; border-bottom: 1px solid var(--border); background: radial-gradient(ellipse at 50% 0%, rgba(88,101,242,0.07) 0%, transparent 70%); }
+    .page-header-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .discord-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: #5865F2; border: 1px solid rgba(88,101,242,0.3); padding: 4px 14px; border-radius: 2px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+    .page-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: 1px; }
+    .page-header p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+    .discord-join-btn { display: inline-flex; align-items: center; gap: 10px; background: #5865F2; color: #fff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 22px; border-radius: 3px; transition: opacity 0.2s; }
+    .discord-join-btn:hover { opacity: 0.85; }
+
+    /* Leaderboard */
+    .content { max-width: 700px; margin: 48px auto; padding: 0 32px; }
+
+    /* Top 3 podium */
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin-bottom: 40px; }
+    .podium-slot { display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; max-width: 180px; }
+    .podium-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 22px; font-weight: 700; }
+    .podium-rank { font-family: 'Barlow Condensed'; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+    .podium-name { font-size: 13px; font-weight: 600; color: #fff; text-align: center; word-break: break-all; }
+    .podium-xp { font-size: 12px; color: var(--text-muted); }
+    .podium-bar { width: 100%; border-radius: 4px 4px 0 0; }
+    .rank-1 .podium-avatar { border: 2px solid #FFD700; color: #FFD700; background: rgba(255,215,0,0.08); width: 68px; height: 68px; font-size: 26px; }
+    .rank-1 .podium-bar { background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); height: 90px; }
+    .rank-1 .podium-rank { color: #FFD700; }
+    .rank-2 .podium-avatar { border: 2px solid #C0C0C0; color: #C0C0C0; background: rgba(192,192,192,0.08); }
+    .rank-2 .podium-bar { background: rgba(192,192,192,0.1); border: 1px solid rgba(192,192,192,0.2); height: 65px; }
+    .rank-2 .podium-rank { color: #C0C0C0; }
+    .rank-3 .podium-avatar { border: 2px solid #CD7F32; color: #CD7F32; background: rgba(205,127,50,0.08); }
+    .rank-3 .podium-bar { background: rgba(205,127,50,0.1); border: 1px solid rgba(205,127,50,0.2); height: 48px; }
+    .rank-3 .podium-rank { color: #CD7F32; }
+
+    /* Rest of leaderboard */
+    .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+    .leaderboard-row { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; transition: border-color 0.2s; }
+    .leaderboard-row:hover { border-color: #333; }
+    .row-rank { font-family: 'Barlow Condensed'; font-size: 18px; font-weight: 700; color: var(--text-muted); width: 28px; text-align: center; flex-shrink: 0; }
+    .row-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 16px; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+    .row-name { flex: 1; font-size: 14px; color: #fff; font-weight: 500; }
+    .row-xp-bar-wrap { width: 120px; height: 4px; background: var(--border2); border-radius: 2px; flex-shrink: 0; }
+    .row-xp-bar { height: 4px; background: #5865F2; border-radius: 2px; }
+    .row-xp { font-family: 'Barlow Condensed'; font-size: 16px; font-weight: 700; color: #5865F2; width: 54px; text-align: right; flex-shrink: 0; }
+    .xp-label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+
+    .loading { text-align: center; padding: 60px; color: var(--text-muted); font-size: 14px; }
+    .empty-state { text-align: center; padding: 60px; color: var(--text-muted); background: var(--bg3); border: 1px dashed var(--border2); border-radius: 6px; }
+
+    footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 60px; }
+    .footer-inner { max-width: 700px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+    .footer-logo span { color: #555; }
+    .footer-text { font-size: 12px; color: var(--text-muted); }
+
+    @media (max-width: 600px) { .nav-links { display: none; } .content { padding: 0 16px; } .podium { gap: 6px; } .row-xp-bar-wrap { display: none; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
+  <div class="nav-links">
+    <a href="guides.html">Guides</a>
+    <a href="blog.html">Blog</a>
+    <a href="tierlists.html">Tier Lists</a>
+    <a href="prosettings.html">Pro Settings</a>
+    <a href="about.html">About Us</a>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn-login"  onclick="window.location='login.html'">Log in</button>
+    <button class="btn-signup" onclick="window.location='signup.html'">Sign up</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="discord-badge">
+      <svg width="14" height="11" viewBox="0 0 71 55" fill="#5865F2"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1Z"/></svg>
+      Discord XP Rankings
+    </div>
+    <h1>Community Leaderboard</h1>
+    <p>Top members ranked by activity XP earned in the MarineoFPS Discord. Be active, earn XP, climb the ranks.</p>
+    <a class="discord-join-btn" href="https://discord.gg/b3KebadbpA" target="_blank">
+      <svg width="18" height="14" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1Z"/></svg>
+      Join the Discord
+    </a>
+  </div>
+</div>
+
+<div class="content">
+  <div id="leaderboard-wrap">
+    <div class="loading">Loading rankings...</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">MARINEO<span>FPS</span></div>
+    <a href="https://ko-fi.com/marineofps" target="_blank" style="font-size:12px;color:#FF5E5B;text-decoration:none;">☕ Support on Ko-fi</a>
+    <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
+  </div>
+</footer>
+
+<script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Discord user ID → display name mapping
+  // Since Discord IDs are not human-readable, we show a short alias
+  // These can be updated as you know who owns each ID
+  function getDisplayName(discordId) {
+    // Generates a consistent placeholder like "Member #2560"
+    // Replace entries here once you know the real usernames
+    const known = {
+      // 'discord_id': 'DisplayName'
+    };
+    return known[discordId] || 'Member #' + discordId.slice(-4);
+  }
+
+  function getInitial(discordId) {
+    const name = getDisplayName(discordId);
+    return name.charAt(0).toUpperCase();
+  }
+
+  async function init() {
+    // Auth nav
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
+      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+      document.getElementById('nav-right').innerHTML = `
+        <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+          <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || user.email}</span>
+        </a>
+        ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
+        <button style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
+      `;
+    }
+    loadLeaderboard();
+  }
+
+  async function loadLeaderboard() {
+    const wrap = document.getElementById('leaderboard-wrap');
+
+    const { data: rows, error } = await sb
+      .from('discord_xp')
+      .select('*')
+      .order('xp', { ascending: false });
+
+    if (error || !rows?.length) {
+      wrap.innerHTML = `<div class="empty-state">No leaderboard data yet. Join the Discord and start earning XP!</div>`;
+      return;
+    }
+
+    const maxXp = rows[0].xp;
+    const top3  = rows.slice(0, 3);
+    const rest  = rows.slice(3);
+
+    // Build podium (reorder: 2nd, 1st, 3rd for visual effect)
+    const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean);
+    const podiumClasses = top3[1] ? ['rank-2', 'rank-1', 'rank-3'] : ['rank-1', 'rank-2', 'rank-3'];
+    const podiumLabels  = top3[1] ? ['#2', '#1', '#3'] : ['#1', '#2', '#3'];
+
+    const podiumHtml = `
+      <div class="podium">
+        ${podiumOrder.map((row, i) => `
+          <div class="podium-slot ${podiumClasses[i]}">
+            <div class="podium-avatar">${getInitial(row.discord_id)}</div>
+            <div class="podium-rank">${podiumLabels[i]}</div>
+            <div class="podium-name">${getDisplayName(row.discord_id)}</div>
+            <div class="podium-xp">${row.xp} XP</div>
+            <div class="podium-bar"></div>
+          </div>
+        `).join('')}
+      </div>`;
+
+    // Build rest of list
+    const listHtml = rest.length ? `
+      <div class="leaderboard-list">
+        ${rest.map((row, i) => `
+          <div class="leaderboard-row">
+            <div class="row-rank">#${i + 4}</div>
+            <div class="row-avatar">${getInitial(row.discord_id)}</div>
+            <div class="row-name">${getDisplayName(row.discord_id)}</div>
+            <div class="row-xp-bar-wrap">
+              <div class="row-xp-bar" style="width:${Math.round((row.xp / maxXp) * 100)}%"></div>
+            </div>
+            <div>
+              <div class="row-xp">${row.xp}</div>
+              <div class="xp-label" style="text-align:right;">XP</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>` : '';
+
+    wrap.innerHTML = podiumHtml + listHtml;
+  }
+
+  init();
+</script>
+</body>
+</html>

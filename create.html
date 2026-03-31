@@ -44,6 +44,7 @@
   .toolbar { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
   .toolbar-btn { background: var(--bg4); border: 1px solid var(--border2); color: var(--text-dim); font-size: 12px; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
   .toolbar-btn:hover { border-color: #444; color: var(--text); }
+  /* FIX: id changed from 'hint' to 'content-hint' to match togglePreview() */
   .hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 
   .form-actions { display: flex; gap: 12px; align-items: center; padding-top: 8px; }
@@ -136,7 +137,7 @@
     </div>
     <div class="form-group">
       <label>Content</label>
-     <div class="toolbar">
+      <div class="toolbar">
         <button class="toolbar-btn" onclick="insertFormat('**','**')"><b>B</b></button>
         <button class="toolbar-btn" onclick="insertFormat('*','*')"><i>I</i></button>
         <button class="toolbar-btn" onclick="insertFormat('\n## ','')">H2</button>
@@ -149,12 +150,13 @@
         <button class="toolbar-btn" style="margin-left:auto; color:var(--gold); font-weight:bold;" onclick="togglePreview()" id="preview-btn">👁️ Preview</button>
       </div>
       <input type="file" id="img-input" accept="image/*" style="display:none" onchange="uploadImage(this)">
-      
+
       <textarea id="content" placeholder="Write your content here..."></textarea>
-      
+
       <div id="preview-area" style="display:none; background:var(--bg3); border:1px solid var(--border2); color:#ccc; border-radius:3px; padding:20px; min-height:320px; font-size:19px; line-height:1.6; margin-bottom: 8px;"></div>
-      
-      <div class="hint">Supports Markdown.</div>
+
+      <!-- FIX: id corrected from missing/wrong to 'content-hint' to match togglePreview() -->
+      <div class="hint" id="content-hint">Supports Markdown.</div>
     </div>
     <div class="form-actions">
       <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Submit for Review</button>
@@ -179,11 +181,9 @@
       currentUser = user;
       const { data: profile } = await sb.from('profiles').select('username').eq('id', user.id).single();
       document.getElementById('nav-user').innerHTML = `
-  <a href="profile.html" style="text-decoration:none; color:inherit;">
-    <span style="cursor:pointer; margin-right:12px;">${profile?.username || user.email}</span>
-  </a>
-`;
-// Ensure the logout button is also updated if needed, but the username link is the priority here.
+        <a href="profile.html" style="text-decoration:none; color:inherit;">
+          <span style="cursor:pointer; margin-right:12px;">${profile?.username || user.email}</span>
+        </a>`;
       document.getElementById('logout-btn').style.display = 'block';
       document.getElementById('post-form').style.display = 'block';
     } else {
@@ -217,69 +217,71 @@
     };
     if (placeholders[type]) ta.placeholder = placeholders[type];
   }
+
   async function uploadImage(input) {
     if (!input.files?.length) return;
     const file = input.files[0];
     if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB.'); return; }
-    
+
     const btn = document.getElementById('submit-btn');
-    btn.disabled = true; 
+    btn.disabled = true;
     btn.textContent = 'Uploading image...';
-    
+
     const ext = file.name.split('.').pop();
     const path = `${currentUser.id}/${Date.now()}.${ext}`;
-    
+
     const { error } = await sb.storage.from('post-images').upload(path, file);
-    
-    if (error) { 
-        alert('Upload failed: ' + error.message); 
-        btn.disabled = false; 
-        btn.textContent = 'Submit for Review'; 
-        return; 
+
+    if (error) {
+      alert('Upload failed: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Submit for Review';
+      return;
     }
-    
+
     const { data } = sb.storage.from('post-images').getPublicUrl(path);
     insertFormat(`\n![image](${data.publicUrl})`, '');
-    
-    btn.disabled = false; 
+
+    btn.disabled = false;
     btn.textContent = 'Submit for Review';
     input.value = '';
-}
-let isPreviewing = false;
+  }
 
-  // This matches the exact formatting logic you use in post.html
+  let isPreviewing = false;
+
   function formatText(t) {
-      return t
-          .replace(/\*\*(.*?)\*\*/g, '<b style="color:#fff;">$1</b>') 
-          .replace(/^## (.*$)/gim, '<h2 style="color:var(--gold); margin: 30px 0 10px; font-family:\'Barlow Condensed\'; font-size:28px; border-bottom:1px solid #222; padding-bottom:10px;">$1</h2>') 
-          .replace(/^### (.*$)/gim, '<h3 style="color:#fff; margin: 20px 0 10px; font-family:\'Barlow Condensed\'; font-size:20px;">$1</h3>') 
-          .replace(/!\[.*?\]\((.*?)\)/g, '<img src="$1" style="max-width:100%; border-radius:8px; margin:20px 0; border: 1px solid #222;">')
-          .replace(/\n/g, '<br>'); 
+    return t
+      .replace(/\*\*(.*?)\*\*/g, '<b style="color:#fff;">$1</b>')
+      .replace(/^## (.*$)/gim, '<h2 style="color:var(--gold); margin: 30px 0 10px; font-family:\'Barlow Condensed\'; font-size:28px; border-bottom:1px solid #222; padding-bottom:10px;">$1</h2>')
+      .replace(/^### (.*$)/gim, '<h3 style="color:#fff; margin: 20px 0 10px; font-family:\'Barlow Condensed\'; font-size:20px;">$1</h3>')
+      .replace(/!\[.*?\]\((.*?)\)/g, '<img src="$1" style="max-width:100%; border-radius:8px; margin:20px 0; border: 1px solid #222;">')
+      .replace(/\n/g, '<br>');
   }
 
   function togglePreview() {
-      const ta = document.getElementById('content');
-      const preview = document.getElementById('preview-area');
-      const btn = document.getElementById('preview-btn');
-      const hint = document.getElementById('content-hint');
+    const ta = document.getElementById('content');
+    const preview = document.getElementById('preview-area');
+    const btn = document.getElementById('preview-btn');
+    const hint = document.getElementById('content-hint'); // FIX: now matches correct ID
 
-      isPreviewing = !isPreviewing;
+    isPreviewing = !isPreviewing;
 
-      if (isPreviewing) {
-          preview.innerHTML = formatText(ta.value) || '<span style="color:#666; font-size: 14px;">Nothing to preview yet...</span>';
-          ta.style.display = 'none';
-          hint.style.display = 'none';
-          preview.style.display = 'block';
-          btn.innerHTML = '✎ Edit';
-          btn.style.color = '#fff';
-      } else {
-          ta.style.display = 'block';
-          hint.style.display = 'block';
-          preview.style.display = 'none';
-          btn.innerHTML = '👁️ Preview';
-          btn.style.color = 'var(--gold)';
-      }
+    if (isPreviewing) {
+      preview.innerHTML = formatText(ta.value) || '<span style="color:#666; font-size: 14px;">Nothing to preview yet...</span>';
+      ta.style.display = 'none';
+      hint.style.display = 'none';
+      preview.style.display = 'block';
+      btn.innerHTML = '✎ Edit';
+      btn.style.color = '#fff';
+    } else {
+      ta.style.display = 'block';
+      hint.style.display = 'block';
+      preview.style.display = 'none';
+      btn.innerHTML = '👁️ Preview';
+      btn.style.color = 'var(--gold)';
+    }
   }
+
   async function handleSubmit() {
     const type = document.getElementById('post-type').value;
     const game = document.getElementById('game').value;
@@ -293,7 +295,15 @@ let isPreviewing = false;
     if (!type || !game || !category || !title || !content) {
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
-   
+
+    // FIX: Frontend content length validation
+    if (title.length < 5) {
+      msg.className = 'msg error'; msg.textContent = 'Title must be at least 5 characters.'; return;
+    }
+    if (content.length < 50) {
+      msg.className = 'msg error'; msg.textContent = 'Content must be at least 50 characters.'; return;
+    }
+
     btn.disabled = true; btn.textContent = 'Submitting...';
 
     const { error } = await sb.from('posts').insert({
