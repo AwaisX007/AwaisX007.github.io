@@ -14,6 +14,8 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- DOMPurify for XSS sanitization -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
@@ -24,27 +26,62 @@
         nav { display: flex; justify-content: space-between; padding: 0 32px; height: 56px; background: #080808; border-bottom: 1px solid var(--border); align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
         .logo { color: var(--gold); text-decoration: none; font-weight: 700; letter-spacing: 2px; font-family: 'Barlow Condensed'; font-size: 22px; }
         .logo span { color: #fff; }
+        .nav-links { display: flex; gap: 28px; }
+        .nav-links a { font-size: 13px; font-weight: 500; color: #999; text-decoration: none; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--gold); }
+        .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid #2a2a2a; color: #999; border-radius: 3px; cursor: pointer; text-decoration: none; }
+        .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; text-decoration: none; }
         .post-container { max-width: 800px; margin: 60px auto; padding: 0 24px; }
         .post-title { font-family: 'Barlow Condensed'; font-size: 56px; color: #fff; line-height: 1.1; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .post-content { font-size: 19px; color: #ccc; white-space: pre-wrap; margin-bottom: 50px; }
-        .post-content b { color: #fff; font-weight: 700; }
+        .post-content { font-size: 19px; color: #ccc; margin-bottom: 50px; }
+        .post-content b, .post-content strong { color: #fff; font-weight: 700; }
+        .post-content em { color: #ddd; font-style: italic; }
         .post-content h2 { color: var(--gold); margin: 40px 0 15px; font-family: 'Barlow Condensed'; font-size: 32px; border-bottom: 1px solid #222; padding-bottom: 10px; }
         .post-content h3 { color: #fff; margin: 30px 0 10px; font-family: 'Barlow Condensed'; font-size: 24px; }
+        .post-content ul, .post-content ol { margin: 12px 0 12px 24px; }
+        .post-content li { margin-bottom: 6px; }
+        .post-content blockquote { border-left: 3px solid var(--gold); margin: 16px 0; padding: 8px 16px; background: rgba(232,200,74,0.05); color: #aaa; font-style: italic; }
+        .post-content code { background: #1a1a1a; border: 1px solid #333; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 15px; color: #e8c84a; }
+        .post-content pre { background: #111; border: 1px solid #333; padding: 16px; border-radius: 4px; overflow-x: auto; margin: 16px 0; }
+        .post-content pre code { background: none; border: none; padding: 0; }
+        .post-content img { max-width: 100%; border-radius: 8px; margin: 20px 0; border: 1px solid #222; display: block; }
+        .post-content hr { border: none; border-top: 1px solid #333; margin: 32px 0; }
+        .post-content a { color: var(--gold); }
         .interaction-bar { display: flex; align-items: center; gap: 20px; padding: 30px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .upvote-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 10px 24px; border-radius: 4px; cursor: pointer; font-weight: 700; transition: 0.2s; font-family: 'Barlow', sans-serif; }
         .upvote-btn:hover { background: rgba(232, 200, 74, 0.1); }
         .upvote-btn.active { background: var(--gold); color: #000; }
+        .upvote-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .comment-card { background: var(--bg2); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 15px; position: relative; }
         .comment-author { color: var(--gold); font-size: 13px; font-weight: 700; margin-bottom: 5px; }
-        .btn-delete { position: absolute; top: 15px; right: 15px; color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.6; }
-        .btn-delete:hover { opacity: 1; }
-        .comment-input { width: 100%; height: 100px; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 4px; margin: 20px 0 10px; font-family: 'Barlow', sans-serif; resize: none; }
+        .comment-body { color: #aaa; font-size: 15px; word-break: break-word; }
+        .btn-delete-comment { position: absolute; top: 15px; right: 15px; color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.6; font-family: 'Barlow', sans-serif; }
+        .btn-delete-comment:hover { opacity: 1; }
+        .comment-input { width: 100%; height: 100px; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 4px; margin: 20px 0 10px; font-family: 'Barlow', sans-serif; resize: none; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .comment-input:focus { border-color: var(--gold); }
+        .comment-submit { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; border-radius: 3px; font-family: 'Barlow'; transition: background 0.2s; }
+        .comment-submit:hover { background: #f0d060; }
+        .comment-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .comment-error { color: #ff6b6b; font-size: 13px; margin-top: 8px; display: none; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #666; text-decoration: none; margin-bottom: 32px; transition: color 0.2s; }
+        .back-link:hover { color: var(--gold); }
+        @media (max-width: 600px) { .nav-links { display: none; } .post-title { font-size: 36px; } }
     </style>
 </head>
 <body>
     <nav>
         <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
-        <div id="nav-right"></div>
+        <div class="nav-links">
+            <a href="guides.html">Guides</a>
+            <a href="blog.html">Blog</a>
+            <a href="tierlists.html">Tier Lists</a>
+            <a href="prosettings.html">Pro Settings</a>
+            <a href="about.html">About Us</a>
+        </div>
+        <div id="nav-right" style="display:flex;gap:10px;align-items:center;">
+            <a class="btn-login" href="login.html">Log in</a>
+            <a class="btn-signup" href="signup.html">Sign up</a>
+        </div>
     </nav>
 
     <div id="main-content" class="post-container">
@@ -52,114 +89,165 @@
     </div>
 
     <script>
-        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const postId = new URLSearchParams(window.location.search).get('id');
         let currentUser = null;
         let isAdmin = false;
         let hasUpvoted = false;
 
         async function init() {
-            const { data: { user } } = await sb.auth.getUser();
+            const { data: { user } } = await window.sb.auth.getUser();
             currentUser = user;
+
             if (user) {
-                const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+                const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
                 isAdmin = profile?.is_admin || false;
                 document.getElementById('nav-right').innerHTML = `
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <a href="profile.html" style="text-decoration:none; color:inherit;">
-                            <span style="font-size:13px;color:#999;cursor:pointer;">${profile?.username || user.email}</span>
+                        <a href="profile.html" style="text-decoration:none;">
+                            <span style="font-size:13px;color:#999;cursor:pointer;">${escapeHtml(profile?.username || user.email)}</span>
                         </a>
                         ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;">Admin</a>' : ''}
-                        <button class="btn-logout" style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
+                        <button style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px; font-family:Barlow,sans-serif;" onclick="window.sb.auth.signOut().then(() => window.location.reload())">Log out</button>
                     </div>`;
-                
-                const { data: vote } = await sb.from('post_upvotes').select('*').eq('post_id', postId).eq('user_id', user.id).single();
+
+                // Check if user already upvoted
+                const { data: vote } = await window.sb.from('post_upvotes').select('id').eq('post_id', postId).eq('user_id', user.id).maybeSingle();
                 hasUpvoted = !!vote;
             }
+
             incrementViews();
             loadPost();
         }
 
         async function loadPost() {
-            const { data: post, error } = await sb.from('posts')
+            if (!postId) {
+                document.getElementById('main-content').innerHTML = `<h2 style="color:#ff6b6b">Post not found.</h2>`;
+                return;
+            }
+
+            const { data: post, error } = await window.sb.from('posts')
                 .select('*, profiles!posts_user_id_fkey(username)')
                 .eq('id', postId)
                 .single();
 
-            if (error) {
-                document.getElementById('main-content').innerHTML = `<h2>Post not found.</h2>`;
+            if (error || !post) {
+                document.getElementById('main-content').innerHTML = `<h2 style="color:#ff6b6b">Post not found.</h2>`;
                 return;
             }
 
-            // --- 🚀 DYNAMIC SEO UPDATE ---
             updateMetaTags(post);
 
             document.getElementById('main-content').innerHTML = `
+                <a class="back-link" href="javascript:history.back()">← Back</a>
                 <article>
-                    <div style="color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;">${post.game} // ${post.category}</div>
-                    <h1 class="post-title">${post.title}</h1>
-                    <div style="font-size:14px; color:#666; margin-bottom:40px;">by <b><a href="user.html?id=${post.user_id}" style="color:var(--gold); text-decoration:none;">${post.profiles?.username}</a></b> • ${timeAgo(post.created_at)} • 👁️ ${post.views || 0} views</div>
-                    <div class="post-content">${formatText(post.content)}</div>
-                    
+                    <div style="color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;">${escapeHtml(post.game)} // ${escapeHtml(post.category)}</div>
+                    <h1 class="post-title">${escapeHtml(post.title)}</h1>
+                    <div style="font-size:14px; color:#666; margin-bottom:40px;">
+                        by <b><a href="user.html?id=${escapeHtml(post.user_id)}" style="color:var(--gold); text-decoration:none;">${escapeHtml(post.profiles?.username || 'unknown')}</a></b>
+                        &nbsp;•&nbsp; ${timeAgo(post.created_at)}
+                        &nbsp;•&nbsp; 👁️ ${post.views || 0} views
+                        &nbsp;•&nbsp; ▲ <span id="v-count">${post.upvotes || 0}</span>
+                    </div>
+                    <div class="post-content" id="post-body"></div>
+
                     <div class="interaction-bar">
                         <button id="upvote-btn" class="upvote-btn ${hasUpvoted ? 'active' : ''}" onclick="toggleUpvote()">
                             ${hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE'}
                         </button>
-                        <span style="font-weight:700; color:#fff;" id="v-count">${post.upvotes || 0}</span>
+                        <span style="color:#555; font-size:14px;">${currentUser ? '' : '<a href="login.html" style="color:var(--gold);font-size:13px;">Log in to upvote</a>'}</span>
                     </div>
 
                     <div style="margin-top:60px;">
-                        <h3 style="font-family:'Barlow Condensed'; font-size:24px; margin-bottom:30px;">Discussion</h3>
-                        <div id="comment-area">${currentUser ? `<textarea id="c-box" class="comment-input" placeholder="Join the discussion..."></textarea><button onclick="postComment()" style="background:var(--gold); color:#000; border:none; padding:10px 20px; font-weight:700; cursor:pointer; border-radius:3px; font-family:'Barlow';">Post Comment</button>` : `<p style="color:#666; font-size:14px;">Sign in to join the conversation.</p>`}</div>
-                        <div id="comments-list" style="margin-top:40px;"></div>
+                        <h3 style="font-family:\'Barlow Condensed\'; font-size:24px; margin-bottom:20px;">Discussion</h3>
+                        <div id="comment-area">
+                            ${currentUser ? `
+                                <textarea id="c-box" class="comment-input" placeholder="Join the discussion..." maxlength="2000"></textarea>
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <button class="comment-submit" onclick="postComment()">Post Comment</button>
+                                    <span id="comment-error" class="comment-error"></span>
+                                </div>
+                            ` : `<p style="color:#666; font-size:14px;"><a href="login.html" style="color:var(--gold);">Sign in</a> to join the conversation.</p>`}
+                        </div>
+                        <div id="comments-list" style="margin-top:32px;"></div>
                     </div>
                 </article>`;
+
+            // Safely render markdown content using DOMPurify
+            document.getElementById('post-body').innerHTML = DOMPurify.sanitize(formatText(post.content), {
+                ALLOWED_TAGS: ['b', 'strong', 'em', 'i', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'img', 'br', 'hr', 'a', 'p'],
+                ALLOWED_ATTR: ['src', 'alt', 'style', 'href', 'target'],
+                ALLOW_DATA_ATTR: false
+            });
+
             loadComments();
         }
 
         function updateMetaTags(post) {
-            const description = post.content.substring(0, 160).replace(/[#*]/g, '') + "...";
-            const url = window.location.href;
-
+            const description = post.content.substring(0, 160).replace(/[#*`>]/g, '') + '...';
             document.title = `${post.title} | MarineoFPS`;
-            document.querySelector('meta[name="description"]').setAttribute("content", description);
-            document.querySelector('meta[property="og:title"]').setAttribute("content", post.title);
-            document.querySelector('meta[property="og:description"]').setAttribute("content", description);
-            document.querySelector('meta[property="og:url"]').setAttribute("content", url);
+            document.querySelector('meta[name="description"]').setAttribute('content', description);
+            document.querySelector('meta[property="og:title"]').setAttribute('content', post.title);
+            document.querySelector('meta[property="og:description"]').setAttribute('content', description);
+            document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
         }
 
+        // Safe markdown renderer - converts to HTML then DOMPurify sanitizes
         function formatText(t) {
             return t
-                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') 
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>') 
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>') 
-                .replace(/!\[.*?\]\((.*?)\)/g, '<img src="$1" style="max-width:100%; border-radius:8px; margin:20px 0; border: 1px solid #222;">')
-                .replace(/\n/g, '<br>'); 
+                // Code blocks (must come before inline code)
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                // Inline code
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                // Bold
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                // H2
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                // H3
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                // Blockquote
+                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+                // HR
+                .replace(/^---$/gim, '<hr>')
+                // Images
+                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+                // Unordered lists
+                .replace(/^\- (.+)/gim, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+                // Ordered lists
+                .replace(/^\d+\. (.+)/gim, '<li>$1</li>')
+                // Line breaks
+                .replace(/\n/g, '<br>');
         }
 
-        // ... (Keeping your existing toggleUpvote, celebrate, refreshUpvoteCount, loadComments, postComment, deleteComment, incrementViews, and timeAgo functions exactly as they were) ...
-
         async function toggleUpvote() {
-            if (!currentUser) return alert("Log in to upvote!");
+            if (!currentUser) { window.location.href = 'login.html'; return; }
             const btn = document.getElementById('upvote-btn');
             btn.disabled = true;
-            hasUpvoted = !hasUpvoted; 
-            btn.classList.toggle('active', hasUpvoted);
-            btn.innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
-            if (hasUpvoted) celebrate(); 
 
             try {
+                let newCount;
                 if (!hasUpvoted) {
-                    await sb.from('post_upvotes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+                    // Use atomic RPC — prevents race condition
+                    const { data, error } = await window.sb.rpc('add_upvote', { p_post_id: parseInt(postId) });
+                    if (error) throw error;
+                    newCount = data;
+                    hasUpvoted = true;
+                    btn.classList.add('active');
+                    btn.innerText = '▲ UPVOTED';
+                    celebrate();
                 } else {
-                    await sb.from('post_upvotes').insert({ post_id: postId, user_id: currentUser.id });
+                    const { data, error } = await window.sb.rpc('remove_upvote', { p_post_id: parseInt(postId) });
+                    if (error) throw error;
+                    newCount = data;
+                    hasUpvoted = false;
+                    btn.classList.remove('active');
+                    btn.innerText = '▲ UPVOTE';
                 }
-                await refreshUpvoteCount();
+                document.getElementById('v-count').innerText = newCount;
             } catch (err) {
-                console.error(err);
-                hasUpvoted = !hasUpvoted;
-                btn.classList.toggle('active', hasUpvoted);
-                btn.innerText = hasUpvoted ? '▲ UPVOTED' : '▲ UPVOTE';
+                console.error('Upvote error:', err);
             } finally {
                 btn.disabled = false;
             }
@@ -169,31 +257,58 @@
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.9 }, colors: ['#e8c84a', '#ffffff', '#5cdb95'] });
         }
 
-        async function refreshUpvoteCount() {
-            const { count } = await sb.from('post_upvotes').select('*', { count: 'exact', head: true }).eq('post_id', postId);
-            await sb.from('posts').update({ upvotes: count }).eq('id', postId);
-            document.getElementById('v-count').innerText = count;
-        }
-
         async function loadComments() {
-            const { data: comments } = await sb.from('post_comments').select('*, profiles(username)').eq('post_id', postId).order('created_at', { ascending: false });
-            document.getElementById('comments-list').innerHTML = comments?.map(c => `
-                <div class="comment-card">
-                    <div class="comment-author">${c.profiles?.username}</div>
-                    <div style="color:#aaa; font-size:15px;">${c.content}</div>
-                    ${(isAdmin || (currentUser && currentUser.id === c.user_id)) ? `<button class="btn-delete" onclick="deleteComment(${c.id})">Delete</button>` : ''}
-                </div>`).join('') || '<p style="color:#444">No comments yet.</p>';
+            const { data: comments } = await window.sb.from('post_comments')
+                .select('*, profiles(username)')
+                .eq('post_id', postId)
+                .order('created_at', { ascending: false });
+
+            document.getElementById('comments-list').innerHTML = comments?.length
+                ? comments.map(c => `
+                    <div class="comment-card">
+                        <div class="comment-author">${escapeHtml(c.profiles?.username || 'Unknown')}</div>
+                        <div class="comment-body">${escapeHtml(c.content)}</div>
+                        ${(isAdmin || (currentUser && currentUser.id === c.user_id))
+                            ? `<button class="btn-delete-comment" onclick="deleteComment(${c.id})">Delete</button>`
+                            : ''}
+                    </div>`).join('')
+                : '<p style="color:#444">No comments yet. Be the first!</p>';
         }
 
         async function postComment() {
-            const txt = document.getElementById('c-box').value.trim();
+            const txt = document.getElementById('c-box')?.value?.trim();
+            const errEl = document.getElementById('comment-error');
+            errEl.style.display = 'none';
+
             if (!txt) return;
-            await sb.from('post_comments').insert({ post_id: postId, user_id: currentUser.id, content: txt });
-            document.getElementById('c-box').value = ''; loadComments();
+            if (txt.length > 2000) { errEl.textContent = 'Comment too long (max 2000 chars).'; errEl.style.display = 'block'; return; }
+
+            const submitBtn = document.querySelector('.comment-submit');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Posting...';
+
+            // Use rate-limited RPC instead of direct insert
+            const { error } = await window.sb.rpc('post_comment_safe', {
+                p_post_id: parseInt(postId),
+                p_content: txt
+            });
+
+            if (error) {
+                errEl.textContent = error.message || 'Failed to post comment.';
+                errEl.style.display = 'block';
+            } else {
+                document.getElementById('c-box').value = '';
+                loadComments();
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Post Comment';
         }
 
         async function deleteComment(id) {
-            if (confirm("Delete comment?")) { await sb.from('post_comments').delete().eq('id', id); loadComments(); }
+            if (!confirm('Delete comment?')) return;
+            await window.sb.from('post_comments').delete().eq('id', id);
+            loadComments();
         }
 
         async function incrementViews() {
@@ -201,22 +316,33 @@
             const viewKey = `viewed_post_${postId}`;
             if (sessionStorage.getItem(viewKey)) return;
             sessionStorage.setItem(viewKey, 'true');
-            await sb.rpc('increment_views', { post_id: postId });
+            await window.sb.rpc('increment_views', { post_id: parseInt(postId) });
+        }
+
+        // Escape HTML to prevent XSS in text content
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;');
         }
 
         function timeAgo(date) {
             const seconds = Math.floor((new Date() - new Date(date)) / 1000);
             let interval = Math.floor(seconds / 31536000);
-            if (interval >= 1) return interval + "y ago";
+            if (interval >= 1) return interval + 'y ago';
             interval = Math.floor(seconds / 2592000);
-            if (interval >= 1) return interval + "mo ago";
+            if (interval >= 1) return interval + 'mo ago';
             interval = Math.floor(seconds / 86400);
-            if (interval >= 1) return interval + "d ago";
+            if (interval >= 1) return interval + 'd ago';
             interval = Math.floor(seconds / 3600);
-            if (interval >= 1) return interval + "h ago";
+            if (interval >= 1) return interval + 'h ago';
             interval = Math.floor(seconds / 60);
-            if (interval >= 1) return interval + "m ago";
-            return "just now";
+            if (interval >= 1) return interval + 'm ago';
+            return 'just now';
         }
 
         init();

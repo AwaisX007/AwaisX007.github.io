@@ -13,12 +13,12 @@
   <meta property="og:url" content="https://marineofps.dev/">
   <meta property="og:title" content="MarineoFPS | Level Up Your Game">
   <meta property="og:description" content="Join the MarineoFPS community. Access exclusive CS2, Valorant, and Apex Legends guides and climb the Discord ranks.">
-  <meta property="og:image" content="https://marineofps.dev/images/og-banner.jpg"> <meta property="twitter:card" content="summary_large_image">
+  <meta property="og:image" content="https://marineofps.dev/images/og-banner.jpg">
+  <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://marineofps.dev/">
   <meta property="twitter:title" content="MarineoFPS | Tactical Excellence">
   <meta property="twitter:description" content="Community-driven tactical guides and FPS insights. Check out the latest content now.">
   <meta property="twitter:image" content="https://marineofps.dev/images/og-banner.jpg">
-  
   <meta name="theme-color" content="#e8c84a">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,18 +27,9 @@
   <script src="config.js"></script>
   
   <style>
-    /* I kept your existing styles but added a hover effect for the social cards */
-    .social-card {
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .social-card:hover {
-      transform: scale(1.02);
-      border-color: var(--gold) !important;
-    }
-    #main-search:focus {
-      border-color: var(--gold) !important;
-      box-shadow: 0 0 10px rgba(232, 200, 74, 0.1);
-    }
+    .social-card { transition: transform 0.2s, border-color 0.2s; }
+    .social-card:hover { transform: scale(1.02); border-color: var(--gold) !important; }
+    #main-search:focus { border-color: var(--gold) !important; box-shadow: 0 0 10px rgba(232, 200, 74, 0.1); }
     :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -51,8 +42,7 @@
     .nav-right { display: flex; gap: 10px; align-items: center; }
     .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; text-decoration: none; }
     .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; text-decoration: none; }
-    .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; }
-
+    .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
     .hero { padding: 80px 32px 60px; background: var(--bg); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); pointer-events: none; }
     .hero-inner { max-width: 640px; position: relative; }
@@ -64,17 +54,14 @@
     .hero-btns { display: flex; gap: 12px; }
     .hero-btn-main { padding: 12px 28px; background: var(--gold); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.2s; text-decoration: none; }
     .hero-btn-sec { padding: 12px 28px; background: transparent; color: var(--text-dim); font-size: 14px; border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; text-decoration: none; }
-
     .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 4px; overflow-x: auto; }
-    .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border: none; }
+    .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
     .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-
     .main { max-width: 1200px; margin: 0 auto; padding: 32px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
     .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
     .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
     .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; }
-
     .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
     .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
     .post-card:hover { border-color: #444; transform: translateY(-2px); }
@@ -83,14 +70,17 @@
     .card-title { font-size: 13px; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
     .card-footer { display: flex; align-items: center; justify-content: space-between; }
     .card-author { font-size: 11px; color: var(--text-muted); }
-
     .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; margin-bottom: 16px; }
     .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
     .join-btn { width: 100%; padding: 10px; background: var(--gold); color: #080808; font-weight: 700; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; display: block; text-align: center; }
-
     footer { border-top: 1px solid var(--border); padding: 32px; background: var(--bg2); }
     .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+    .footer-logo span { color: #555; }
+    .footer-text { font-size: 12px; color: var(--text-muted); }
+    @media (max-width: 900px) { .nav-links { display: none; } .main { grid-template-columns: 1fr; } .posts-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .posts-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 44px; } }
   </style>
 </head>
 <body>
@@ -102,7 +92,7 @@
     <a href="blog.html">Blog</a>
     <a href="tierlists.html">Tier Lists</a>
     <a href="prosettings.html">Pro Settings</a>
-    <a href="about.html">About Us</a> </div>
+    <a href="about.html">About Us</a>
   </div>
   <div class="nav-right" id="nav-right">
     <a class="btn-login" href="login.html">Log in</a>
@@ -111,7 +101,7 @@
 </nav>
 
 <div class="hero">
-  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 40px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;">
     <div class="hero-inner">
       <div class="hero-badge"><span></span> CS2 · Valorant · Apex · More</div>
       <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
@@ -159,7 +149,7 @@
 
 <div style="max-width: 1200px; margin: 0 auto; padding: 24px 32px 0;">
   <div style="position: relative;">
-    <input type="text" id="main-search" placeholder="Search guides, players, or games..." 
+    <input type="text" id="main-search" placeholder="Search guides, players, or games..."
       style="width: 100%; background: var(--bg3); border: 1px solid var(--border); color: #fff; padding: 14px 20px; border-radius: 4px; font-family: 'Barlow', sans-serif; outline: none; font-size: 15px; transition: border-color 0.2s;">
     <span style="position: absolute; right: 20px; top: 14px; color: var(--text-muted); pointer-events: none;">🔍</span>
   </div>
@@ -181,16 +171,16 @@
   </div>
 
   <div class="sidebar">
-    <div class="sidebar-box join-box" id="auth-sidebar">
+    <div class="sidebar-box" id="auth-sidebar">
       <div class="sidebar-title" style="justify-content:center;">Join the Community</div>
-      <p>Create a free account to write guides and climb the Discord ranks.</p>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;">Create a free account to write guides and climb the Discord ranks.</p>
       <a class="join-btn" href="signup.html">Create Free Account</a>
       <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: center;">Already a member? <a href="login.html" style="color:var(--gold); text-decoration:none;">Log in</a></div>
     </div>
 
     <div class="sidebar-box">
       <div class="sidebar-title">Trending Now</div>
-      <div id="trending-list" class="games-list">
+      <div id="trending-list">
         <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Loading trends...</div>
       </div>
     </div>
@@ -207,26 +197,26 @@
   <div class="footer-inner">
     <div class="footer-logo">MARINEO<span>FPS</span></div>
     <div style="display:flex; gap: 20px;">
-        <a href="https://ko-fi.com/marineofps" target="_blank" style="font-size:12px;color:#FF5E5B;text-decoration:none;">Support</a>
-        <a href="https://discord.gg/b3KebadbpA" target="_blank" style="font-size:12px;color:#5865F2;text-decoration:none;">Discord</a>
+      <a href="https://ko-fi.com/marineofps" target="_blank" style="font-size:12px;color:#FF5E5B;text-decoration:none;">Support</a>
+      <a href="https://discord.gg/b3KebadbpA" target="_blank" style="font-size:12px;color:#5865F2;text-decoration:none;">Discord</a>
+      <a href="leaderboard.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;">Leaderboard</a>
     </div>
     <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
   </div>
 </footer>
 
 <script>
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentGame = '';
+  let searchDebounceTimer = null;
 
   async function init() {
-    const { data: { user } } = await sb.auth.getUser();
+    const { data: { user } } = await window.sb.auth.getUser();
     if (user) {
-      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+      const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
       document.getElementById('community-btn').href = 'create.html';
       document.getElementById('community-btn').textContent = 'Create a Post';
       
-      const navRight = document.getElementById('nav-right');
-      navRight.innerHTML = `
+      document.getElementById('nav-right').innerHTML = `
         <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
           <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
         </a>
@@ -236,22 +226,27 @@
       
       document.getElementById('auth-sidebar').innerHTML = `
         <div class="sidebar-title" style="justify-content:center;">Welcome back!</div>
-        <p style="text-align:center; margin-bottom:15px;">Logged in as <a href="profile.html" style="color:var(--gold); text-decoration:none; font-weight:600;">${profile?.username}</a>.</p>
+        <p style="text-align:center; margin-bottom:15px; font-size:13px; color:var(--text-muted);">Logged in as <a href="profile.html" style="color:var(--gold); text-decoration:none; font-weight:600;">${profile?.username}</a>.</p>
         <a class="join-btn" href="create.html">+ Create a Post</a>
       `;
     }
+
     loadPosts();
     loadTrending();
 
+    // FIX: debounced search — waits 300ms after user stops typing before querying
     document.getElementById('main-search').addEventListener('input', (e) => {
-      const term = e.target.value.trim();
-      loadSection('guide', 'guides-section', term);
-      loadSection('blog', 'blogs-section', term);
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        const term = e.target.value.trim();
+        loadSection('guide', 'guides-section', term);
+        loadSection('blog', 'blogs-section', term);
+      }, 300);
     });
   }
 
   async function logout() {
-    await sb.auth.signOut();
+    await window.sb.auth.signOut();
     window.location.reload();
   }
 
@@ -261,29 +256,29 @@
   }
 
   async function loadTrending() {
-    const { data: posts, error } = await sb.from('posts')
-        .select('id, title, views, game')
-        .eq('status', 'approved')
-        .order('views', { ascending: false })
-        .limit(3);
+    const { data: posts } = await window.sb.from('posts')
+      .select('id, title, views, game')
+      .eq('status', 'approved')
+      .order('views', { ascending: false })
+      .limit(3);
 
     const list = document.getElementById('trending-list');
-    if (error || !posts?.length) {
-        list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No trends yet.</div>';
-        return;
+    if (!posts?.length) {
+      list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No trends yet.</div>';
+      return;
     }
 
     list.innerHTML = posts.map(p => `
-        <a class="game-item" href="post.html?id=${p.id}" style="display:block; text-decoration:none; padding:10px; border-radius:4px; margin-bottom:4px; transition:background 0.2s;">
-            <div style="font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom:2px;">${p.game}</div>
-            <div style="font-size:13px; color:var(--text); font-weight:600; line-height: 1.2;">${p.title}</div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top:4px;">👁️ ${p.views || 0} views</div>
-        </a>
+      <a href="post.html?id=${p.id}" style="display:block; text-decoration:none; padding:10px; border-radius:4px; margin-bottom:4px; transition:background 0.2s;" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background=''">
+        <div style="font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom:2px;">${p.game}</div>
+        <div style="font-size:13px; color:var(--text); font-weight:600; line-height: 1.2;">${p.title}</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top:4px;">👁️ ${p.views || 0} views</div>
+      </a>
     `).join('');
   }
 
   async function loadSection(type, sectionId, searchTerm = '') {
-    let query = sb.from('posts')
+    let query = window.sb.from('posts')
       .select('*, profiles!posts_user_id_fkey(username)')
       .eq('status', 'approved')
       .eq('type', type)
@@ -298,7 +293,7 @@
     if (!posts?.length) {
       section.innerHTML = `
         <div style="background:var(--bg3); border:1px dashed var(--border2); border-radius:4px; padding:30px; text-align:center; margin-bottom:32px;">
-          <div style="font-size:13px; color:var(--text-muted);">${searchTerm ? `No results for "${searchTerm}"` : 'No posts found yet.'}</div>
+          <div style="font-size:13px; color:var(--text-muted);">${searchTerm ? `No results for "${searchTerm}"` : 'No posts yet.'}</div>
         </div>`;
       return;
     }
@@ -309,8 +304,8 @@
           <div class="card-game">${p.game} · ${p.category}</div>
           <div class="card-title">${p.title}</div>
           <div class="card-footer">
-            <div class="card-author">by <a href="user.html?id=${p.user_id}" style="color:var(--gold); text-decoration:none;">${p.profiles?.username || 'unknown'}</a></div>
-            <div style="font-size:11px; color:var(--text-muted);">▲ ${p.upvotes}</div>
+            <div class="card-author">by <a href="user.html?id=${p.user_id}" style="color:var(--gold); text-decoration:none;" onclick="event.stopPropagation()">${p.profiles?.username || 'unknown'}</a></div>
+            <div style="font-size:11px; color:var(--text-muted);">▲ ${p.upvotes || 0}</div>
           </div>
         </div>
       </a>`).join('')}</div>`;

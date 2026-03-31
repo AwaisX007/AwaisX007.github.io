@@ -21,16 +21,11 @@
     .nav-right { display: flex; gap: 10px; }
     .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; text-decoration: none; }
     .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; text-decoration: none; }
-
     .page-header { padding: 60px 32px; border-bottom: 1px solid var(--border); text-align: center; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); }
     .page-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 48px; font-weight: 700; color: #fff; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
     .page-header p { font-size: 16px; color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6; }
-
     .content { max-width: 1000px; margin: 0 auto; padding: 60px 32px; }
-    
     .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; }
-    
-    /* Staff Grid */
     .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 60px; }
     .staff-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 30px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
     .staff-card:hover { transform: translateY(-3px); border-color: var(--gold); }
@@ -38,27 +33,26 @@
     .staff-role { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
     .staff-name { font-size: 22px; color: #fff; font-family: 'Barlow Condensed'; font-weight: 600; margin-bottom: 12px; }
     .staff-bio { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-
-    /* Contact Section */
     .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 40px; }
     .contact-info h3 { font-family: 'Barlow Condensed'; font-size: 24px; color: #fff; margin-bottom: 16px; }
     .contact-info p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
     .social-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: #5865F2; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 3px; transition: opacity 0.2s; }
     .social-btn:hover { opacity: 0.9; }
-    
     .contact-form { display: flex; flex-direction: column; gap: 16px; }
-    .contact-form input, .contact-form textarea { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 12px 16px; outline: none; }
+    .contact-form input, .contact-form textarea { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 12px 16px; outline: none; transition: border-color 0.2s; }
     .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold); }
     .contact-form textarea { resize: vertical; min-height: 120px; }
     .submit-btn { padding: 12px; background: var(--gold); color: #080808; font-weight: 700; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow'; transition: background 0.2s; }
     .submit-btn:hover { background: #f0d060; }
-
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .form-msg { padding: 10px 14px; border-radius: 3px; font-size: 13px; display: none; }
+    .form-msg.success { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5cdb95; display: block; }
+    .form-msg.error { background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.3); color: #ff6b6b; display: block; }
     footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 40px; }
     .footer-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
     .footer-logo span { color: #555; }
     .footer-text { font-size: 12px; color: var(--text-muted); }
-
     @media (max-width: 800px) { .contact-wrapper { grid-template-columns: 1fr; } .nav-links { display: none; } }
   </style>
 </head>
@@ -69,6 +63,7 @@
     <a href="guides.html">Guides</a>
     <a href="blog.html">Blog</a>
     <a href="tierlists.html">Tier Lists</a>
+    <a href="prosettings.html">Pro Settings</a>
     <a href="about.html" class="active">About Us</a>
   </div>
   <div class="nav-right" id="nav-right">
@@ -91,7 +86,6 @@
       <div class="staff-name">Marineo</div>
       <div class="staff-bio">An electrical engineering student with a passion for gaming mechanics and coding. Built MarineoFPS to give the community a dedicated home for high-tier tactical guides.</div>
     </div>
-
     <div class="staff-card" style="border-top: 3px solid #FF0000;">
       <div class="staff-avatar">SN</div>
       <div class="staff-role">Official Partner / SN Team</div>
@@ -102,7 +96,7 @@
       <div class="staff-avatar">BEO</div>
       <div class="staff-role">Lead Game Analyst</div>
       <div class="staff-name">Beosavage</div>
-      <div class="staff-bio">A game developer and tactical player who understands the deep mechanics of how games work. Passionate about creating engaging experiences and breaking down high-level strategy and skills for the community.</div>
+      <div class="staff-bio">A game developer and tactical player who understands the deep mechanics of how games work. Passionate about creating engaging experiences and breaking down high-level strategy for the community.</div>
     </div>
   </div>
 
@@ -116,11 +110,11 @@
         Join the Discord Server
       </a>
     </div>
-    
     <div class="contact-form">
-      <input type="text" id="contact-name" placeholder="Your Name">
-      <input type="email" id="contact-email" placeholder="Your Email">
-      <textarea id="contact-msg" placeholder="How can we help you?"></textarea>
+      <div class="form-msg" id="form-msg"></div>
+      <input type="text" id="contact-name" placeholder="Your Name" maxlength="100">
+      <input type="email" id="contact-email" placeholder="Your Email" maxlength="200">
+      <textarea id="contact-msg" placeholder="How can we help you?" maxlength="2000"></textarea>
       <button class="submit-btn" id="contact-btn" onclick="sendContactMessage()">Send Message</button>
     </div>
   </div>
@@ -136,73 +130,87 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   async function init() {
-    const { data: { user } } = await sb.auth.getUser();
+    const { data: { user } } = await window.sb.auth.getUser();
     if (user) {
-      const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+      const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
       document.getElementById('nav-right').innerHTML = `
         <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
           <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
         </a>
         ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
-        <button onclick="sb.auth.signOut().then(() => window.location.reload())" style="font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer;">Log out</button>
+        <button onclick="window.sb.auth.signOut().then(() => window.location.reload())" style="font-size:12px;padding:6px 14px;background:transparent;border:1px solid var(--border2);color:var(--text-muted);border-radius:3px;cursor:pointer;font-family:'Barlow',sans-serif;">Log out</button>
       `;
     }
   }
-  init();
-</script>
-  <script>
-  // Paste your new webhook URL for the private contact channel here!
 
   async function sendContactMessage() {
-    const name = document.getElementById('contact-name').value;
-    const email = document.getElementById('contact-email').value;
-    const msg = document.getElementById('contact-msg').value;
+    const name = document.getElementById('contact-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const msg = document.getElementById('contact-msg').value.trim();
     const btn = document.getElementById('contact-btn');
+    const msgEl = document.getElementById('form-msg');
+    msgEl.className = 'form-msg';
 
     if (!name || !email || !msg) {
-      alert("Please fill out all fields!");
+      msgEl.className = 'form-msg error';
+      msgEl.textContent = 'Please fill out all fields.';
       return;
     }
 
-    // Change button text so they know it's sending
-    btn.innerText = "Sending...";
-    btn.style.opacity = "0.7";
-
-    const embed = {
-      title: "📬 New Contact Form Submission",
-      color: 15255626, // MarineoFPS Gold
-      fields: [
-        { name: "Name", value: name, inline: true },
-        { name: "Email", value: email, inline: true },
-        { name: "Message", value: msg }
-      ],
-      timestamp: new Date().toISOString()
-    };
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
 
     try {
-      await fetch(CONTACT_WEBHOOK_URL, {
+      // Fetch webhook URL securely from Supabase RPC instead of hardcoding
+      // This stores the webhook in private.config on the DB side
+      const { data: webhookUrl, error: hookError } = await window.sb.rpc('get_contact_webhook');
+
+      if (hookError || !webhookUrl) {
+        // Fallback: direct user to Discord if webhook not configured
+        msgEl.className = 'form-msg error';
+        msgEl.textContent = 'Contact form is not configured. Please join the Discord instead!';
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+        return;
+      }
+
+      const embed = {
+        title: '📬 New Contact Form Submission',
+        color: 15255626,
+        fields: [
+          { name: 'Name', value: name, inline: true },
+          { name: 'Email', value: email, inline: true },
+          { name: 'Message', value: msg }
+        ],
+        timestamp: new Date().toISOString()
+      };
+
+      const res = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ embeds: [embed] })
       });
-      
-      // Clear the form and say thank you
+
+      if (!res.ok) throw new Error('Webhook returned ' + res.status);
+
       document.getElementById('contact-name').value = '';
       document.getElementById('contact-email').value = '';
       document.getElementById('contact-msg').value = '';
-      btn.innerText = "Message Sent! ✓";
-      btn.style.background = "#5cdb95"; // Make it green!
-      btn.style.color = "#080808";
-      
+      msgEl.className = 'form-msg success';
+      msgEl.textContent = '✓ Message sent! We\'ll get back to you soon.';
+      btn.textContent = 'Message Sent!';
+
     } catch (err) {
       console.error(err);
-      alert("Failed to send message. Please join the Discord instead!");
-      btn.innerText = "Send Message";
-      btn.style.opacity = "1";
+      msgEl.className = 'form-msg error';
+      msgEl.textContent = 'Failed to send. Please join the Discord instead.';
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
     }
   }
+
+  init();
 </script>
 </body>
 </html>
