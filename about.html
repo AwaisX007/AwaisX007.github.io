@@ -112,10 +112,10 @@
     </div>
     
     <div class="contact-form">
-      <input type="text" placeholder="Your Name">
-      <input type="email" placeholder="Your Email">
-      <textarea placeholder="How can we help you?"></textarea>
-      <button class="submit-btn" onclick="alert('Form submission connected soon! Please use Discord for now.')">Send Message</button>
+      <input type="text" id="contact-name" placeholder="Your Name">
+      <input type="email" id="contact-email" placeholder="Your Email">
+      <textarea id="contact-msg" placeholder="How can we help you?"></textarea>
+      <button class="submit-btn" id="contact-btn" onclick="sendContactMessage()">Send Message</button>
     </div>
   </div>
 </div>
@@ -145,6 +145,59 @@
     }
   }
   init();
+</script>
+  <script>
+  // Paste your new webhook URL for the private contact channel here!
+  const CONTACT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1488592783726870742/tlROTseKR_2nLG76eB9ui4yuD3fs2JvtEIepdYqyFgun2hlnq5tP-MRBNRfc2ITkFulO';
+
+  async function sendContactMessage() {
+    const name = document.getElementById('contact-name').value;
+    const email = document.getElementById('contact-email').value;
+    const msg = document.getElementById('contact-msg').value;
+    const btn = document.getElementById('contact-btn');
+
+    if (!name || !email || !msg) {
+      alert("Please fill out all fields!");
+      return;
+    }
+
+    // Change button text so they know it's sending
+    btn.innerText = "Sending...";
+    btn.style.opacity = "0.7";
+
+    const embed = {
+      title: "📬 New Contact Form Submission",
+      color: 15255626, // MarineoFPS Gold
+      fields: [
+        { name: "Name", value: name, inline: true },
+        { name: "Email", value: email, inline: true },
+        { name: "Message", value: msg }
+      ],
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      await fetch(CONTACT_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ embeds: [embed] })
+      });
+      
+      // Clear the form and say thank you
+      document.getElementById('contact-name').value = '';
+      document.getElementById('contact-email').value = '';
+      document.getElementById('contact-msg').value = '';
+      btn.innerText = "Message Sent! ✓";
+      btn.style.background = "#5cdb95"; // Make it green!
+      btn.style.color = "#080808";
+      
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send message. Please join the Discord instead!");
+      btn.innerText = "Send Message";
+      btn.style.opacity = "1";
+    }
+  }
 </script>
 </body>
 </html>
