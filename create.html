@@ -154,7 +154,7 @@
       
       <div id="preview-area" style="display:none; background:var(--bg3); border:1px solid var(--border2); color:#ccc; border-radius:3px; padding:20px; min-height:320px; font-size:19px; line-height:1.6; margin-bottom: 8px;"></div>
       
-      <div class="hint" id="content-hint">Supports Markdown. Minimum 100 characters.</div>
+      <div class="hint">Supports Markdown.</div>
     </div>
     <div class="form-actions">
       <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Submit for Review</button>
@@ -293,10 +293,7 @@ let isPreviewing = false;
     if (!type || !game || !category || !title || !content) {
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
-    if (content.length < 100) {
-      msg.className = 'msg error'; msg.textContent = 'Content must be at least 100 characters.'; return;
-    }
-
+   
     btn.disabled = true; btn.textContent = 'Submitting...';
 
     const { error } = await sb.from('posts').insert({
