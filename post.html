@@ -98,7 +98,7 @@
                 <article>
                     <div style="color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;">${post.game} // ${post.category}</div>
                     <h1 class="post-title">${post.title}</h1>
-                    <div style="font-size:14px; color:#666; margin-bottom:40px;">by <b>${post.profiles?.username}</b> • ${timeAgo(post.created_at)} • 👁️ ${post.views || 0} views</div>
+                    <div style="font-size:14px; color:#666; margin-bottom:40px;">by <b><a href="user.html?id=${post.user_id}" style="color:var(--gold); text-decoration:none;">${post.profiles?.username}</a></b> • ${timeAgo(post.created_at)} • 👁️ ${post.views || 0} views</div>
                     <div class="post-content">${formatText(post.content)}</div>
                     
                     <div class="interaction-bar">
