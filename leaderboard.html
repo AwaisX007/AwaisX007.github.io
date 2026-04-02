@@ -44,7 +44,8 @@
     .podium-slot { display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; max-width: 180px; }
     .podium-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 22px; font-weight: 700; }
     .podium-rank { font-family: 'Barlow Condensed'; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
-    .podium-name { font-size: 13px; font-weight: 600; color: #fff; text-align: center; word-break: break-all; }
+    .podium-name { font-size: 13px; font-weight: 600; color: #fff; text-align: center; word-break: break-word; line-height: 1.35; }
+    .podium-id { font-size: 11px; color: var(--text-muted); text-align: center; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.6px; }
     .podium-xp { font-size: 12px; color: var(--text-muted); }
     .podium-bar { width: 100%; border-radius: 4px 4px 0 0; }
     .rank-1 .podium-avatar { border: 2px solid #FFD700; color: #FFD700; background: rgba(255,215,0,0.08); width: 68px; height: 68px; font-size: 26px; }
@@ -63,7 +64,9 @@
     .leaderboard-row:hover { border-color: #333; }
     .row-rank { font-family: 'Barlow Condensed'; font-size: 18px; font-weight: 700; color: var(--text-muted); width: 28px; text-align: center; flex-shrink: 0; }
     .row-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 16px; font-weight: 700; color: var(--gold); flex-shrink: 0; }
-    .row-name { flex: 1; font-size: 14px; color: #fff; font-weight: 500; }
+    .row-name { flex: 1; min-width: 0; }
+    .row-name-main { font-size: 14px; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-name-id { font-size: 11px; color: var(--text-muted); font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.6px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .row-xp-bar-wrap { width: 120px; height: 4px; background: var(--border2); border-radius: 2px; flex-shrink: 0; }
     .row-xp-bar { height: 4px; background: #5865F2; border-radius: 2px; }
     .row-xp { font-family: 'Barlow Condensed'; font-size: 16px; font-weight: 700; color: #5865F2; width: 54px; text-align: right; flex-shrink: 0; }
@@ -102,13 +105,13 @@
 <div class="page-header">
   <div class="page-header-inner">
     <div class="discord-badge">
-      <svg width="14" height="11" viewBox="0 0 71 55" fill="#5865F2"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1Z"/></svg>
+      <svg width="14" height="11" viewBox="0 0 71 55" fill="#5865F2"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Z"/></svg>
       Discord XP Rankings
     </div>
     <h1>Community Leaderboard</h1>
     <p>Top members ranked by activity XP earned in the MarineoFPS Discord. Be active, earn XP, climb the ranks.</p>
     <a class="discord-join-btn" href="https://discord.gg/b3KebadbpA" target="_blank">
-      <svg width="18" height="14" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1Z"/></svg>
+      <svg width="18" height="14" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Z"/></svg>
       Join the Discord
     </a>
   </div>
@@ -135,26 +138,17 @@
 <script src="footer.js"></script>
 
 <script>
-  // ── Discord ID → Display Name mapping ──────────────────────────────────────
-  // Add entries here as you identify who each Discord ID belongs to.
-  // Format: 'discord_id': 'DisplayName'
-  const KNOWN_USERS = {
-    '251010583770562560': 'MarineoFps',
-    '973931539274547290': 'Marra',
-    '702964685363871906': 'BeoSavage',
-    // Add more as you identify them:
-    // '314056365398032384': 'Username',
-    // '490096430749319200': 'Username',
-    // '958275866532651049': 'Username',
-  };
-
-  function getDisplayName(discordId) {
-    return KNOWN_USERS[discordId] || `Member #${discordId.slice(-4)}`;
+  function getDisplayName(row) {
+    return row.discord_username || `Discord User`;
   }
 
-  function getInitial(discordId) {
-    const name = getDisplayName(discordId);
+  function getInitial(row) {
+    const name = getDisplayName(row);
     return name.charAt(0).toUpperCase();
+  }
+
+  function getDiscordMeta(row) {
+    return `ID: ${row.discord_id}`;
   }
 
   async function init() {
@@ -178,7 +172,7 @@
 
     const { data: rows, error } = await window.sb
       .from('discord_xp')
-      .select('*')
+      .select('discord_id, discord_username, xp')
       .order('xp', { ascending: false });
 
     if (error || !rows?.length) {
@@ -199,9 +193,10 @@
       <div class="podium">
         ${podiumOrder.map((row, i) => `
           <div class="podium-slot ${podiumClasses[i]}">
-            <div class="podium-avatar">${getInitial(row.discord_id)}</div>
+            <div class="podium-avatar">${getInitial(row)}</div>
             <div class="podium-rank">${podiumLabels[i]}</div>
-            <div class="podium-name">${getDisplayName(row.discord_id)}</div>
+            <div class="podium-name">${getDisplayName(row)}</div>
+            <div class="podium-id">${getDiscordMeta(row)}</div>
             <div class="podium-xp">${row.xp} XP</div>
             <div class="podium-bar"></div>
           </div>
@@ -213,8 +208,11 @@
         ${rest.map((row, i) => `
           <div class="leaderboard-row">
             <div class="row-rank">#${i + 4}</div>
-            <div class="row-avatar">${getInitial(row.discord_id)}</div>
-            <div class="row-name">${getDisplayName(row.discord_id)}</div>
+            <div class="row-avatar">${getInitial(row)}</div>
+            <div class="row-name">
+              <div class="row-name-main">${getDisplayName(row)}</div>
+              <div class="row-name-id">${getDiscordMeta(row)}</div>
+            </div>
             <div class="row-xp-bar-wrap">
               <div class="row-xp-bar" style="width:${Math.round((row.xp / maxXp) * 100)}%"></div>
             </div>
