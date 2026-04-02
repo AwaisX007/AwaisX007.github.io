@@ -2,6 +2,12 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /create.html
+Disallow: /edit.html
+Disallow: /login.html
+Disallow: /signup.html
+Disallow: /forgot-password.html
+Disallow: /reset-password.html
 Disallow: /profile.html
+Disallow: /user.html
 
 Sitemap: https://marineofps.dev/sitemap.xml
