@@ -49,6 +49,8 @@
   .access-denied p { font-size: 14px; color: var(--text-muted); }
 
   footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 48px; }
+  footer a { transition: opacity 0.2s ease, text-decoration-color 0.2s ease; }
+  footer a:hover { opacity: 0.92; text-decoration: underline !important; }
   .footer-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
   .footer-logo span { color: #555; }
@@ -69,12 +71,15 @@
   <div class="loading">Checking access...</div>
 </div>
 
-<footer>
+<footer data-footer-links="support,discord" data-footer-justify="center">
   <div class="footer-inner">
     <div class="footer-logo">MARINEO<span>FPS</span></div>
+    <div class="footer-links"></div>
     <div class="footer-text">© 2026 MarineoFPS</div>
   </div>
 </footer>
+
+<script src="footer.js"></script>
 
 <script>
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
