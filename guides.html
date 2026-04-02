@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <meta name="description" content="Browse FPS guides for CS2, Valorant, Apex Legends and more. Community-written guides for all skill levels.">
+  <meta name="description" content="Browse FPS guides for CS2, Valorant, Dota 2 and more. Community-written guides for all skill levels.">
   <meta property="og:title" content="Guides — MarineoFPS">
   <meta property="og:url" content="https://marineofps.dev/guides.html">
   <meta property="og:type" content="website">
@@ -35,6 +35,13 @@
     .filter-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
     .filter-tab:hover { color: var(--text); }
     .content { max-width: 1100px; margin: 0 auto; padding: 40px 32px; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .content-card { text-decoration: none; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 20px; display: block; transition: border-color 0.2s; }
+    .content-card-game { font-size: 10px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+    .content-card-title { font-size: 16px; color: #fff; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+    .content-card-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+    .content-card-author { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .content-card-author a { color: var(--gold); text-decoration: none; display: inline-block; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
     .empty-state { background: var(--bg3); border: 1px dashed var(--border2); border-radius: 6px; padding: 80px 32px; text-align: center; }
     .empty-icon { font-size: 48px; margin-bottom: 20px; opacity: 0.3; }
     .empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 600; color: var(--text-dim); margin-bottom: 10px; }
@@ -81,8 +88,8 @@
   <button class="filter-tab active" onclick="setFilter(this, '')">All Games</button>
   <button class="filter-tab" onclick="setFilter(this, 'Counter-Strike 2')">Counter-Strike 2</button>
   <button class="filter-tab" onclick="setFilter(this, 'Valorant')">Valorant</button>
-  <button class="filter-tab" onclick="setFilter(this, 'Apex Legends')">Apex Legends</button>
-  <button class="filter-tab" onclick="setFilter(this, 'Warzone')">Warzone</button>
+  <button class="filter-tab" onclick="setFilter(this, 'Dota 2')">Dota 2</button>
+  <button class="filter-tab" onclick="setFilter(this, 'Minecraft')">Minecraft</button>
   <button class="filter-tab" onclick="setFilter(this, 'R6 Siege')">R6 Siege</button>
 </div>
 
@@ -144,13 +151,13 @@
       return;
     }
 
-    content.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px;">
+    content.innerHTML = `<div class="cards-grid">
       ${posts.map(p => `
-        <a href="post.html?id=${p.id}" style="text-decoration:none; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:20px; display:block; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="font-size:10px; color:var(--gold); text-transform:uppercase; margin-bottom:8px;">${p.game} · ${p.category}</div>
-          <div style="font-size:16px; color:#fff; font-weight:600; margin-bottom:8px;">${p.title}</div>
-          <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">👁️ ${p.views || 0} views &nbsp;·&nbsp; ▲ ${p.upvotes || 0}</div>
-          <div style="font-size:12px; color:var(--text-muted);">by <a href="user.html?id=${p.user_id}" style="color:var(--gold); text-decoration:none;" onclick="event.stopPropagation()">${p.profiles?.username || 'unknown'}</a></div>
+        <a href="post.html?id=${p.id}" class="content-card" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div class="content-card-game">${p.game} · ${p.category}</div>
+          <div class="content-card-title">${p.title}</div>
+          <div class="content-card-meta">👁️ ${p.views || 0} views &nbsp;·&nbsp; ▲ ${p.upvotes || 0}</div>
+          <div class="content-card-author">by <a href="user.html?id=${p.user_id}" onclick="event.stopPropagation()">${p.profiles?.username || 'unknown'}</a></div>
         </a>`).join('')}
     </div>`;
   }
