@@ -62,15 +62,15 @@
     .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
     .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
     .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; }
-    .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
-    .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; text-decoration: none; display: block; }
+    .posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 32px; align-items: stretch; }
+    .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; display: flex; flex-direction: column; min-width: 0; }
     .post-card:hover { border-color: #444; transform: translateY(-2px); }
-    .card-body { padding: 14px; }
-    .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-    .card-title { font-size: 13px; color: var(--text); line-height: 1.4; margin-bottom: 10px; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-title { font-size: 13px; color: var(--text); line-height: 1.45; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; line-clamp: 3; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
     .card-author { font-size: 11px; color: var(--text-muted); min-width: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-author a { color: var(--gold); text-decoration: none; display: inline-block; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+    .card-author a { color: var(--gold); text-decoration: none; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
     .card-votes { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
     .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; margin-bottom: 16px; }
     .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
@@ -301,7 +301,7 @@
     }
 
     section.innerHTML = `<div class="posts-grid">${posts.map(p => `
-      <a class="post-card" href="post.html?id=${p.id}">
+      <div class="post-card" role="link" tabindex="0" onclick="window.location='post.html?id=${p.id}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${p.id}'; }">
         <div class="card-body">
           <div class="card-game">${p.game} · ${p.category}</div>
           <div class="card-title">${p.title}</div>
@@ -310,7 +310,7 @@
             <div class="card-votes">▲ ${p.upvotes || 0}</div>
           </div>
         </div>
-      </a>`).join('')}</div>`;
+      </div>`).join('')}</div>`;
   }
 
   function setGame(el, game) {

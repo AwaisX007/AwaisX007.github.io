@@ -29,7 +29,9 @@
     .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 60px; }
     .staff-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 30px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
     .staff-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-    .staff-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--bg4); margin: 0 auto 16px; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 32px; font-weight: 700; color: var(--gold); }
+    .staff-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--bg4); margin: 0 auto 16px; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .staff-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .staff-avatar-fallback { width: 100%; height: 100%; display: none; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 30px; font-weight: 700; color: var(--gold); background: var(--bg4); }
     .staff-role { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
     .staff-name { font-size: 22px; color: #fff; font-family: 'Barlow Condensed'; font-weight: 600; margin-bottom: 12px; }
     .staff-bio { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
@@ -54,6 +56,7 @@
     .footer-logo span { color: #555; }
     .footer-text { font-size: 12px; color: var(--text-muted); }
     @media (max-width: 800px) { .contact-wrapper { grid-template-columns: 1fr; } .nav-links { display: none; } }
+    @media (max-width: 600px) { nav { padding: 0 16px; } .page-header { padding: 44px 16px; } .content { padding: 44px 16px; } .section-title { font-size: 26px; } .contact-wrapper { padding: 24px; } .staff-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -80,20 +83,33 @@
 <div class="content">
   <h2 class="section-title">Meet the Team</h2>
   <div class="staff-grid">
-    <div class="staff-card">
-      <div class="staff-avatar">M</div>
+    <div class="staff-card" style="border-top: 3px solid var(--gold);">
+      <div class="staff-avatar">
+        <img src="1.jpg" alt="Marineo profile photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="staff-avatar-fallback">M</span>
+      </div>
       <div class="staff-role">Founder & Lead Dev</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(232,200,74,0.12);color:var(--gold);border:1px solid rgba(232,200,74,0.25);padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">
+        <span style="font-size:11px;line-height:1;">★</span>
+        Featured
+      </div>
       <div class="staff-name">Marineo</div>
       <div class="staff-bio">An electrical engineering student with a passion for gaming mechanics and coding. Built MarineoFPS to give the community a dedicated home for high-tier tactical guides.</div>
     </div>
     <div class="staff-card" style="border-top: 3px solid #FF0000;">
-      <div class="staff-avatar">SN</div>
+      <div class="staff-avatar">
+        <img src="2.jpg" alt="SN_AbbaS profile photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="staff-avatar-fallback">SN</span>
+      </div>
       <div class="staff-role">Official Partner / SN Team</div>
       <div class="staff-name">SN_AbbaS</div>
       <div class="staff-bio">Content creator and tactical ambassador for MarineoFPS. Bringing high-level gameplay analysis and bridging the gap between raw mechanics and competitive strategy.</div>
     </div>
     <div class="staff-card">
-      <div class="staff-avatar">BEO</div>
+      <div class="staff-avatar">
+        <img src="3.jpg" alt="Beosavage profile photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="staff-avatar-fallback">BEO</span>
+      </div>
       <div class="staff-role">Lead Game Analyst</div>
       <div class="staff-name">Beosavage</div>
       <div class="staff-bio">A game developer and tactical player who understands the deep mechanics of how games work. Passionate about creating engaging experiences and breaking down high-level strategy for the community.</div>
