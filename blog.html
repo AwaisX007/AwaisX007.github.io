@@ -55,7 +55,6 @@
 <body>
 <nav>
   <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
-  <!-- FIX: removed orphan </div> that was incorrectly closing nav-links -->
   <div class="nav-links">
     <a href="guides.html">Guides</a>
     <a href="blog.html" class="active">Blog</a>
@@ -63,24 +62,24 @@
     <a href="prosettings.html">Pro Settings</a>
     <a href="about.html">About Us</a>
   </div>
-  <div class="nav-right">
+  <div class="nav-right" id="nav-right">
     <button class="btn-login" onclick="window.location='login.html'">Log in</button>
     <button class="btn-signup" onclick="window.location='signup.html'">Sign up</button>
-  <footer data-footer-links="support,discord,leaderboard" data-footer-justify="center">
-    <div class="footer-inner">
-      <div class="footer-logo">MARINEO<span>FPS</span></div>
-      <div class="footer-links"></div>
-      <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
-    </div>
-  </footer>
+</div>
+</nav>
 
-  <script src="footer.js"></script>
-<div class="content">
+<div class="page-header">
+  <div>
+    <h1>Blog</h1>
+    <p>Patch notes, opinions, esports news and meta analysis.</p>
+  </div>
+  <a class="create-btn" href="create.html">+ Write a Post</a>
+</div>
+
+<div class="content" id="content">
   <div class="empty-state">
     <div class="empty-icon">✍️</div>
-    <div class="empty-title">No posts yet</div>
-    <div class="empty-sub">Share your thoughts on the meta, patch notes, esports or anything FPS related. Be the first to post.</div>
-    <button class="empty-cta" onclick="window.location='create.html'">Write the first post</button>
+    <div class="empty-title">Loading posts...</div>
   </div>
 </div>
 
@@ -97,30 +96,42 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   async function init() {
     const { data: { user } } = await sb.auth.getUser();
     if (user) {
       const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
-      const navRight = document.querySelector('.nav-right');
-      navRight.innerHTML = `
+      document.getElementById('nav-right').innerHTML = `
         <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
           <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || user.email}</span>
         </a>
         ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
-        <button style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
+        <button style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px; font-family:'Barlow',sans-serif;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
       `;
     }
     loadBlogs();
   }
 
   async function loadBlogs() {
-    const content = document.querySelector('.content');
+    const content = document.getElementById('content');
     const { data: posts, error } = await sb.from('posts')
       .select('*, profiles!posts_user_id_fkey(username)')
       .eq('status', 'approved')
       .eq('type', 'blog')
       .order('created_at', { ascending: false });
-    if (error || !posts?.length) return;
+
+    if (error || !posts?.length) {
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">✍️</div>
+          <div class="empty-title">No posts yet</div>
+          <div class="empty-sub">Share your thoughts on the meta, patch notes, esports or anything FPS related. Be the first to post.</div>
+          <button class="empty-cta" onclick="window.location='create.html'">Write the first post</button>
+        </div>`;
+      return;
+    }
+
     content.innerHTML = `<div class="cards-grid">
       ${posts.map(p => `
         <div class="content-card" role="link" tabindex="0" onclick="window.location='post.html?id=${p.id}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${p.id}'; }" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
