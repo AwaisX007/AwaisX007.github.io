@@ -22,6 +22,7 @@
     .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
     .nav-links a:hover, .nav-links a.active { color: var(--gold); }
     .nav-right { display: flex; gap: 10px; }
+    .auth-pending { visibility: hidden; }
     .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
     .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; }
     .page-header { padding: 40px 32px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: space-between; }
@@ -62,7 +63,7 @@
     <a href="prosettings.html">Pro Settings</a>
     <a href="about.html">About Us</a>
   </div>
-  <div class="nav-right" id="nav-right">
+  <div class="nav-right auth-pending" id="nav-right">
     <button class="btn-login" onclick="window.location='login.html'">Log in</button>
     <button class="btn-signup" onclick="window.location='signup.html'">Sign up</button>
 </div>
@@ -99,6 +100,7 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function init() {
+    const navRight = document.getElementById('nav-right');
     const { data: { user } } = await sb.auth.getUser();
     if (user) {
       const { data: profile } = await sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
@@ -110,6 +112,7 @@
         <button style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px; font-family:'Barlow',sans-serif;" onclick="sb.auth.signOut().then(() => window.location.reload())">Log out</button>
       `;
     }
+    navRight?.classList.remove('auth-pending');
     loadBlogs();
   }
 

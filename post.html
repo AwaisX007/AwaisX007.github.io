@@ -29,6 +29,7 @@
         .nav-links { display: flex; gap: 28px; }
         .nav-links a { font-size: 13px; font-weight: 500; color: #999; text-decoration: none; transition: color 0.2s; }
         .nav-links a:hover { color: var(--gold); }
+        .auth-pending { visibility: hidden; }
         .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid #2a2a2a; color: #999; border-radius: 3px; cursor: pointer; text-decoration: none; }
         .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; text-decoration: none; }
         .post-container { max-width: 800px; margin: 60px auto; padding: 0 24px; }
@@ -78,7 +79,7 @@
             <a href="prosettings.html">Pro Settings</a>
             <a href="about.html">About Us</a>
         </div>
-        <div id="nav-right" style="display:flex;gap:10px;align-items:center;">
+        <div id="nav-right" class="auth-pending" style="display:flex;gap:10px;align-items:center;">
             <a class="btn-login" href="login.html">Log in</a>
             <a class="btn-signup" href="signup.html">Sign up</a>
         </div>
@@ -95,6 +96,7 @@
         let hasUpvoted = false;
 
         async function init() {
+            const navRight = document.getElementById('nav-right');
             const { data: { user } } = await window.sb.auth.getUser();
             currentUser = user;
 
@@ -114,6 +116,8 @@
                 const { data: vote } = await window.sb.from('post_upvotes').select('id').eq('post_id', postId).eq('user_id', user.id).maybeSingle();
                 hasUpvoted = !!vote;
             }
+
+            navRight?.classList.remove('auth-pending');
 
             incrementViews();
             loadPost();
