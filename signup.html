@@ -57,7 +57,7 @@
       <label>Username</label>
       <input type="text" id="username" placeholder="Choose a username..." maxlength="20">
       <!-- FIX: hint added so users know what's allowed -->
-      <div class="field-hint">Letters, numbers and underscores only. 3–20 characters.</div>
+      <div class="field-hint">Letters, numbers, dots, hyphens, and underscores only. 3–20 characters.</div>
     </div>
     <div class="form-group">
       <label>Email</label>
@@ -95,11 +95,11 @@
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
 
-    // FIX: enforce username format — alphanumeric + underscore, 3–20 chars
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    // FIX: enforce username format — letters, numbers, dot, hyphen, underscore
+    const usernameRegex = /^[a-zA-Z0-9._-]{3,20}$/;
     if (!usernameRegex.test(username)) {
       msg.className = 'msg error';
-      msg.textContent = 'Username must be 3–20 characters and contain only letters, numbers, or underscores.';
+      msg.textContent = 'Username must be 3–20 characters and can contain letters, numbers, dots, hyphens, or underscores.';
       return;
     }
 
