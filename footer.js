@@ -18,6 +18,18 @@
       color: 'var(--gold)',
       target: '',
     },
+    renders: {
+      label: '3D Renders/Wallpapers',
+      href: 'renders-wallpapers.html',
+      color: '#83d8ff',
+      target: '',
+    },
+    assets: {
+      label: 'Game Assets',
+      href: 'game-assets.html',
+      color: '#83d8ff',
+      target: '',
+    },
   };
 
   function renderFooter(footer) {
@@ -25,6 +37,13 @@
       .split(',')
       .map((link) => link.trim())
       .filter(Boolean);
+
+    const autoResourceLinks = ['renders', 'assets'];
+    for (const key of autoResourceLinks) {
+      if (!linkKeys.includes(key)) {
+        linkKeys.push(key);
+      }
+    }
 
     const linksContainer = footer.querySelector('.footer-links');
     if (!linksContainer || !linkKeys.length) {

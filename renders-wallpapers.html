@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Renders/Wallpapers — MarineoFPS</title>
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg">
+  <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    :root { --gold: #e8c84a; --accent: #83d8ff; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
+    .logo span { color: #fff; }
+    .filters { padding: 0 32px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; gap: 4px; overflow-x: auto; }
+    .filter-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border: 0; }
+    .filter-tab.special-resource { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .hero { max-width: 1120px; margin: 0 auto; width: 100%; padding: 32px 32px 18px; }
+    .hero-card { background: linear-gradient(160deg, rgba(131, 216, 255, 0.13), rgba(131, 216, 255, 0.03)); border: 1px solid rgba(131, 216, 255, 0.35); border-radius: 8px; padding: 24px; }
+    .hero-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+    h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 40px; line-height: 1; margin-bottom: 8px; }
+    .sub { color: var(--text-dim); max-width: 700px; font-size: 14px; line-height: 1.6; }
+    .upload-btn { background: var(--accent); color: #03121b; border: 0; border-radius: 4px; padding: 11px 18px; cursor: pointer; font-size: 13px; font-weight: 700; font-family: 'Barlow', sans-serif; white-space: nowrap; }
+
+    .form-wrap { max-width: 1120px; margin: 0 auto; width: 100%; padding: 0 32px 16px; display: none; }
+    .form-card { background: var(--bg3); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    input, textarea { width: 100%; background: #101010; border: 1px solid var(--border2); color: var(--text); border-radius: 4px; padding: 11px 12px; font-family: 'Barlow', sans-serif; outline: none; }
+    textarea { min-height: 130px; resize: vertical; }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    .form-actions { display: flex; gap: 10px; margin-top: 12px; }
+    .btn-submit { background: var(--accent); color: #03121b; border: 0; border-radius: 4px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+    .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border2); border-radius: 4px; padding: 10px 16px; cursor: pointer; }
+    .msg { margin-top: 10px; font-size: 13px; color: var(--text-muted); }
+
+    .content { max-width: 1120px; width: 100%; margin: 0 auto; padding: 8px 32px 38px; flex: 1; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+    .card { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+    .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .tag { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .title { font-size: 16px; color: #fff; font-weight: 600; line-height: 1.35; margin-bottom: 8px; }
+    .meta { font-size: 12px; color: var(--text-muted); }
+    .author { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+    .author a { color: var(--gold); text-decoration: none; }
+    .empty { background: var(--bg3); border: 1px dashed var(--border2); border-radius: 6px; padding: 52px 20px; text-align: center; color: var(--text-dim); }
+
+    footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); }
+    .footer-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+    .footer-logo span { color: #555; }
+    .footer-text { font-size: 12px; color: var(--text-muted); }
+    @media (max-width: 750px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
+    <a href="guides.html" style="font-size:13px;color:var(--text-dim);text-decoration:none;">Back to Guides</a>
+  </nav>
+
+  <div class="filters">
+    <button class="filter-tab" onclick="window.location='guides.html'">All Games</button>
+    <button class="filter-tab" onclick="window.location='guides.html'">Counter-Strike 2</button>
+    <button class="filter-tab special-resource">3D Renders/Wallpapers</button>
+    <button class="filter-tab special-resource" onclick="window.location='game-assets.html'">Game Assets</button>
+  </div>
+
+  <section class="hero">
+    <div class="hero-card">
+      <div class="hero-head">
+        <div>
+          <div class="eyebrow">Creative Upload Hub</div>
+          <h1>3D Renders/Wallpapers</h1>
+          <p class="sub">A fully separate space from guides/blogs. Upload any kind of 3D render or wallpaper (not game-specific). Posting is available only from this page.</p>
+        </div>
+        <button class="upload-btn" id="show-upload">+ Upload</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-wrap" id="upload-form-wrap">
+    <div class="form-card">
+      <div class="form-row">
+        <div>
+          <label>Title</label>
+          <input id="upload-title" type="text" maxlength="120" placeholder="e.g. Neon City Wallpaper Pack">
+        </div>
+        <div>
+          <label>Preview / Download URL (optional)</label>
+          <input id="upload-link" type="text" placeholder="https://...">
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Description</label>
+        <textarea id="upload-description" placeholder="Describe the render, style, resolution, and usage notes..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-submit" id="submit-upload">Submit Upload</button>
+        <button class="btn-cancel" id="cancel-upload">Cancel</button>
+      </div>
+      <div class="msg" id="upload-msg"></div>
+    </div>
+  </section>
+
+  <main class="content" id="content-area">
+    <div class="empty">Loading uploads...</div>
+  </main>
+
+  <footer data-footer-links="support,discord" data-footer-justify="center">
+    <div class="footer-inner">
+      <div class="footer-logo">MARINEO<span>FPS</span></div>
+      <div class="footer-links"></div>
+      <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
+    </div>
+  </footer>
+
+  <script src="footer.js"></script>
+  <script>
+    let currentUser = null;
+
+    function escapeHtml(text) {
+      return String(text || '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    }
+
+    async function init() {
+      const { data: { user } } = await window.sb.auth.getUser();
+      currentUser = user || null;
+
+      document.getElementById('show-upload').addEventListener('click', () => {
+        if (!currentUser) {
+          window.location.href = 'login.html';
+          return;
+        }
+        document.getElementById('upload-form-wrap').style.display = 'block';
+        document.getElementById('upload-form-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      document.getElementById('cancel-upload').addEventListener('click', () => {
+        document.getElementById('upload-form-wrap').style.display = 'none';
+        document.getElementById('upload-msg').textContent = '';
+      });
+
+      document.getElementById('submit-upload').addEventListener('click', submitUpload);
+      await loadUploads();
+    }
+
+    async function submitUpload() {
+      const title = document.getElementById('upload-title').value.trim();
+      const link = document.getElementById('upload-link').value.trim();
+      const description = document.getElementById('upload-description').value.trim();
+      const msg = document.getElementById('upload-msg');
+      msg.textContent = '';
+
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (title.length < 4 || description.length < 20) {
+        msg.textContent = 'Please add a valid title and a longer description.';
+        return;
+      }
+
+      const { error } = await window.sb.from('renders_wallpapers').insert({
+        user_id: currentUser.id,
+        title,
+        content: description,
+        resource_link: link || null
+      });
+
+      if (error) {
+        msg.textContent = error.message || 'Upload failed.';
+        return;
+      }
+
+      msg.textContent = 'Upload posted successfully.';
+      document.getElementById('upload-title').value = '';
+      document.getElementById('upload-link').value = '';
+      document.getElementById('upload-description').value = '';
+      await loadUploads();
+    }
+
+    async function loadUploads() {
+      const contentArea = document.getElementById('content-area');
+      const { data: uploads, error } = await window.sb
+        .from('renders_wallpapers')
+        .select('id, user_id, title, content, resource_link, created_at, upvotes, views, profiles(username)')
+        .order('created_at', { ascending: false });
+
+      if (error || !uploads?.length) {
+        contentArea.innerHTML = `<div class="empty"><div style="font-size:34px;opacity:.35;margin-bottom:10px;">🖼️</div><div style="font-size:20px;font-family:'Barlow Condensed',sans-serif;margin-bottom:6px;">No uploads yet</div><div style="color:var(--text-muted);font-size:14px;">Use the upload button to add the first render/wallpaper.</div></div>`;
+        return;
+      }
+
+      contentArea.innerHTML = `<div class="grid">${uploads.map(item => {
+        const preview = escapeHtml((item.content || '').slice(0, 150));
+        return `<div class="card">
+          <div class="tag">3D Renders/Wallpapers</div>
+          <div class="title">${escapeHtml(item.title)}</div>
+          <div class="meta">👁️ ${item.views || 0} · ▲ ${item.upvotes || 0}</div>
+          <div class="author">by <a href="user.html?id=${item.user_id}" onclick="event.stopPropagation()">${escapeHtml(item.profiles?.username || 'unknown')}</a></div>
+          ${item.resource_link ? `<div class="meta" style="margin-top:8px;"><a href="${escapeHtml(item.resource_link)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">Open Resource ↗</a></div>` : ''}
+          <div class="meta" style="margin-top:8px;line-height:1.5;">${preview}</div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+
+    init();
+  </script>
+</body>
+</html>

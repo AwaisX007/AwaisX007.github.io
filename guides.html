@@ -44,6 +44,8 @@
     .filters { padding: 0 32px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; gap: 4px; overflow-x: auto; }
     .filter-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
     .filter-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .filter-tab.special-resource { color: #83d8ff; border-bottom-color: rgba(131, 216, 255, 0.45); }
+    .filter-tab.special-resource:hover { color: #b4eaff; border-bottom-color: #83d8ff; }
     .filter-tab:hover { color: var(--text); }
     .content { max-width: 1100px; margin: 0 auto; padding: 40px 32px; flex: 1; width: 100%; }
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: stretch; }
@@ -105,6 +107,8 @@
   <button class="filter-tab" onclick="setFilter(this, 'Dota 2')">Dota 2</button>
   <button class="filter-tab" onclick="setFilter(this, 'Minecraft')">Minecraft</button>
   <button class="filter-tab" onclick="setFilter(this, 'R6 Siege')">R6 Siege</button>
+  <button class="filter-tab special-resource" onclick="window.location='renders-wallpapers.html'">3D Renders/Wallpapers</button>
+  <button class="filter-tab special-resource" onclick="window.location='game-assets.html'">Game Assets</button>
 </div>
 
 <div class="content" id="content">

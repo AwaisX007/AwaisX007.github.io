@@ -300,6 +300,11 @@
     if (content.length < 50) {
       msg.className = 'msg error'; msg.textContent = 'Content must be at least 50 characters.'; return;
     }
+    if (category === '3D Renders/Wallpapers' || category === 'Game Assets' || type === 'resource') {
+      msg.className = 'msg error';
+      msg.textContent = 'Use the dedicated Renders/Wallpapers or Game Assets pages to upload this content.';
+      return;
+    }
 
     btn.disabled = true; btn.textContent = 'Submitting...';
 
