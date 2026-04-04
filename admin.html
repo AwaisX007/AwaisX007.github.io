@@ -94,6 +94,7 @@
 
     renderAdmin(profile.username);
     loadPosts('pending');
+    loadPendingRenders();
   }
 
   function showDenied(msg) {
@@ -110,6 +111,10 @@
         <button class="tab" id="tab-rejected" onclick="switchTab('rejected')">Rejected</button>
       </div>
       <div id="posts-list"><div class="loading">Loading posts...</div></div>
+      <div style="margin-top:34px;">
+        <div class="page-sub" style="margin-bottom:14px;">3D Renders/Wallpapers — Pending Approval</div>
+        <div id="renders-list"><div class="loading">Loading render submissions...</div></div>
+      </div>
     `;
   }
 
@@ -176,6 +181,61 @@
       const list = document.getElementById('posts-list');
       if (!list.querySelector('.post-card')) {
         list.innerHTML = `<div class="empty">No more ${currentTab} posts.</div>`;
+      }
+    }
+  }
+
+  async function loadPendingRenders() {
+    const list = document.getElementById('renders-list');
+    if (!list) return;
+    list.innerHTML = '<div class="loading">Loading...</div>';
+
+    const { data: uploads, error } = await sb
+      .from('renders_wallpapers')
+      .select('id, title, content, status, created_at, user_id, resource_link, profiles(username)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (error || !uploads?.length) {
+      list.innerHTML = '<div class="empty">No pending 3D renders/wallpapers.</div>';
+      return;
+    }
+
+    list.innerHTML = uploads.map(item => `
+      <div class="post-card" id="render-post-${item.id}">
+        <div class="post-header">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span class="post-type">3D Render</span>
+              <span class="status-badge status-pending">pending</span>
+            </div>
+            <div class="post-title">${item.title}</div>
+            <div class="post-meta">
+              <span>by ${item.profiles?.username || 'unknown'}</span>
+              <span>·</span>
+              <span>3D Renders/Wallpapers</span>
+              <span>·</span>
+              <span>${new Date(item.created_at).toLocaleDateString()}</span>
+            </div>
+          </div>
+          <div class="post-actions">
+            <button class="btn-approve" onclick="updateRenderStatus(${item.id}, 'approved')">✓ Approve</button>
+            <button class="btn-reject" onclick="updateRenderStatus(${item.id}, 'rejected')">✕ Reject</button>
+          </div>
+        </div>
+        ${item.resource_link ? `<div class="post-meta" style="margin-bottom:10px;"><a href="${item.resource_link}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:none;">Open Resource ↗</a></div>` : ''}
+        <div class="post-content">${(item.content || '').substring(0, 300)}${(item.content || '').length > 300 ? '...' : ''}</div>
+      </div>
+    `).join('');
+  }
+
+  async function updateRenderStatus(id, status) {
+    const { error } = await sb.from('renders_wallpapers').update({ status }).eq('id', id);
+    if (!error) {
+      document.getElementById('render-post-' + id)?.remove();
+      const list = document.getElementById('renders-list');
+      if (list && !list.querySelector('.post-card')) {
+        list.innerHTML = '<div class="empty">No pending 3D renders/wallpapers.</div>';
       }
     }
   }
