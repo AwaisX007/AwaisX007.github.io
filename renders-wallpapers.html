@@ -94,9 +94,13 @@
           <input id="upload-title" type="text" maxlength="120" placeholder="e.g. Neon City Wallpaper Pack">
         </div>
         <div>
-          <label>Preview / Download URL (optional)</label>
+          <label>Resource URL (optional)</label>
           <input id="upload-link" type="text" placeholder="https://...">
         </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label>Upload File (recommended)</label>
+        <input id="upload-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
       </div>
       <div style="margin-top:12px;">
         <label>Description</label>
@@ -155,8 +159,10 @@
     async function submitUpload() {
       const title = document.getElementById('upload-title').value.trim();
       const link = document.getElementById('upload-link').value.trim();
+      const file = document.getElementById('upload-file').files?.[0] || null;
       const description = document.getElementById('upload-description').value.trim();
       const msg = document.getElementById('upload-msg');
+      const submitBtn = document.getElementById('submit-upload');
       msg.textContent = '';
 
       if (!currentUser) {
@@ -169,22 +175,56 @@
         return;
       }
 
+      if (!file && !link) {
+        msg.textContent = 'Please upload a file or provide a resource URL.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
+
+      let resourceUrl = link || null;
+
+      if (file) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const objectPath = `${currentUser.id}/${Date.now()}-${safeName}`;
+
+        const { error: uploadError } = await window.sb.storage
+          .from('renders-files')
+          .upload(objectPath, file, { upsert: false });
+
+        if (uploadError) {
+          msg.textContent = uploadError.message || 'File upload failed.';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Upload';
+          return;
+        }
+
+        const { data: urlData } = window.sb.storage.from('renders-files').getPublicUrl(objectPath);
+        resourceUrl = urlData?.publicUrl || resourceUrl;
+      }
+
       const { error } = await window.sb.from('renders_wallpapers').insert({
         user_id: currentUser.id,
         title,
         content: description,
-        resource_link: link || null
+        resource_link: resourceUrl
       });
 
       if (error) {
         msg.textContent = error.message || 'Upload failed.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Upload';
         return;
       }
 
       msg.textContent = 'Upload posted successfully.';
       document.getElementById('upload-title').value = '';
       document.getElementById('upload-link').value = '';
+      document.getElementById('upload-file').value = '';
       document.getElementById('upload-description').value = '';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Upload';
       await loadUploads();
     }
 
