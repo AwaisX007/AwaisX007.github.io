@@ -107,6 +107,19 @@
       msg.className = 'msg error'; msg.textContent = 'Password must be at least 6 characters.'; return;
     }
 
+    const { data: isRegistered, error: lookupError } = await sb.rpc('user_exists_by_email', { check_email: email });
+    if (lookupError) {
+      msg.className = 'msg error';
+      msg.textContent = lookupError.message;
+      return;
+    }
+
+    if (isRegistered) {
+      msg.className = 'msg error';
+      msg.textContent = 'User already registered or exists. Please log in or use forgot password if you have forgotten your password.';
+      return;
+    }
+
     const token = document.querySelector('[name="cf-turnstile-response"]')?.value;
     if (!token) {
       msg.className = 'msg error'; msg.textContent = 'Please complete the security check.'; return;
@@ -125,7 +138,9 @@
 
     if (error) {
       msg.className = 'msg error';
-      msg.textContent = error.message;
+      msg.textContent = /already registered|duplicate key|email address is already registered/i.test(error.message || '')
+        ? 'User already registered or exists. Please log in or use forgot password if you have forgotten your password.'
+        : error.message;
       btn.disabled = false;
       btn.textContent = 'Create Account';
       return;

@@ -93,6 +93,19 @@
       msg.className = 'msg error'; msg.textContent = 'Please complete the security check.'; return;
     }
 
+    const { data: isRegistered, error: lookupError } = await sb.rpc('user_exists_by_email', { check_email: email });
+    if (lookupError) {
+      msg.className = 'msg error';
+      msg.textContent = lookupError.message;
+      return;
+    }
+
+    if (!isRegistered) {
+      msg.className = 'msg error';
+      msg.textContent = 'User not registered.';
+      return;
+    }
+
     btn.disabled = true; btn.textContent = 'Logging in...';
 
     const { error } = await sb.auth.signInWithPassword({ 
@@ -102,7 +115,10 @@
     });
 
     if (error) {
-      msg.className = 'msg error'; msg.textContent = error.message;
+      msg.className = 'msg error';
+      msg.textContent = /invalid login credentials/i.test(error.message || '')
+        ? 'Incorrect password.'
+        : error.message;
       btn.disabled = false; btn.textContent = 'Log In'; return;
     }
 
