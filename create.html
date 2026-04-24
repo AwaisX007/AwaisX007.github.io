@@ -181,8 +181,16 @@
   function showLoggedOutState() {
     document.getElementById('post-form').style.display = 'none';
     document.getElementById('not-logged-in').style.display = 'block';
-    document.getElementById('nav-user').textContent = '';
-    document.getElementById('logout-btn').style.display = 'none';
+
+    const navUser = document.getElementById('nav-user');
+    if (navUser) {
+      navUser.textContent = '';
+    }
+
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.style.display = 'none';
+    }
   }
 
   async function renderAuthState() {
@@ -194,11 +202,20 @@
     }
 
     const { data: profile } = await window.sb.from('profiles').select('username').eq('id', currentUser.id).single();
-    document.getElementById('nav-user').innerHTML = `
+
+    const navUser = document.getElementById('nav-user');
+    if (navUser) {
+      navUser.innerHTML = `
       <a href="profile.html?id=${encodeURIComponent(currentUser.id)}" style="text-decoration:none; color:inherit;">
         <span style="cursor:pointer; margin-right:12px; font-size:13px; color:var(--text-dim);">${profile?.username || currentUser.email}</span>
       </a>`;
-    document.getElementById('logout-btn').style.display = 'block';
+    }
+
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.style.display = 'block';
+    }
+
     document.getElementById('not-logged-in').style.display = 'none';
     document.getElementById('post-form').style.display = 'block';
   }
@@ -256,6 +273,13 @@
   }
 
   async function uploadImage(input) {
+    currentUser = await getCurrentUser();
+    if (!currentUser) {
+      alert('Please log in to upload an image.');
+      showLoggedOutState();
+      return;
+    }
+
     if (!input.files?.length) return;
     const file = input.files[0];
     if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB.'); return; }
