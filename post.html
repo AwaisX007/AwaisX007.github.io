@@ -19,6 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
+    <script src="footer.js"></script>
     
     <style>
         :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --border: #222; --text: #e0e0e0; --text-muted: #666; }
@@ -54,15 +55,20 @@
         .upvote-btn.active { background: var(--gold); color: #000; }
         .upvote-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .comment-card { background: var(--bg2); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 15px; position: relative; }
+        .comment-card.reply { margin-left: 28px; border-left: 3px solid rgba(232,200,74,0.35); }
         .comment-author { color: var(--gold); font-size: 13px; font-weight: 700; margin-bottom: 5px; }
         .comment-body { color: #aaa; font-size: 15px; word-break: break-word; }
         .btn-delete-comment { position: absolute; top: 15px; right: 15px; color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.6; font-family: 'Barlow', sans-serif; }
         .btn-delete-comment:hover { opacity: 1; }
+        .btn-reply-comment { position: absolute; top: 15px; right: 72px; color: var(--gold); background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.7; font-family: 'Barlow', sans-serif; }
+        .btn-reply-comment:hover { opacity: 1; }
         .comment-input { width: 100%; height: 100px; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 4px; margin: 20px 0 10px; font-family: 'Barlow', sans-serif; resize: none; font-size: 14px; outline: none; transition: border-color 0.2s; }
         .comment-input:focus { border-color: var(--gold); }
         .comment-submit { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; border-radius: 3px; font-family: 'Barlow'; transition: background 0.2s; }
         .comment-submit:hover { background: #f0d060; }
         .comment-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .comment-reply-note { display:none; margin: 10px 0 0; color: #b9b9b9; font-size: 12px; }
+        .comment-reply-note button { background:none; border:none; color: var(--gold); cursor:pointer; padding:0; font: inherit; }
         .comment-error { color: #ff6b6b; font-size: 13px; margin-top: 8px; display: none; }
         .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #666; text-decoration: none; margin-bottom: 32px; transition: color 0.2s; }
         .back-link:hover { color: var(--gold); }
@@ -101,6 +107,7 @@
         let postChannel = null;
         let commentChannel = null;
         let realtimePostId = null;
+        let replyTarget = null;
 
         async function init() {
             const navRight = document.getElementById('nav-right');
@@ -177,6 +184,7 @@
                                     <button class="comment-submit" onclick="postComment()">Post Comment</button>
                                     <span id="comment-error" class="comment-error"></span>
                                 </div>
+                                <div id="reply-target-note" class="comment-reply-note"></div>
                             ` : `<p style="color:#666; font-size:14px;"><a href="login.html" style="color:var(--gold);">Sign in</a> to join the conversation.</p>`}
                         </div>
                         <div id="comments-list" style="margin-top:32px;"></div>
@@ -308,14 +316,38 @@
 
             document.getElementById('comments-list').innerHTML = comments?.length
                 ? comments.map(c => `
-                    <div class="comment-card">
+                    <div class="comment-card ${String(c.content || '').trim().startsWith('@') ? 'reply' : ''}">
                         <div class="comment-author"><a href="profile.html?id=${escapeHtml(c.user_id)}" style="color:inherit;text-decoration:none;">${escapeHtml(c.profiles?.username || 'Unknown')}</a></div>
                         <div class="comment-body">${escapeHtml(c.content)}</div>
+                        ${currentUser ? `<button class="btn-reply-comment" onclick="startReply(${c.id}, ${JSON.stringify(c.profiles?.username || 'Unknown')})">Reply</button>` : ''}
                         ${(isAdmin || (currentUser && currentUser.id === c.user_id))
                             ? `<button class="btn-delete-comment" onclick="deleteComment(${c.id})">Delete</button>`
                             : ''}
                     </div>`).join('')
                 : '<p style="color:#444">No comments yet. Be the first!</p>';
+        }
+
+        function startReply(commentId, username) {
+            replyTarget = { commentId, username };
+            const box = document.getElementById('c-box');
+            const note = document.getElementById('reply-target-note');
+            if (box) {
+                box.value = `@${username} `;
+                box.focus();
+            }
+            if (note) {
+                note.style.display = 'block';
+                note.innerHTML = `Replying to <strong>@${escapeHtml(username)}</strong> <button type="button" onclick="clearReplyTarget()">Cancel</button>`;
+            }
+        }
+
+        function clearReplyTarget() {
+            replyTarget = null;
+            const note = document.getElementById('reply-target-note');
+            if (note) {
+                note.style.display = 'none';
+                note.textContent = '';
+            }
         }
 
         async function postComment() {
@@ -341,6 +373,7 @@
                 errEl.style.display = 'block';
             } else {
                 document.getElementById('c-box').value = '';
+                clearReplyTarget();
                 loadComments();
             }
 
