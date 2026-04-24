@@ -138,11 +138,7 @@
     let isAdmin = false;
 
     async function getCurrentUser() {
-      const { data: { session } } = await window.sb.auth.getSession();
-      if (session?.user) return session.user;
-
-      const { data: { user } } = await window.sb.auth.getUser();
-      return user || null;
+      return window.authUtils.getCurrentUser();
     }
 
     async function updateAccessState() {
@@ -185,8 +181,8 @@
       currentUser = await getCurrentUser();
       await updateAccessState();
 
-      window.sb.auth.onAuthStateChange(async (_event, session) => {
-        currentUser = session?.user || null;
+      window.authUtils.onAuthStateChange(async (user) => {
+        currentUser = user || null;
         await updateAccessState();
       });
 

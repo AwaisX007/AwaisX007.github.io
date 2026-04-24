@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — MarineoFPS</title>
+  <meta name="description" content="Search guides, posts, wallpapers, game assets, and player profiles on MarineoFPS.">
+  <style>
+    :root { --gold: #E8C84A; --bg: #080808; --bg2: #101010; --bg3: #151515; --bg4: #1d1d1d; --text: #fff; --text-dim: #ccc; --text-muted: #888; --border: #222; --border2: #333; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Barlow', Arial, sans-serif; }
+    a { color: inherit; }
+    .page { width: 100%; }
+    .hero { max-width: 1200px; margin: 0 auto; padding: 42px 32px 16px; }
+    .eyebrow { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 11px; margin-bottom: 10px; }
+    h1 { margin: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 58px; line-height: 0.95; }
+    .sub { color: var(--text-muted); max-width: 760px; margin: 14px 0 0; line-height: 1.6; }
+    .search-bar { max-width: 1200px; margin: 0 auto; padding: 0 32px 18px; }
+    .search-form { position: relative; }
+    .search-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: #fff; padding: 16px 20px; border-radius: 4px; font-family: 'Barlow', sans-serif; outline: none; font-size: 15px; transition: border-color 0.2s; }
+    .search-input:focus { border-color: var(--gold); }
+    .search-icon { position: absolute; right: 18px; top: 15px; color: var(--text-muted); pointer-events: none; }
+    .results-shell { max-width: 1200px; margin: 0 auto; padding: 0 32px 56px; display: grid; gap: 20px; }
+    .summary { display:flex; justify-content:space-between; gap: 12px; align-items: center; color: var(--text-muted); font-size: 13px; }
+    .pill { border: 1px solid var(--border2); background: var(--bg2); color: var(--text-dim); border-radius: 999px; padding: 7px 12px; font-size: 12px; text-decoration: none; }
+    .grid { display: grid; gap: 14px; }
+    .group { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .group-head { display:flex; justify-content:space-between; align-items:center; gap: 10px; padding: 14px 16px; border-bottom:1px solid rgba(255,255,255,.06); }
+    .group-head strong { font-size: 13px; letter-spacing: .5px; text-transform: uppercase; }
+    .group-body { display:grid; gap: 10px; padding: 16px; }
+    .result { display:grid; gap: 6px; text-decoration:none; padding: 14px; border:1px solid var(--border2); border-radius: 8px; background:#0d0d0d; }
+    .result:hover { border-color: rgba(232,200,74,.35); background: #111; }
+    .result-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .result-meta { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+    .result-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+    .empty { padding: 34px 16px; text-align:center; color: var(--text-muted); border:1px dashed var(--border2); border-radius: 8px; }
+    footer { border-top:1px solid rgba(255,255,255,.08); margin-top: 30px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; padding: 22px 32px; display:flex; flex-wrap:wrap; gap: 16px; align-items:center; justify-content:space-between; }
+    .footer-logo { font-family:'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; color: var(--gold); }
+    .footer-logo span { color: #fff; }
+    .footer-text { color: var(--text-muted); font-size: 12px; }
+    @media (max-width: 720px) {
+      .hero, .search-bar, .results-shell, .footer-inner { padding-left: 16px; padding-right: 16px; }
+      h1 { font-size: 42px; }
+      .summary { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <nav></nav>
+
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Search</div>
+      <h1>Find posts, people, and resources</h1>
+      <p class="sub">Search across guides, blog posts, wallpapers, game assets, and player profiles in one place.</p>
+    </section>
+
+    <section class="search-bar">
+      <div class="search-form">
+        <input id="search-input" class="search-input" type="search" placeholder="Search by title, username, or game…">
+        <span class="search-icon">🔍</span>
+      </div>
+    </section>
+
+    <section class="results-shell">
+      <div class="summary">
+        <div id="search-summary">Enter a search term to begin.</div>
+        <a class="pill" href="index.html">Back to home</a>
+      </div>
+      <div id="results" class="grid"></div>
+    </section>
+  </main>
+
+  <footer data-footer-links="support,discord,leaderboard" data-footer-justify="center">
+    <div class="footer-inner">
+      <div class="footer-logo">MARINEO<span>FPS</span></div>
+      <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
+    </div>
+  </footer>
+
+  <script src="footer.js"></script>
+  <script>
+    const escapeHtml = (value) => String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    const safeParam = (value) => encodeURIComponent(String(value ?? ''));
+    const params = new URLSearchParams(window.location.search);
+    const input = document.getElementById('search-input');
+    const results = document.getElementById('results');
+    const summary = document.getElementById('search-summary');
+    const pageSize = 8;
+    let lastResults = [];
+
+    const getPage = () => Math.max(1, Number(params.get('page') || '1') || 1);
+    const setPage = (page) => {
+      params.set('page', String(page));
+      const nextUrl = `${window.location.pathname}?${params.toString()}`.replace(/\?$/, '');
+      window.history.replaceState({}, '', nextUrl);
+    };
+
+    const sections = [
+      { key: 'posts', label: 'Posts', types: ['guide', 'blog', 'tierlist', 'prosetting'], path: 'post.html?id=', fields: 'id,title,content,game,category,created_at,upvotes,views,type,user_id,profiles!posts_user_id_fkey(username)' },
+      { key: 'renders_wallpapers', label: '3D Renders / Wallpapers', path: 'render-wallpaper.html?id=', fields: 'id,title,content,created_at,upvotes,views,user_id,profiles(username)' },
+      { key: 'game_assets_uploads', label: 'Game Assets', path: 'game-asset.html?id=', fields: 'id,title,content,created_at,upvotes,views,user_id,profiles(username)' },
+      { key: 'profiles', label: 'Profiles', path: 'profile.html?id=', fields: 'id,username,bio,created_at,avatar_url' },
+    ];
+
+    async function searchPosts(term) {
+      let query = window.sb.from('posts').select('id,title,content,game,category,created_at,upvotes,views,type,user_id,profiles!posts_user_id_fkey(username)').eq('status', 'approved').order('created_at', { ascending: false }).limit(10);
+      const lowered = term.toLowerCase();
+      if (lowered) {
+        query = query.or(`title.ilike.%${term}%,content.ilike.%${term}%,game.ilike.%${term}%,category.ilike.%${term}%`);
+      }
+      const { data, error } = await query;
+      if (error) return [];
+      return (data || []).filter((post) => !post.type || ['guide', 'blog', 'tierlist', 'prosetting'].includes(post.type));
+    }
+
+    async function searchUploads(table, detailPath, term) {
+      let query = window.sb.from(table).select('id,title,content,created_at,upvotes,views,user_id,profiles(username)').order('created_at', { ascending: false }).limit(10);
+      if (term) {
+        query = query.or(`title.ilike.%${term}%,content.ilike.%${term}%`);
+      }
+      const { data, error } = await query;
+      if (error) return [];
+      return (data || []).map((item) => ({ ...item, detailPath }));
+    }
+
+    async function searchProfiles(term) {
+      let query = window.sb.from('profiles').select('id,username,bio,created_at,avatar_url').order('username', { ascending: true }).limit(12);
+      if (term) {
+        query = query.or(`username.ilike.%${term}%,bio.ilike.%${term}%`);
+      }
+      const { data, error } = await query;
+      if (error) return [];
+      return data || [];
+    }
+
+    function resultCard({ href, meta, title, desc }) {
+      return `<a class="result" href="${href}"><div class="result-meta">${escapeHtml(meta)}</div><div class="result-title">${escapeHtml(title)}</div>${desc ? `<div class="result-desc">${escapeHtml(desc)}</div>` : ''}</a>`;
+    }
+
+    function shortText(value, length = 180) {
+      const text = String(value ?? '').trim();
+      return text.length > length ? `${text.slice(0, length).trim()}…` : text;
+    }
+
+    function renderPageControls(query, page, total) {
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      return `<div class="summary"><div>Page ${page} of ${totalPages} · ${total} total results</div><div style="display:flex;gap:10px;flex-wrap:wrap;">${page > 1 ? `<a class="pill" href="search.html?q=${encodeURIComponent(query)}&page=${page - 1}">← Previous</a>` : ''}${page < totalPages ? `<a class="pill" href="search.html?q=${encodeURIComponent(query)}&page=${page + 1}">Next →</a>` : ''}</div></div>`;
+    }
+
+    async function runSearch(term, page = getPage()) {
+      const query = term.trim();
+      input.value = query;
+      setPage(page);
+      if (!query) {
+        summary.textContent = 'Enter a search term to begin.';
+        results.innerHTML = '';
+        lastResults = [];
+        return;
+      }
+
+      summary.textContent = `Searching for “${query}”…`;
+      const [posts, renders, assets, profiles] = await Promise.all([
+        searchPosts(query),
+        searchUploads('renders_wallpapers', 'render-wallpaper.html?id=', query),
+        searchUploads('game_assets_uploads', 'game-asset.html?id=', query),
+        searchProfiles(query)
+      ]);
+
+      const cards = [];
+
+      posts.forEach((item) => {
+        cards.push(resultCard({
+          href: `post.html?id=${safeParam(item.id)}`,
+          meta: `${item.type || 'Post'} · ${item.game || 'General'} · ${item.category || ''}`.trim(),
+          title: item.title,
+          desc: shortText(item.content || '')
+        }));
+      });
+
+      renders.forEach((item) => {
+        cards.push(resultCard({
+          href: `render-wallpaper.html?id=${safeParam(item.id)}`,
+          meta: `3D Renders / Wallpapers`,
+          title: item.title,
+          desc: shortText(item.content || '')
+        }));
+      });
+
+      assets.forEach((item) => {
+        cards.push(resultCard({
+          href: `game-asset.html?id=${safeParam(item.id)}`,
+          meta: `Game Assets`,
+          title: item.title,
+          desc: shortText(item.content || '')
+        }));
+      });
+
+      profiles.forEach((item) => {
+        cards.push(resultCard({
+          href: `profile.html?id=${safeParam(item.id)}`,
+          meta: `Profile`,
+          title: item.username || 'Unknown',
+          desc: shortText(item.bio || 'No bio yet.')
+        }));
+      });
+
+      const sorted = cards;
+      lastResults = sorted;
+      const total = sorted.length;
+      const start = (page - 1) * pageSize;
+      const visible = sorted.slice(start, start + pageSize);
+
+      if (!sorted.length) {
+        summary.textContent = `Found 0 results for “${query}”.`;
+        results.innerHTML = '<div class="empty">No results found. Try a different title, username, or game.</div>';
+        return;
+      }
+
+      summary.innerHTML = renderPageControls(query, page, total);
+      results.innerHTML = visible.join('');
+    }
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        runSearch(input.value, 1);
+      }
+    });
+
+    let debounce = null;
+    input.addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(() => runSearch(input.value, 1), 250);
+    });
+
+    runSearch(params.get('q') || '', getPage());
+  </script>
+</body>
+</html>

@@ -134,11 +134,7 @@
     let currentUser = null;
 
     async function getCurrentUser() {
-      const { data: { session } } = await window.sb.auth.getSession();
-      if (session?.user) return session.user;
-
-      const { data: { user } } = await window.sb.auth.getUser();
-      return user || null;
+      return window.authUtils.getCurrentUser();
     }
 
     function updateUploadAccess() {
@@ -165,8 +161,8 @@
       currentUser = await getCurrentUser();
       updateUploadAccess();
 
-      window.sb.auth.onAuthStateChange((_event, session) => {
-        currentUser = session?.user || null;
+      window.authUtils.onAuthStateChange((user) => {
+        currentUser = user || null;
         updateUploadAccess();
       });
 

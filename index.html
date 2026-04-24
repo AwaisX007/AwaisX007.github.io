@@ -312,7 +312,15 @@
     loadTrending();
 
     // FIX: debounced search — waits 300ms after user stops typing before querying
-    document.getElementById('main-search').addEventListener('input', (e) => {
+    const searchInput = document.getElementById('main-search');
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const term = searchInput.value.trim();
+        window.location.href = term ? `search.html?q=${encodeURIComponent(term)}` : 'search.html';
+      }
+    });
+    searchInput.addEventListener('input', (e) => {
       clearTimeout(searchDebounceTimer);
       searchDebounceTimer = setTimeout(() => {
         const term = e.target.value.trim();

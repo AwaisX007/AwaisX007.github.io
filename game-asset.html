@@ -87,6 +87,8 @@
     let currentUser = null;
     let hasUpvoted = false;
     let currentZoom = 1;
+    let upvoteChannel = null;
+    let commentChannel = null;
 
     function escapeHtml(text) {
       return String(text ?? '').replace(/[&<>\"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[character]));
@@ -158,6 +160,7 @@
 
       currentAsset = asset;
       currentZoom = 1;
+      setupRealtimeSync(asset.id);
 
       await syncUpvoteState(asset.id);
 
@@ -208,6 +211,25 @@
 
       await incrementViewsOnce(asset.id);
       await loadComments(asset.id);
+    }
+
+    function setupRealtimeSync(id) {
+      window.realtimeUtils.unsubscribe(upvoteChannel);
+      window.realtimeUtils.unsubscribe(commentChannel);
+
+      upvoteChannel = window.realtimeUtils.subscribe({
+        table: 'game_asset_upvotes',
+        filter: `asset_id=eq.${id}`,
+        onChange: () => syncUpvoteState(id),
+        channelName: `rt_asset_upvotes_${id}`
+      });
+
+      commentChannel = window.realtimeUtils.subscribe({
+        table: 'game_asset_comments',
+        filter: `asset_id=eq.${id}`,
+        onChange: () => loadComments(id),
+        channelName: `rt_asset_comments_${id}`
+      });
     }
 
     async function incrementViewsOnce(id) {
@@ -373,6 +395,11 @@
     }
 
     init();
+
+    window.addEventListener('beforeunload', () => {
+      window.realtimeUtils.unsubscribe(upvoteChannel);
+      window.realtimeUtils.unsubscribe(commentChannel);
+    });
   </script>
 </body>
 </html>

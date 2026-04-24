@@ -1,6 +1,7 @@
 (() => {
   const navigationLinks = [
     { label: 'Home', href: 'index.html', match: ['index.html', ''] },
+    { label: 'Search', href: 'search.html', match: ['search.html'] },
     { label: 'Guides', href: 'guides.html', match: ['guides.html'] },
     { label: 'Blog', href: 'blog.html', match: ['blog.html'] },
     { label: 'Tier Lists', href: 'tierlists.html', match: ['tierlists.html'] },
@@ -37,6 +38,9 @@
 
   // Hotfix bootstrap: use a clean implementation and bypass legacy duplicated blocks below.
   const initV2 = () => {
+    const notificationChannels = [];
+    let notificationsRefreshTimer = null;
+
     const escapeHtmlV2 = (value) => String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -72,6 +76,22 @@
         .marineo-nav-actions .btn-signup { font-size:12px; padding:7px 14px; background:#e8c84a; color:#080808; border:none; border-radius:4px; text-decoration:none; font-weight:700; }
         .marineo-nav-actions .nav-profile-link { font-size:12px; color:#e0e0e0; text-decoration:none; max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .marineo-nav-actions .nav-admin-link { font-size:12px; color:#e8c84a; text-decoration:none; border:1px solid rgba(232,200,74,.25); padding:7px 12px; border-radius:4px; white-space:nowrap; }
+        .nav-notify { position: relative; }
+        .nav-notify-btn { display:inline-flex; align-items:center; gap:7px; border:1px solid rgba(42,42,42,.95); background:rgba(255,255,255,.02); color:#cfcfcf; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; }
+        .nav-notify-badge { display:none; min-width:18px; height:18px; border-radius:999px; background:#e8c84a; color:#080808; align-items:center; justify-content:center; font-size:11px; font-weight:700; padding:0 6px; }
+        .nav-notify-badge.show { display:inline-flex; }
+        .nav-notify-menu { display:none; position:absolute; top:calc(100% + 10px); right:0; width:330px; max-height:420px; overflow:hidden; border-radius:8px; border:1px solid rgba(255,255,255,.1); background:#111; box-shadow:0 12px 30px rgba(0,0,0,.35); z-index:1001; }
+        .nav-notify.open .nav-notify-menu { display:block; }
+        .nav-notify-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); }
+        .nav-notify-head strong { font-size:12px; color:#fff; letter-spacing:.5px; }
+        .nav-notify-mark { border:1px solid rgba(232,200,74,.3); background:rgba(232,200,74,.08); color:#e8c84a; font-size:11px; border-radius:4px; padding:4px 8px; cursor:pointer; }
+        .nav-notify-list { max-height:350px; overflow-y:auto; display:flex; flex-direction:column; }
+        .nav-notify-item { text-decoration:none; color:#ddd; border-bottom:1px solid rgba(255,255,255,.06); padding:10px 12px; display:block; }
+        .nav-notify-item:hover { background:rgba(255,255,255,.04); }
+        .nav-notify-item.unread { background:rgba(232,200,74,.08); }
+        .nav-notify-item-title { font-size:12px; color:#f3f3f3; margin-bottom:3px; }
+        .nav-notify-item-meta { font-size:11px; color:#9b9b9b; }
+        .nav-notify-empty { padding:16px 12px; color:#8a8a8a; font-size:12px; }
         @media (max-width:1024px) {
           .marineo-nav-shell { display:flex; flex-wrap:wrap; padding:10px 16px 12px; }
           .marineo-nav-toggle { display:inline-flex; }
@@ -88,7 +108,328 @@
       const isAdmin = !!profile?.is_admin;
       const username = escapeHtmlV2(profile?.username || user?.email || 'Profile');
       const profileHref = user?.id ? `profile.html?id=${encodeURIComponent(user.id)}` : 'profile.html';
-      return `<a class="nav-profile-link" href="${profileHref}">${username}</a><a class="btn-login" href="create.html">Create</a>${isAdmin ? '<a class="nav-admin-link" href="admin.html">Admin</a>' : ''}<button class="btn-logout" type="button" data-nav-logout>Log out</button>`;
+      return `<a class="nav-profile-link" href="${profileHref}">${username}</a><div class="nav-notify" data-nav-notify-root><button class="nav-notify-btn" type="button" data-nav-notify><span>🔔</span><span class="nav-notify-badge" data-nav-notify-badge>0</span></button><div class="nav-notify-menu" data-nav-notify-menu><div class="nav-notify-head"><strong>Notifications</strong><button type="button" class="nav-notify-mark" data-nav-notify-mark>Mark all read</button></div><div class="nav-notify-list" data-nav-notify-list><div class="nav-notify-empty">Loading…</div></div></div></div><a class="btn-login" href="create.html">Create</a>${isAdmin ? '<a class="nav-admin-link" href="admin.html">Admin</a>' : ''}<button class="btn-logout" type="button" data-nav-logout>Log out</button>`;
+    };
+
+    const notificationStorageKey = (userId) => `marineo_seen_notifications_${userId}`;
+    const readSeenNotificationKeys = (userId) => {
+      try {
+        const raw = localStorage.getItem(notificationStorageKey(userId));
+        const parsed = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        return new Set();
+      }
+    };
+    const saveSeenNotificationKeys = (userId, keysSet) => {
+      try {
+        localStorage.setItem(notificationStorageKey(userId), JSON.stringify(Array.from(keysSet)));
+      } catch {}
+    };
+
+    const timeAgoV2 = (date) => {
+      const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+      if (seconds < 60) return 'just now';
+      const mins = Math.floor(seconds / 60);
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      const days = Math.floor(hrs / 24);
+      if (days < 30) return `${days}d ago`;
+      const mos = Math.floor(days / 30);
+      if (mos < 12) return `${mos}mo ago`;
+      return `${Math.floor(mos / 12)}y ago`;
+    };
+
+    const uniqueByKeyV2 = (items) => {
+      const seen = new Set();
+      return items.filter((item) => {
+        if (seen.has(item.key)) return false;
+        seen.add(item.key);
+        return true;
+      });
+    };
+
+    const safeSelectRowsV2 = async (builder) => {
+      const { data, error } = await builder;
+      if (error) return [];
+      return Array.isArray(data) ? data : (data ? [data] : []);
+    };
+
+    const fetchNotificationItems = async (userId) => {
+      const items = [];
+
+      const approvedPosts = await safeSelectRowsV2(
+        window.sb
+        .from('posts')
+        .select('id, title, created_at')
+        .eq('user_id', userId)
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+        .limit(8)
+      );
+
+      approvedPosts.forEach((post) => {
+        items.push({
+          key: `post-approved-${post.id}`,
+          title: `Post approved: ${post.title || 'Untitled'}`,
+          href: `post.html?id=${encodeURIComponent(post.id)}`,
+          createdAt: post.created_at,
+        });
+      });
+
+      const postIds = approvedPosts.map((post) => post.id);
+      const ownedPostIds = await safeSelectRowsV2(window.sb.from('posts').select('id').eq('user_id', userId).order('created_at', { ascending: false }).limit(20));
+      const watchedPostIds = Array.from(new Set([...postIds, ...ownedPostIds.map((post) => post.id)]));
+
+      const comments = watchedPostIds.length
+        ? await safeSelectRowsV2(
+          window.sb
+            .from('post_comments')
+            .select('id, post_id, user_id, created_at, profiles(username), posts(id, title, user_id)')
+            .in('post_id', watchedPostIds)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(15)
+        )
+        : [];
+
+      comments.forEach((comment) => {
+        items.push({
+          key: `post-comment-${comment.id}`,
+          title: `${comment.profiles?.username || 'Someone'} commented on: ${comment.posts?.title || 'your post'}`,
+          href: `post.html?id=${encodeURIComponent(comment.post_id)}`,
+          createdAt: comment.created_at,
+        });
+      });
+
+      const votes = watchedPostIds.length
+        ? await safeSelectRowsV2(
+          window.sb
+            .from('post_upvotes')
+            .select('id, post_id, user_id, created_at, profiles(username), posts(id, title, user_id)')
+            .in('post_id', watchedPostIds)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(15)
+        )
+        : [];
+
+      votes.forEach((vote) => {
+        items.push({
+          key: `post-upvote-${vote.id}`,
+          title: `${vote.profiles?.username || 'Someone'} upvoted: ${vote.posts?.title || 'your post'}`,
+          href: `post.html?id=${encodeURIComponent(vote.post_id)}`,
+          createdAt: vote.created_at,
+        });
+      });
+
+      const renders = await safeSelectRowsV2(
+        window.sb
+          .from('renders_wallpapers')
+          .select('id, title, created_at, status')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      );
+
+      renders.filter((render) => render.status === 'approved').forEach((render) => {
+        items.push({
+          key: `render-approved-${render.id}`,
+          title: `Wallpaper approved: ${render.title || 'Untitled'}`,
+          href: `render-wallpaper.html?id=${encodeURIComponent(render.id)}`,
+          createdAt: render.created_at,
+        });
+      });
+
+      const renderIds = renders.map((render) => render.id);
+      const renderComments = renderIds.length
+        ? await safeSelectRowsV2(
+          window.sb
+            .from('renders_wallpaper_comments')
+            .select('id, render_id, user_id, created_at, profiles(username), renders_wallpapers(id, title, user_id)')
+            .in('render_id', renderIds)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(15)
+        )
+        : [];
+
+      renderComments.forEach((comment) => {
+        items.push({
+          key: `render-comment-${comment.id}`,
+          title: `${comment.profiles?.username || 'Someone'} commented on: ${comment.renders_wallpapers?.title || 'your wallpaper'}`,
+          href: `render-wallpaper.html?id=${encodeURIComponent(comment.render_id)}`,
+          createdAt: comment.created_at,
+        });
+      });
+
+      const renderVotes = renderIds.length
+        ? await safeSelectRowsV2(
+          window.sb
+            .from('renders_wallpaper_upvotes')
+            .select('id, render_id, user_id, created_at, profiles(username), renders_wallpapers(id, title, user_id)')
+            .in('render_id', renderIds)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(15)
+        )
+        : [];
+
+      renderVotes.forEach((vote) => {
+        items.push({
+          key: `render-upvote-${vote.id}`,
+          title: `${vote.profiles?.username || 'Someone'} upvoted: ${vote.renders_wallpapers?.title || 'your wallpaper'}`,
+          href: `render-wallpaper.html?id=${encodeURIComponent(vote.render_id)}`,
+          createdAt: vote.created_at,
+        });
+      });
+
+      const assets = await safeSelectRowsV2(
+        window.sb
+          .from('game_assets_uploads')
+          .select('id, title, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      );
+
+      const assetIds = assets.map((asset) => asset.id);
+      const assetComments = assetIds.length
+        ? await safeSelectRowsV2(
+          window.sb
+            .from('game_asset_comments')
+            .select('id, asset_id, user_id, created_at, profiles(username), game_assets_uploads(id, title, user_id)')
+            .in('asset_id', assetIds)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(15)
+        )
+        : [];
+
+      assetComments.forEach((comment) => {
+        items.push({
+          key: `asset-comment-${comment.id}`,
+          title: `${comment.profiles?.username || 'Someone'} commented on: ${comment.game_assets_uploads?.title || 'your asset'}`,
+          href: `game-asset.html?id=${encodeURIComponent(comment.asset_id)}`,
+          createdAt: comment.created_at,
+        });
+      });
+
+      const assetVotes = assetIds.length
+        ? await safeSelectRowsV2(
+          window.sb
+            .from('game_asset_upvotes')
+            .select('id, asset_id, user_id, created_at, profiles(username), game_assets_uploads(id, title, user_id)')
+            .in('asset_id', assetIds)
+            .neq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(15)
+        )
+        : [];
+
+      assetVotes.forEach((vote) => {
+        items.push({
+          key: `asset-upvote-${vote.id}`,
+          title: `${vote.profiles?.username || 'Someone'} upvoted: ${vote.game_assets_uploads?.title || 'your asset'}`,
+          href: `game-asset.html?id=${encodeURIComponent(vote.asset_id)}`,
+          createdAt: vote.created_at,
+        });
+      });
+
+      return uniqueByKeyV2(items)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 25);
+    };
+
+    const wireNotifications = async (userId) => {
+      const root = document.querySelector('[data-nav-notify-root]');
+      const btn = root?.querySelector('[data-nav-notify]');
+      const list = root?.querySelector('[data-nav-notify-list]');
+      const badge = root?.querySelector('[data-nav-notify-badge]');
+      const markAll = root?.querySelector('[data-nav-notify-mark]');
+      if (!root || !btn || !list || !badge || !markAll) return;
+      root.dataset.userId = userId;
+      const canRealtime = !!window.realtimeUtils?.subscribe;
+
+      const render = async () => {
+        const seen = readSeenNotificationKeys(userId);
+        const items = await fetchNotificationItems(userId);
+
+        const unreadCount = items.reduce((count, item) => count + (seen.has(item.key) ? 0 : 1), 0);
+        badge.textContent = String(unreadCount);
+        badge.classList.toggle('show', unreadCount > 0);
+
+        if (!items.length) {
+          list.innerHTML = '<div class="nav-notify-empty">No notifications yet.</div>';
+          return;
+        }
+
+        list.innerHTML = items.map((item) => {
+          const unread = !seen.has(item.key);
+          return `<a class="nav-notify-item ${unread ? 'unread' : ''}" href="${item.href}" data-notify-key="${escapeHtmlV2(item.key)}"><div class="nav-notify-item-title">${escapeHtmlV2(item.title)}</div><div class="nav-notify-item-meta">${timeAgoV2(item.createdAt)}</div></a>`;
+        }).join('');
+
+        list.querySelectorAll('[data-notify-key]').forEach((anchor) => {
+          anchor.addEventListener('click', () => {
+            const key = anchor.getAttribute('data-notify-key');
+            const currentSeen = readSeenNotificationKeys(userId);
+            currentSeen.add(key);
+            saveSeenNotificationKeys(userId, currentSeen);
+          });
+        });
+      };
+
+      const scheduleRefresh = () => {
+        if (notificationsRefreshTimer) clearTimeout(notificationsRefreshTimer);
+        notificationsRefreshTimer = setTimeout(() => {
+          render();
+        }, 250);
+      };
+
+      if (!markAll.dataset.bound) {
+        markAll.dataset.bound = '1';
+        markAll.addEventListener('click', async () => {
+          const currentUserId = root.dataset.userId;
+          if (!currentUserId) return;
+          const items = await fetchNotificationItems(currentUserId);
+          saveSeenNotificationKeys(currentUserId, new Set(items.map((item) => item.key)));
+          render();
+        });
+      }
+
+      if (!btn.dataset.bound) {
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          root.classList.toggle('open');
+        });
+      }
+
+      if (!root.dataset.boundOutside) {
+        root.dataset.boundOutside = '1';
+        document.addEventListener('click', (event) => {
+          if (!root.contains(event.target)) {
+            root.classList.remove('open');
+          }
+        });
+      }
+
+      notificationChannels.splice(0).forEach((channel) => window.realtimeUtils?.unsubscribe?.(channel));
+      if (canRealtime) {
+        notificationChannels.push(
+          window.realtimeUtils.subscribe({ table: 'posts', onChange: scheduleRefresh, channelName: `rt_nav_posts_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'post_comments', onChange: scheduleRefresh, channelName: `rt_nav_comments_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'post_upvotes', onChange: scheduleRefresh, channelName: `rt_nav_votes_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'renders_wallpapers', onChange: scheduleRefresh, channelName: `rt_nav_renders_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'renders_wallpaper_comments', onChange: scheduleRefresh, channelName: `rt_nav_render_comments_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'renders_wallpaper_upvotes', onChange: scheduleRefresh, channelName: `rt_nav_render_votes_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'game_asset_comments', onChange: scheduleRefresh, channelName: `rt_nav_asset_comments_${userId}` }),
+          window.realtimeUtils.subscribe({ table: 'game_asset_upvotes', onChange: scheduleRefresh, channelName: `rt_nav_asset_votes_${userId}` })
+        );
+      }
+
+      await render();
     };
 
     const renderNavV2 = () => {
@@ -124,21 +465,24 @@
 
     const renderAuthV2 = async () => {
       const navRight = document.getElementById('nav-right');
-      if (!navRight || !window.sb?.auth?.getSession) return;
+      if (!navRight || !window.authUtils?.getCurrentUser) return;
       try {
-        const { data: { session } } = await window.sb.auth.getSession();
-        const user = session?.user || (await window.sb.auth.getUser()).data.user || null;
+        const user = await window.authUtils.getCurrentUser();
         if (!user) {
+          notificationChannels.splice(0).forEach((channel) => window.realtimeUtils?.unsubscribe?.(channel));
           navRight.innerHTML = buildGuest();
           return;
         }
-        const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+        const profile = await window.authUtils.getProfile(user.id, 'username, is_admin');
         navRight.innerHTML = buildAuth(user, profile);
+        wireNotifications(user.id);
         navRight.querySelector('[data-nav-logout]')?.addEventListener('click', async () => {
+          notificationChannels.splice(0).forEach((channel) => window.realtimeUtils?.unsubscribe?.(channel));
           await window.sb.auth.signOut();
           window.location.reload();
         });
       } catch {
+        notificationChannels.splice(0).forEach((channel) => window.realtimeUtils?.unsubscribe?.(channel));
         navRight.innerHTML = buildGuest();
       }
     };
@@ -198,8 +542,8 @@
       renderNavV2();
       setupToggleV2();
       renderAuthV2();
-      if (window.sb?.auth?.onAuthStateChange) {
-        window.sb.auth.onAuthStateChange(() => {
+      if (window.authUtils?.onAuthStateChange) {
+        window.authUtils.onAuthStateChange(() => {
           renderAuthV2();
         });
       }

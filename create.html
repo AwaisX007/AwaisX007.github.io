@@ -170,14 +170,6 @@
   let currentUser = null;
   let isPreviewing = false;
 
-  async function getCurrentUser() {
-    const { data: { session } } = await window.sb.auth.getSession();
-    if (session?.user) return session.user;
-
-    const { data: { user } } = await window.sb.auth.getUser();
-    return user || null;
-  }
-
   function showLoggedOutState() {
     document.getElementById('post-form').style.display = 'none';
     document.getElementById('not-logged-in').style.display = 'block';
@@ -194,14 +186,14 @@
   }
 
   async function renderAuthState() {
-    currentUser = await getCurrentUser();
+    currentUser = await window.authUtils.getCurrentUser();
 
     if (!currentUser) {
       showLoggedOutState();
       return;
     }
 
-    const { data: profile } = await window.sb.from('profiles').select('username').eq('id', currentUser.id).single();
+    const profile = await window.authUtils.getProfile(currentUser.id, 'username');
 
     const navUser = document.getElementById('nav-user');
     if (navUser) {
@@ -238,8 +230,8 @@
       return;
     }
 
-    if (window.sb?.auth?.onAuthStateChange) {
-      window.sb.auth.onAuthStateChange(async () => {
+    if (window.authUtils?.onAuthStateChange) {
+      window.authUtils.onAuthStateChange(async () => {
         await renderAuthState();
       });
     }
@@ -273,7 +265,7 @@
   }
 
   async function uploadImage(input) {
-    currentUser = await getCurrentUser();
+    currentUser = await window.authUtils.getCurrentUser();
     if (!currentUser) {
       alert('Please log in to upload an image.');
       showLoggedOutState();
@@ -357,7 +349,7 @@
     const msg = document.getElementById('msg');
     msg.className = 'msg';
 
-    currentUser = await getCurrentUser();
+    currentUser = await window.authUtils.getCurrentUser();
     if (!currentUser) {
       msg.className = 'msg error';
       msg.textContent = 'Your session expired. Please log in again.';

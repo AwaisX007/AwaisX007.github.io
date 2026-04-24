@@ -98,18 +98,21 @@
         let currentUser = null;
         let isAdmin = false;
         let hasUpvoted = false;
+        let postChannel = null;
+        let commentChannel = null;
+        let realtimePostId = null;
 
         async function init() {
             const navRight = document.getElementById('nav-right');
-            const { data: { user } } = await window.sb.auth.getUser();
-            currentUser = user;
+            const user = await window.authUtils.getCurrentUser();
+            currentUser = user || null;
 
             if (user) {
-                const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
+                const profile = await window.authUtils.getProfile(user.id, 'username, is_admin');
                 isAdmin = profile?.is_admin || false;
                 document.getElementById('nav-right').innerHTML = `
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <a href="profile.html" style="text-decoration:none;">
+                        <a href="profile.html?id=${encodeURIComponent(user.id)}" style="text-decoration:none;">
                             <span style="font-size:13px;color:#999;cursor:pointer;">${escapeHtml(profile?.username || user.email)}</span>
                         </a>
                         ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;">Admin</a>' : ''}
@@ -188,6 +191,38 @@
             });
 
             loadComments();
+            setupRealtime(post.id);
+        }
+
+        function setupRealtime(id) {
+            if (realtimePostId === id) {
+                return;
+            }
+
+            realtimePostId = id;
+            window.realtimeUtils.unsubscribe(postChannel);
+            window.realtimeUtils.unsubscribe(commentChannel);
+
+            postChannel = window.realtimeUtils.subscribe({
+                table: 'posts',
+                filter: `id=eq.${id}`,
+                onChange: (payload) => {
+                    const updated = payload?.new;
+                    if (!updated) return;
+                    const countEl = document.getElementById('v-count');
+                    if (countEl && typeof updated.upvotes !== 'undefined') {
+                        countEl.innerText = String(updated.upvotes || 0);
+                    }
+                },
+                channelName: `rt_post_${id}`
+            });
+
+            commentChannel = window.realtimeUtils.subscribe({
+                table: 'post_comments',
+                filter: `post_id=eq.${id}`,
+                onChange: () => loadComments(),
+                channelName: `rt_post_comments_${id}`
+            });
         }
 
         function updateMetaTags(post) {
@@ -354,6 +389,11 @@
         }
 
         init();
+
+        window.addEventListener('beforeunload', () => {
+            window.realtimeUtils.unsubscribe(postChannel);
+            window.realtimeUtils.unsubscribe(commentChannel);
+        });
     </script>
 </body>
 </html>

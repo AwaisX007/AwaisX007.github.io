@@ -86,6 +86,8 @@
     let currentUser = null;
     let hasUpvoted = false;
     let currentZoom = 1;
+    let upvoteChannel = null;
+    let commentChannel = null;
 
     function getDownloadName(url, title) {
       try {
@@ -158,6 +160,7 @@
 
       currentUpload = upload;
       currentZoom = 1;
+      setupRealtimeSync(upload.id);
 
       await syncUpvoteState(upload.id);
 
@@ -208,6 +211,25 @@
 
       await incrementViewsOnce(upload.id);
       await loadComments(upload.id);
+    }
+
+    function setupRealtimeSync(id) {
+      window.realtimeUtils.unsubscribe(upvoteChannel);
+      window.realtimeUtils.unsubscribe(commentChannel);
+
+      upvoteChannel = window.realtimeUtils.subscribe({
+        table: 'renders_wallpaper_upvotes',
+        filter: `render_id=eq.${id}`,
+        onChange: () => syncUpvoteState(id),
+        channelName: `rt_render_upvotes_${id}`
+      });
+
+      commentChannel = window.realtimeUtils.subscribe({
+        table: 'renders_wallpaper_comments',
+        filter: `render_id=eq.${id}`,
+        onChange: () => loadComments(id),
+        channelName: `rt_render_comments_${id}`
+      });
     }
 
     async function incrementViewsOnce(id) {
@@ -373,6 +395,11 @@
     }
 
     init();
+
+    window.addEventListener('beforeunload', () => {
+      window.realtimeUtils.unsubscribe(upvoteChannel);
+      window.realtimeUtils.unsubscribe(commentChannel);
+    });
   </script>
 </body>
 </html>
