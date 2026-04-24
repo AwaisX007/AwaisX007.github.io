@@ -184,6 +184,16 @@
         background: #e8c84a;
       }
 
+      .marineo-nav-featured a.active {
+        color: #080808;
+        background: #e8c84a;
+        border-color: #e8c84a;
+      }
+
+      .marineo-nav-featured a.active:hover {
+        transform: none;
+      }
+
       .marineo-nav-featured {
         display: flex;
         align-items: center;
