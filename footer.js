@@ -72,13 +72,15 @@
       }
 
       .marineo-nav-shell {
-        max-width: 1480px;
+        width: 100%;
+        max-width: none;
         margin: 0 auto;
-        padding: 0 18px;
+        padding: 0 28px;
         min-height: 66px;
-        display: flex;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
         align-items: center;
-        gap: 14px;
+        gap: 20px;
       }
 
       .marineo-nav-toggle {
@@ -120,11 +122,10 @@
       }
 
       .marineo-nav-panel {
-        flex: 1;
+        min-width: 0;
         display: flex;
         align-items: center;
-        gap: 14px;
-        min-width: 0;
+        gap: 18px;
       }
 
       .marineo-nav-brand {
@@ -149,9 +150,10 @@
         flex: 1;
         display: flex;
         align-items: center;
-        gap: 14px;
-        flex-wrap: wrap;
-        justify-content: center;
+        gap: 18px;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+        min-width: 0;
       }
 
       .marineo-nav-links a {
@@ -185,7 +187,7 @@
       .marineo-nav-featured {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         flex-shrink: 0;
       }
 
@@ -217,7 +219,6 @@
         justify-content: flex-end;
         gap: 10px;
         flex-shrink: 0;
-        margin-left: auto;
       }
 
       .marineo-nav-actions .btn-login,
@@ -281,6 +282,7 @@
 
       @media (max-width: 1024px) {
         .marineo-nav-shell {
+          display: flex;
           flex-wrap: wrap;
           padding: 10px 16px 12px;
         }
