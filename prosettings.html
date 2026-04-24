@@ -137,7 +137,7 @@
         <div class="content-card" role="link" tabindex="0" onclick="window.location='post.html?id=${p.id}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${p.id}'; }" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
           <div class="content-card-game">${p.game}</div>
           <div class="content-card-title">${p.title}</div>
-          <div class="content-card-author">by <a href="user.html?id=${p.user_id}">${p.profiles?.username || 'unknown'}</a></div>
+          <div class="content-card-author">by <a href="profile.html?id=${p.user_id}">${p.profiles?.username || 'unknown'}</a></div>
         </div>`).join('')}</div>`;
   }
   init();

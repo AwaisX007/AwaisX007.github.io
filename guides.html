@@ -131,6 +131,19 @@
 <script>
   let currentFilter = '';
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeParam(value) {
+    return encodeURIComponent(String(value ?? ''));
+  }
+
   async function init() {
     const navRight = document.getElementById('nav-right');
     const { data: { user } } = await window.sb.auth.getUser();
@@ -138,7 +151,7 @@
       const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
       document.getElementById('nav-right').innerHTML = `
         <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
-          <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || user.email}</span>
+          <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${escapeHtml(profile?.username || user.email)}</span>
         </a>
         ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
         <button style="cursor:pointer; background:transparent; border:1px solid #2a2a2a; color:#666; padding:6px 14px; border-radius:3px; font-family:'Barlow',sans-serif;" onclick="window.sb.auth.signOut().then(() => window.location.reload())">Log out</button>
@@ -175,11 +188,11 @@
 
     content.innerHTML = `<div class="cards-grid">
       ${posts.map(p => `
-        <div class="content-card" role="link" tabindex="0" onclick="window.location='post.html?id=${p.id}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${p.id}'; }" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div class="content-card-game">${p.game} · ${p.category}</div>
-          <div class="content-card-title">${p.title}</div>
+        <div class="content-card" role="link" tabindex="0" onclick="window.location='post.html?id=${safeParam(p.id)}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${safeParam(p.id)}'; }" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div class="content-card-game">${escapeHtml(p.game)} · ${escapeHtml(p.category)}</div>
+          <div class="content-card-title">${escapeHtml(p.title)}</div>
           <div class="content-card-meta">👁️ ${p.views || 0} views &nbsp;·&nbsp; ▲ ${p.upvotes || 0}</div>
-          <div class="content-card-author">by <a href="user.html?id=${p.user_id}" onclick="event.stopPropagation()">${p.profiles?.username || 'unknown'}</a></div>
+          <div class="content-card-author">by <a href="profile.html?id=${safeParam(p.user_id)}" onclick="event.stopPropagation()">${escapeHtml(p.profiles?.username || 'unknown')}</a></div>
         </div>`).join('')}
     </div>`;
   }

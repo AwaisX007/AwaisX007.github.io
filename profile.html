@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile — MarineoFPS</title>
+    <title>Profile — MarineoFPS</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
@@ -95,9 +95,8 @@
 <body>
 <nav>
     <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
-    <div class="nav-right">
+    <div class="nav-right" id="nav-right">
         <a class="nav-link" href="index.html">← Home</a>
-        <button class="btn-logout" onclick="logout()">Log out</button>
     </div>
 </nav>
 
@@ -162,6 +161,18 @@
                     </select>
                 </div>
                 <div class="form-group full">
+                    <label>Favorite Games</label>
+                    <input type="text" id="edit-favorite-games" placeholder="e.g. CS2, Valorant, Dota 2" maxlength="200">
+                </div>
+                <div class="form-group">
+                    <label>Favorite Team/Player</label>
+                    <input type="text" id="edit-favorite-team" placeholder="e.g. NAVI / s1mple" maxlength="60">
+                </div>
+                <div class="form-group">
+                    <label>Gaming Goal</label>
+                    <input type="text" id="edit-gaming-goal" placeholder="e.g. Reach Faceit Level 10" maxlength="220">
+                </div>
+                <div class="form-group full">
                     <label>Bio</label>
                     <textarea id="edit-bio" placeholder="Tell the community about yourself..." maxlength="300"></textarea>
                     <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Max 300 characters.</div>
@@ -183,34 +194,107 @@
 <script src="footer.js"></script>
 
 <script>
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser = null;
     let currentProfile = null;
+    let targetUserId = null;
+    let isOwnProfile = false;
     let newAvatarFile = null;
 
-    async function init() {
-        const { data: { user } } = await sb.auth.getUser();
-        if (!user) { window.location.href = 'login.html'; return; }
-        currentUser = user;
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
-        const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    function safeParam(value) {
+        return encodeURIComponent(String(value ?? ''));
+    }
+
+    function statusClass(status) {
+        return ['approved', 'pending', 'rejected'].includes(status) ? status : 'pending';
+    }
+
+    async function init() {
+        const params = new URLSearchParams(window.location.search);
+        const requestedId = params.get('id');
+
+        const { data: { user } } = await sb.auth.getUser();
+        currentUser = user || null;
+
+        if (!requestedId && !currentUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        targetUserId = requestedId || currentUser.id;
+        isOwnProfile = !!currentUser && currentUser.id === targetUserId;
+
+        renderNav();
+
+        const { data: profile, error } = await sb.from('profiles')
+            .select('id, username, avatar_url, is_admin, created_at, bio, gender, date_of_birth, country, favorite_games, favorite_team, gaming_goal')
+            .eq('id', targetUserId)
+            .single();
+
+        if (error || !profile) {
+            document.getElementById('profile-header-section').innerHTML = '<div class="empty-posts">Profile not found.</div>';
+            document.getElementById('my-posts').innerHTML = '';
+            document.getElementById('tab-edit').style.display = 'none';
+            return;
+        }
+
         currentProfile = profile;
 
+        if (isOwnProfile) {
+            document.getElementById('tab-posts').textContent = 'My Posts';
+            document.getElementById('tab-edit').style.display = '';
+            populateEditForm(profile);
+        } else {
+            document.getElementById('tab-posts').textContent = `${profile.username || 'User'} Posts`;
+            document.getElementById('tab-edit').style.display = 'none';
+        }
+
         renderHeader(profile);
-        renderStats(profile);
-        loadMyPosts(user.id);
-        populateEditForm(profile);
+        await loadPosts(targetUserId);
+    }
+
+    function renderNav() {
+        const navRight = document.getElementById('nav-right');
+        if (!currentUser) {
+            navRight.innerHTML = `
+                <a class="nav-link" href="index.html">← Home</a>
+                <a class="btn-logout" href="login.html">Log in</a>
+            `;
+            return;
+        }
+
+        navRight.innerHTML = `
+            <a class="nav-link" href="index.html">← Home</a>
+            <a class="nav-link" href="profile.html?id=${safeParam(currentUser.id)}">My Profile</a>
+            <button class="btn-logout" onclick="logout()">Log out</button>
+        `;
     }
 
     function renderHeader(p) {
         const initials = (p.username || '?').substring(0, 2).toUpperCase();
         const avatarHtml = p.avatar_url
-            ? `<img class="avatar" src="${p.avatar_url}" alt="avatar">`
-            : `<div class="avatar-initials">${initials}</div>`;
+            ? `<img class="avatar" src="${escapeHtml(p.avatar_url)}" alt="avatar">`
+            : `<div class="avatar-initials">${escapeHtml(initials)}</div>`;
 
         const dobAge = p.date_of_birth ? ` · ${calcAge(p.date_of_birth)} years old` : '';
-        const gender = p.gender ? ` · ${capitalize(p.gender)}` : '';
-        const country = p.country ? ` · ${p.country}` : '';
+        const gender = p.gender ? ` · ${escapeHtml(capitalize(p.gender))}` : '';
+        const country = p.country ? ` · ${escapeHtml(p.country)}` : '';
+        const roleLabel = p.is_admin ? 'MARINEOFPS STAFF' : 'COMMUNITY MEMBER';
+
+        const detailChips = [
+            p.favorite_games ? `<span class="profile-detail">🎮 ${escapeHtml(p.favorite_games)}</span>` : '',
+            p.favorite_team ? `<span class="profile-detail">🏆 ${escapeHtml(p.favorite_team)}</span>` : '',
+            p.gaming_goal ? `<span class="profile-detail">🎯 ${escapeHtml(p.gaming_goal)}</span>` : ''
+        ].filter(Boolean).join('');
 
         document.getElementById('profile-header-section').innerHTML = `
             <div class="profile-header">
@@ -218,62 +302,59 @@
                     ${avatarHtml}
                 </div>
                 <div class="profile-info">
-                    <div style="font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">COMMUNITY MEMBER</div>
-                    <div class="username">${p.username}</div>
+                    <div style="font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">${roleLabel}</div>
+                    <div class="username">${escapeHtml(p.username || 'Unknown')}</div>
                     <div class="member-since">Joined ${new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}${dobAge}${gender}${country}</div>
-                    ${p.bio ? `<div class="bio-text">${p.bio}</div>` : '<div class="bio-text" style="opacity:0.4">No bio yet — add one in Edit Profile.</div>'}
+                    ${p.bio ? `<div class="bio-text">${escapeHtml(p.bio)}</div>` : '<div class="bio-text" style="opacity:0.4">No bio yet.</div>'}
+                    ${detailChips ? `<div class="profile-details">${detailChips}</div>` : ''}
                 </div>
             </div>
         `;
     }
 
-    function renderStats(p) {
-        document.getElementById('stats-row').innerHTML = `
-            <div class="stat-card"><span class="stat-val" id="stat-posts">—</span><span class="stat-lab">Posts</span></div>
-            <div class="stat-card"><span class="stat-val" id="stat-approved">—</span><span class="stat-lab">Approved</span></div>
-            <div class="stat-card"><span class="stat-val" id="stat-upvotes">—</span><span class="stat-lab">Upvotes</span></div>
-        `;
-    }
+    async function loadPosts(userId) {
+        let query = sb.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+        if (!isOwnProfile) query = query.eq('status', 'approved');
 
-    async function loadMyPosts(userId) {
-        const { data: posts } = await sb.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+        const { data: posts } = await query;
 
         const total = posts?.length || 0;
         const approved = posts?.filter(p => p.status === 'approved').length || 0;
         const upvotes = posts?.reduce((sum, p) => sum + (p.upvotes || 0), 0) || 0;
 
-        if (document.getElementById('stat-posts')) {
-            document.getElementById('stat-posts').textContent = total;
-            document.getElementById('stat-approved').textContent = approved;
-            document.getElementById('stat-upvotes').textContent = upvotes;
-        }
+        document.getElementById('stats-row').innerHTML = `
+            <div class="stat-card"><span class="stat-val">${total}</span><span class="stat-lab">Posts</span></div>
+            <div class="stat-card"><span class="stat-val">${approved}</span><span class="stat-lab">Approved</span></div>
+            <div class="stat-card"><span class="stat-val">${upvotes}</span><span class="stat-lab">Upvotes</span></div>
+        `;
 
         if (!posts?.length) {
-            document.getElementById('my-posts').innerHTML = `<div class="empty-posts">You haven't posted anything yet. <a href="create.html" style="color:var(--gold)">Create your first post →</a></div>`;
+            document.getElementById('my-posts').innerHTML = `<div class="empty-posts">${isOwnProfile ? `You haven't posted anything yet. <a href="create.html" style="color:var(--gold)">Create your first post →</a>` : 'No public posts yet.'}</div>`;
             return;
         }
 
         document.getElementById('my-posts').innerHTML = posts.map(p => `
             <div class="post-list-item">
                 <div style="flex:1">
-                    <div class="post-game">${p.game} // ${p.type}</div>
-                    <a class="post-title-link" href="post.html?id=${p.id}">${p.title}</a>
+                    <div class="post-game">${escapeHtml(p.game)} // ${escapeHtml(p.type)}</div>
+                    <a class="post-title-link" href="post.html?id=${safeParam(p.id)}">${escapeHtml(p.title)}</a>
                 </div>
                 <div class="post-actions">
                     <span class="upvote-count">▲ ${p.upvotes || 0}</span>
-                    <span class="status-badge status-${p.status}">${p.status}</span>
-                    <a href="edit.html?id=${p.id}" style="border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600; margin-right: 6px;">Edit</a>
-                    <button class="btn-delete" onclick="deletePost(${p.id})">Delete</button>
+                    ${isOwnProfile ? `<span class="status-badge status-${statusClass(p.status)}">${escapeHtml(p.status)}</span>` : ''}
+                    ${isOwnProfile ? `<a href="edit.html?id=${safeParam(p.id)}" style="border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600; margin-right: 6px;">Edit</a>` : ''}
+                    ${isOwnProfile ? `<button class="btn-delete" onclick="deletePost(${p.id})">Delete</button>` : ''}
                 </div>
             </div>
         `).join('');
     }
 
     async function deletePost(id) {
+        if (!isOwnProfile) return;
         if (!confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
         const { error } = await sb.from('posts').delete().eq('id', id);
         if (error) { alert('Error: ' + error.message); return; }
-        loadMyPosts(currentUser.id);
+        loadPosts(currentUser.id);
     }
 
     function populateEditForm(p) {
@@ -282,11 +363,14 @@
         document.getElementById('edit-gender').value = p.gender || '';
         document.getElementById('edit-dob').value = p.date_of_birth || '';
         document.getElementById('edit-country').value = p.country || '';
+        document.getElementById('edit-favorite-games').value = p.favorite_games || '';
+        document.getElementById('edit-favorite-team').value = p.favorite_team || '';
+        document.getElementById('edit-gaming-goal').value = p.gaming_goal || '';
 
         const initials = (p.username || '?').substring(0, 2).toUpperCase();
         document.getElementById('edit-avatar-preview').innerHTML = p.avatar_url
-            ? `<img class="avatar" src="${p.avatar_url}" alt="avatar">`
-            : `<div class="avatar-initials">${initials}</div>`;
+            ? `<img class="avatar" src="${escapeHtml(p.avatar_url)}" alt="avatar">`
+            : `<div class="avatar-initials">${escapeHtml(initials)}</div>`;
     }
 
     function previewAvatar(input) {
@@ -299,11 +383,16 @@
     }
 
     async function saveProfile() {
+        if (!isOwnProfile) return;
+
         const username = document.getElementById('edit-username').value.trim();
         const bio = document.getElementById('edit-bio').value.trim();
         const gender = document.getElementById('edit-gender').value;
         const dob = document.getElementById('edit-dob').value;
         const country = document.getElementById('edit-country').value;
+        const favoriteGames = document.getElementById('edit-favorite-games').value.trim();
+        const favoriteTeam = document.getElementById('edit-favorite-team').value.trim();
+        const gamingGoal = document.getElementById('edit-gaming-goal').value.trim();
         const btn = document.getElementById('save-btn');
         const msg = document.getElementById('edit-msg');
         msg.className = 'msg';
@@ -315,7 +404,6 @@
 
         let avatar_url = currentProfile.avatar_url;
 
-        // Upload avatar if new one selected
         if (newAvatarFile) {
             const ext = newAvatarFile.name.split('.').pop();
             const path = `avatars/${currentUser.id}.${ext}`;
@@ -328,25 +416,34 @@
             avatar_url = urlData.publicUrl;
         }
 
-        const { error } = await sb.from('profiles').update({
-            username, bio, gender,
+        const payload = {
+            username,
+            bio: bio || null,
+            gender: gender || null,
             date_of_birth: dob || null,
             country: country || null,
+            favorite_games: favoriteGames || null,
+            favorite_team: favoriteTeam || null,
+            gaming_goal: gamingGoal || null,
             avatar_url
-        }).eq('id', currentUser.id);
+        };
+
+        const { error } = await sb.from('profiles').update(payload).eq('id', currentUser.id);
 
         if (error) {
             msg.className = 'msg error'; msg.textContent = error.message;
             btn.disabled = false; btn.textContent = 'Save Changes'; return;
         }
 
-        currentProfile = { ...currentProfile, username, bio, gender, date_of_birth: dob, country, avatar_url };
+        currentProfile = { ...currentProfile, ...payload };
         renderHeader(currentProfile);
         msg.className = 'msg success'; msg.textContent = '✓ Profile updated successfully!';
         btn.disabled = false; btn.textContent = 'Save Changes';
     }
 
     function switchTab(tab) {
+        if (tab === 'edit' && !isOwnProfile) return;
+
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById('tab-' + tab).classList.add('active');
         document.getElementById('tab-posts-content').style.display = tab === 'posts' ? 'block' : 'none';

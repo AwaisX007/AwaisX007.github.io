@@ -147,7 +147,7 @@
                     <div style="color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;">${escapeHtml(post.game)} // ${escapeHtml(post.category)}</div>
                     <h1 class="post-title">${escapeHtml(post.title)}</h1>
                     <div style="font-size:14px; color:#666; margin-bottom:40px;">
-                        by <b><a href="user.html?id=${escapeHtml(post.user_id)}" style="color:var(--gold); text-decoration:none;">${escapeHtml(post.profiles?.username || 'unknown')}</a></b>
+                        by <b><a href="profile.html?id=${escapeHtml(post.user_id)}" style="color:var(--gold); text-decoration:none;">${escapeHtml(post.profiles?.username || 'unknown')}</a></b>
                         &nbsp;•&nbsp; ${timeAgo(post.created_at)}
                         &nbsp;•&nbsp; 👁️ ${post.views || 0} views
                         &nbsp;•&nbsp; ▲ <span id="v-count">${post.upvotes || 0}</span>

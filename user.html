@@ -5,6 +5,13 @@
   <title>User Profile — MarineoFPS</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      window.location.replace(id ? `profile.html?id=${encodeURIComponent(id)}` : 'profile.html');
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -66,6 +73,19 @@
 <script src="config.js"></script>
 <script>
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeParam(value) {
+    return encodeURIComponent(String(value ?? ''));
+  }
   
   // Get the user ID from the URL (e.g., user.html?id=12345)
   const params = new URLSearchParams(window.location.search);
@@ -112,10 +132,10 @@
 
     // Render the post cards
     postsContainer.innerHTML = posts.map(p => `
-      <a class="post-card" href="post.html?id=${p.id}">
+      <a class="post-card" href="post.html?id=${safeParam(p.id)}">
         <div>
-          <div class="post-meta">${p.game} · ${p.category}</div>
-          <div class="post-title">${p.title}</div>
+          <div class="post-meta">${escapeHtml(p.game)} · ${escapeHtml(p.category)}</div>
+          <div class="post-title">${escapeHtml(p.title)}</div>
         </div>
         <div class="post-stats">
           <span>👁️ ${p.views || 0}</span>

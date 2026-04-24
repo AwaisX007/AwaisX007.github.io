@@ -248,7 +248,7 @@
           <div class="tag">3D Renders/Wallpapers</div>
           <div class="title">${escapeHtml(item.title)}</div>
           <div class="meta">👁️ ${item.views || 0} · ▲ ${item.upvotes || 0}</div>
-          <div class="author">by <a href="user.html?id=${item.user_id}" onclick="event.stopPropagation()">${escapeHtml(item.profiles?.username || 'unknown')}</a></div>
+          <div class="author">by <a href="profile.html?id=${item.user_id}" onclick="event.stopPropagation()">${escapeHtml(item.profiles?.username || 'unknown')}</a></div>
           ${item.resource_link ? `<div class="meta" style="margin-top:8px;"><a href="${escapeHtml(item.resource_link)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">Open Resource ↗</a></div>` : ''}
           <div class="meta" style="margin-top:8px;line-height:1.5;">${preview}</div>
         </div>`;
