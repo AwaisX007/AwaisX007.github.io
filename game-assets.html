@@ -301,10 +301,21 @@
         return;
       }
 
+      const { data: votes } = await window.sb
+        .from('game_asset_upvotes')
+        .select('asset_id')
+        .in('asset_id', uploads.map(item => item.id));
+
+      const voteCounts = new Map();
+      (votes || []).forEach((vote) => {
+        voteCounts.set(vote.asset_id, (voteCounts.get(vote.asset_id) || 0) + 1);
+      });
+
       contentArea.innerHTML = `<div class="collection-grid">${uploads.map(item => {
         const imageMarkup = isImageResource(item.resource_link)
           ? `<img src="${escapeHtml(item.resource_link)}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async">`
           : `<div class="tile-media-placeholder">No image preview available for this asset.</div>`;
+        const upvoteCount = voteCounts.get(item.id) ?? item.upvotes ?? 0;
 
         return `<article class="tile" role="link" tabindex="0" onclick="window.location='game-asset.html?id=${safeParam(item.id)}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='game-asset.html?id=${safeParam(item.id)}'; }">
           <div class="tile-media">${imageMarkup}</div>
@@ -313,7 +324,7 @@
             <div class="tile-title">${escapeHtml(item.title)}</div>
             <div class="tile-author">by <a href="profile.html?id=${safeParam(item.user_id)}" onclick="event.stopPropagation()">${escapeHtml(item.profiles?.username || 'unknown')}</a></div>
             <div class="tile-meta">
-              <div class="tile-stats">▲ ${item.upvotes || 0} · 👁️ ${item.views || 0}</div>
+              <div class="tile-stats">▲ ${upvoteCount} · 👁️ ${item.views || 0}</div>
               <div class="tile-badge">Open</div>
             </div>
           </div>

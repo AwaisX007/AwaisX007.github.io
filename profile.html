@@ -277,6 +277,18 @@
         return encodeURIComponent(String(value ?? ''));
     }
 
+    async function countVotes(tableName, columnName, ids) {
+        if (!ids.length) return 0;
+
+        const { count, error } = await sb
+            .from(tableName)
+            .select(columnName, { count: 'exact', head: true })
+            .in(columnName, ids);
+
+        if (error) return 0;
+        return count || 0;
+    }
+
     function statusClass(status) {
         return ['approved', 'pending', 'rejected'].includes(status) ? status : 'pending';
     }
@@ -528,15 +540,20 @@
         if (!isOwnProfile) query = query.eq('status', 'approved');
 
         const { data: posts } = await query;
+        const { data: wallpaperUploads } = await sb.from('renders_wallpapers').select('id').eq('user_id', userId);
+        const { data: assetUploads } = await sb.from('game_assets_uploads').select('id').eq('user_id', userId);
 
         const total = posts?.length || 0;
         const approved = posts?.filter(p => p.status === 'approved').length || 0;
         const upvotes = posts?.reduce((sum, p) => sum + (p.upvotes || 0), 0) || 0;
+        const wallpaperUpvotes = await countVotes('renders_wallpaper_upvotes', 'render_id', (wallpaperUploads || []).map(item => item.id));
+        const assetUpvotes = await countVotes('game_asset_upvotes', 'asset_id', (assetUploads || []).map(item => item.id));
+        const totalUpvotes = upvotes + wallpaperUpvotes + assetUpvotes;
 
         document.getElementById('stats-row').innerHTML = `
             <div class="stat-card"><span class="stat-val">${total}</span><span class="stat-lab">Posts</span></div>
             <div class="stat-card"><span class="stat-val">${approved}</span><span class="stat-lab">Approved</span></div>
-            <div class="stat-card"><span class="stat-val">${upvotes}</span><span class="stat-lab">Upvotes</span></div>
+            <div class="stat-card"><span class="stat-val">${totalUpvotes}</span><span class="stat-lab">Upvotes</span></div>
         `;
 
         if (!posts?.length) {
