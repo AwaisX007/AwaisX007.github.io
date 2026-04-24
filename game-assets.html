@@ -137,6 +137,36 @@
     let currentUser = null;
     let isAdmin = false;
 
+    async function getCurrentUser() {
+      const { data: { session } } = await window.sb.auth.getSession();
+      if (session?.user) return session.user;
+
+      const { data: { user } } = await window.sb.auth.getUser();
+      return user || null;
+    }
+
+    async function updateAccessState() {
+      const showUploadBtn = document.getElementById('show-upload');
+      const adminNote = document.getElementById('admin-note');
+
+      if (!showUploadBtn || !adminNote) return;
+
+      if (!currentUser) {
+        isAdmin = false;
+        showUploadBtn.disabled = true;
+        showUploadBtn.textContent = 'Log in as Admin';
+        adminNote.textContent = 'Log in as an admin to upload in Game Assets.';
+        return;
+      }
+
+      const { data: profile } = await window.sb.from('profiles').select('is_admin').eq('id', currentUser.id).single();
+      isAdmin = !!profile?.is_admin;
+
+      showUploadBtn.disabled = !isAdmin;
+      showUploadBtn.textContent = isAdmin ? '+ Upload Asset' : 'Admin Only';
+      adminNote.textContent = isAdmin ? '' : 'Only admins can upload in Game Assets.';
+    }
+
     function escapeHtml(text) {
       return String(text || '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
     }
@@ -152,20 +182,15 @@
     }
 
     async function init() {
-      const { data: { user } } = await window.sb.auth.getUser();
-      currentUser = user || null;
+      currentUser = await getCurrentUser();
+      await updateAccessState();
 
-      if (currentUser) {
-        const { data: profile } = await window.sb.from('profiles').select('is_admin').eq('id', currentUser.id).single();
-        isAdmin = !!profile?.is_admin;
-      }
+      window.sb.auth.onAuthStateChange(async (_event, session) => {
+        currentUser = session?.user || null;
+        await updateAccessState();
+      });
 
       const showUploadBtn = document.getElementById('show-upload');
-      const adminNote = document.getElementById('admin-note');
-      if (!isAdmin) {
-        showUploadBtn.disabled = true;
-        adminNote.textContent = currentUser ? 'Only admins can upload in Game Assets.' : 'Log in as an admin to upload in Game Assets.';
-      }
 
       showUploadBtn.addEventListener('click', () => {
         if (!currentUser) {

@@ -133,6 +133,20 @@
   <script>
     let currentUser = null;
 
+    async function getCurrentUser() {
+      const { data: { session } } = await window.sb.auth.getSession();
+      if (session?.user) return session.user;
+
+      const { data: { user } } = await window.sb.auth.getUser();
+      return user || null;
+    }
+
+    function updateUploadAccess() {
+      const uploadButton = document.getElementById('show-upload');
+      if (!uploadButton) return;
+      uploadButton.textContent = currentUser ? '+ Upload' : 'Log in to Upload';
+    }
+
     function escapeHtml(text) {
       return String(text || '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
     }
@@ -148,8 +162,13 @@
     }
 
     async function init() {
-      const { data: { user } } = await window.sb.auth.getUser();
-      currentUser = user || null;
+      currentUser = await getCurrentUser();
+      updateUploadAccess();
+
+      window.sb.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user || null;
+        updateUploadAccess();
+      });
 
       document.getElementById('show-upload').addEventListener('click', () => {
         if (!currentUser) {
