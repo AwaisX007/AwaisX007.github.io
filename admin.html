@@ -45,6 +45,33 @@
   .status-rejected { background: rgba(220,50,50,0.1); color: #ff6b6b; }
   .status-pending { background: rgba(232,200,74,0.1); color: var(--gold); }
 
+  /* Bulk actions toolbar */
+  .bulk-bar { display: none; align-items: center; gap: 10px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 10px 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .bulk-bar.visible { display: flex; }
+  .bulk-count { font-size: 13px; color: var(--text-dim); flex: 1; }
+  .btn-bulk-approve { padding: 7px 16px; background: rgba(50,200,100,0.15); color: #5cdb95; border: 1px solid rgba(50,200,100,0.3); border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Barlow', sans-serif; }
+  .btn-bulk-approve:hover { background: rgba(50,200,100,0.25); }
+  .btn-bulk-reject { padding: 7px 16px; background: rgba(220,50,50,0.1); color: #ff6b6b; border: 1px solid rgba(220,50,50,0.3); border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Barlow', sans-serif; }
+  .btn-bulk-reject:hover { background: rgba(220,50,50,0.2); }
+  .btn-bulk-clear { padding: 7px 12px; background: transparent; color: var(--text-muted); border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; font-size: 12px; font-family: 'Barlow', sans-serif; }
+  .post-select-wrap { display: flex; align-items: flex-start; gap: 12px; }
+  .post-checkbox { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0; }
+  /* Reason modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 28px; width: 100%; max-width: 480px; }
+  .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 16px; }
+  .modal select, .modal textarea { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 13px; border-radius: 3px; padding: 9px 12px; margin-bottom: 12px; outline: none; }
+  .modal select:focus, .modal textarea:focus { border-color: var(--gold); }
+  .modal textarea { resize: vertical; min-height: 80px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-cancel { padding: 8px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; font-size: 13px; }
+  .modal-confirm { padding: 8px 18px; background: rgba(220,50,50,0.15); color: #ff6b6b; border: 1px solid rgba(220,50,50,0.3); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 600; }
+  /* Audit log */
+  .audit-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .audit-row:last-child { border-bottom: none; }
+  .audit-action-approved { color: #5cdb95; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .audit-action-rejected { color: #ff6b6b; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
   .empty { text-align: center; padding: 60px 0; color: var(--text-muted); font-size: 14px; }
   .loading { text-align: center; padding: 40px 0; color: var(--text-muted); }
   .access-denied { text-align: center; padding: 80px 32px; }
@@ -86,6 +113,27 @@
   <div class="loading">Checking access...</div>
 </div>
 
+<div class="modal-overlay" id="reject-modal">
+  <div class="modal">
+    <div class="modal-title">Reject — Add Reason</div>
+    <select id="reject-reason-template" onchange="applyReasonTemplate(this.value)">
+      <option value="">— Select a reason template —</option>
+      <option value="Does not meet content quality standards.">Low quality content</option>
+      <option value="Contains inappropriate or offensive material.">Inappropriate content</option>
+      <option value="Duplicate of an existing post.">Duplicate post</option>
+      <option value="Off-topic or not related to FPS gaming.">Off-topic</option>
+      <option value="Misleading or inaccurate information.">Misleading information</option>
+      <option value="Spam or self-promotion.">Spam / self-promotion</option>
+      <option value="Missing required information or context.">Incomplete submission</option>
+    </select>
+    <textarea id="reject-reason-text" placeholder="Optional: add a custom reason or note..." rows="3"></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeRejectModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmReject()">✕ Confirm Reject</button>
+    </div>
+  </div>
+</div>
+
 <footer data-footer-links="support,discord" data-footer-justify="center">
   <div class="footer-inner">
     <div class="footer-logo">MARINEO<span>FPS</span></div>
@@ -99,14 +147,21 @@
 <script>
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentTab = 'pending';
+  let currentAdminId = null;
+  let selectedPostIds = new Set();
+  // Pending reject context: { id, type, title }
+  let pendingReject = null;
+
+  function escapeHtml(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
   async function init() {
     const { data: { user } } = await sb.auth.getUser();
     if (!user) { showDenied('You must be logged in.'); return; }
-
-    const { data: profile } = await sb.from('profiles').select('is_admin, username').eq('id', user.id).single();
+    const { data: profile } = await sb.from('profiles').select('is_admin, username, id').eq('id', user.id).single();
     if (!profile?.is_admin) { showDenied('You do not have admin access.'); return; }
-
+    currentAdminId = profile.id;
     renderAdmin(profile.username);
     loadPosts('pending');
     loadPendingRenders();
@@ -118,20 +173,30 @@
   }
 
   function renderAdmin(username) {
-  document.getElementById('main-content').innerHTML = `
-    <div class="page-title">Admin Panel</div>
-    <div class="page-sub">Welcome, <a href="profile.html" style="color:var(--gold); text-decoration:none;">${username}</a>. Review and moderate submitted posts.</div>
+    document.getElementById('main-content').innerHTML = `
+      <div class="page-title">Admin Panel</div>
+      <div class="page-sub">Welcome, <a href="profile.html" style="color:var(--gold);text-decoration:none;">${escapeHtml(username)}</a>. Review and moderate submitted content.</div>
       <div class="tabs">
         <button class="tab active" id="tab-pending" onclick="switchTab('pending')">Pending Review</button>
         <button class="tab" id="tab-approved" onclick="switchTab('approved')">Approved</button>
         <button class="tab" id="tab-rejected" onclick="switchTab('rejected')">Rejected</button>
+        <button class="tab" id="tab-audit" onclick="switchTab('audit')">📋 Audit Log</button>
+        <button class="tab" id="tab-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
+      </div>
+      <div id="bulk-bar" class="bulk-bar">
+        <span class="bulk-count" id="bulk-count">0 selected</span>
+        <button class="btn-bulk-approve" onclick="bulkAction('approved')">✓ Approve All</button>
+        <button class="btn-bulk-reject" onclick="openBulkRejectModal()">✕ Reject All</button>
+        <button class="btn-bulk-clear" onclick="clearSelection()">Clear</button>
       </div>
       <div id="posts-list"><div class="loading">Loading posts...</div></div>
-      <div style="margin-top:34px;">
+      <div id="analytics-panel" style="display:none;"></div>
+      <div id="audit-panel" style="display:none;"></div>
+      <div style="margin-top:34px;" id="renders-section">
         <div class="page-sub" style="margin-bottom:14px;">3D Renders/Wallpapers — Pending Approval</div>
         <div id="renders-list"><div class="loading">Loading render submissions...</div></div>
       </div>
-      <div style="margin-top:34px;">
+      <div style="margin-top:34px;" id="assets-section">
         <div class="page-sub" style="margin-bottom:14px;">Game Assets — Pending Approval</div>
         <div id="assets-list"><div class="loading">Loading asset submissions...</div></div>
       </div>
@@ -140,11 +205,137 @@
 
   async function switchTab(tab) {
     currentTab = tab;
+    clearSelection();
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    loadPosts(tab);
+    document.getElementById('tab-' + tab)?.classList.add('active');
+
+    const postsList = document.getElementById('posts-list');
+    const analyticsPanel = document.getElementById('analytics-panel');
+    const auditPanel = document.getElementById('audit-panel');
+    const rendersSection = document.getElementById('renders-section');
+    const assetsSection = document.getElementById('assets-section');
+    const bulkBar = document.getElementById('bulk-bar');
+
+    postsList.style.display = 'none';
+    analyticsPanel.style.display = 'none';
+    auditPanel.style.display = 'none';
+    if (rendersSection) rendersSection.style.display = 'none';
+    if (assetsSection) assetsSection.style.display = 'none';
+    if (bulkBar) bulkBar.classList.remove('visible');
+
+    if (tab === 'analytics') {
+      analyticsPanel.style.display = 'block';
+      loadAnalytics();
+    } else if (tab === 'audit') {
+      auditPanel.style.display = 'block';
+      loadAuditLog();
+    } else {
+      postsList.style.display = 'block';
+      if (tab === 'pending') {
+        if (rendersSection) rendersSection.style.display = 'block';
+        if (assetsSection) assetsSection.style.display = 'block';
+        if (bulkBar) bulkBar.classList.add('visible');
+      }
+      loadPosts(tab);
+    }
   }
 
+  /* ── SELECTION ── */
+  function toggleSelect(id, checked) {
+    if (checked) selectedPostIds.add(id);
+    else selectedPostIds.delete(id);
+    updateBulkBar();
+  }
+
+  function clearSelection() {
+    selectedPostIds.clear();
+    document.querySelectorAll('.post-checkbox').forEach(cb => cb.checked = false);
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById('bulk-bar');
+    const count = document.getElementById('bulk-count');
+    if (!bar || !count) return;
+    count.textContent = `${selectedPostIds.size} selected`;
+    if (currentTab === 'pending') bar.classList.toggle('visible', true);
+  }
+
+  /* ── REJECT MODAL ── */
+  function openRejectModal(id, type, title) {
+    pendingReject = { id, type, title };
+    document.getElementById('reject-reason-template').value = '';
+    document.getElementById('reject-reason-text').value = '';
+    document.getElementById('reject-modal').classList.add('open');
+  }
+
+  function openBulkRejectModal() {
+    if (!selectedPostIds.size) return;
+    pendingReject = { bulk: true };
+    document.getElementById('reject-reason-template').value = '';
+    document.getElementById('reject-reason-text').value = '';
+    document.getElementById('reject-modal').classList.add('open');
+  }
+
+  function closeRejectModal() {
+    document.getElementById('reject-modal').classList.remove('open');
+    pendingReject = null;
+  }
+
+  function applyReasonTemplate(val) {
+    if (val) document.getElementById('reject-reason-text').value = val;
+  }
+
+  async function confirmReject() {
+    const reason = document.getElementById('reject-reason-text').value.trim() || null;
+    closeRejectModal();
+    if (!pendingReject) return;
+
+    if (pendingReject.bulk) {
+      await bulkAction('rejected', reason);
+    } else {
+      await moderateItem(pendingReject.id, pendingReject.type || 'post', 'rejected', pendingReject.title, reason);
+    }
+  }
+
+  /* ── BULK ACTION ── */
+  async function bulkAction(status, reason = null) {
+    if (!selectedPostIds.size) return;
+    const ids = [...selectedPostIds];
+    await Promise.all(ids.map(id => moderateItem(id, 'post', status, null, reason)));
+    clearSelection();
+  }
+
+  /* ── CORE MODERATE ── */
+  async function moderateItem(id, type, status, title, reason = null) {
+    let table = type === 'render' ? 'renders_wallpapers' : type === 'asset' ? 'game_assets_uploads' : 'posts';
+    const { error } = await sb.from(table).update({ status }).eq('id', id);
+    if (error) return;
+
+    // Write audit log
+    await sb.from('moderation_log').insert({
+      admin_id: currentAdminId,
+      action: status,
+      target_type: type,
+      target_id: id,
+      target_title: title || null,
+      reason: reason || null
+    });
+
+    // Remove card from UI
+    const cardId = type === 'render' ? `render-post-${id}` : type === 'asset' ? `asset-post-${id}` : `post-${id}`;
+    document.getElementById(cardId)?.remove();
+    selectedPostIds.delete(id);
+    updateBulkBar();
+
+    const listId = type === 'render' ? 'renders-list' : type === 'asset' ? 'assets-list' : 'posts-list';
+    const list = document.getElementById(listId);
+    if (list && !list.querySelector('.post-card')) {
+      list.innerHTML = `<div class="empty">No more ${currentTab} items.</div>`;
+    }
+  }
+
+  /* ── LOAD POSTS ── */
   async function loadPosts(status) {
     const list = document.getElementById('posts-list');
     list.innerHTML = '<div class="loading">Loading...</div>';
@@ -161,158 +352,202 @@
 
     list.innerHTML = posts.map(post => `
       <div class="post-card" id="post-${post.id}">
-        <div class="post-header">
-          <div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span class="post-type">${post.type}</span>
-              <span class="status-badge status-${post.status}">${post.status}</span>
+        <div class="post-select-wrap">
+          ${status === 'pending' ? `<input type="checkbox" class="post-checkbox" onchange="toggleSelect(${post.id}, this.checked)">` : ''}
+          <div style="flex:1;">
+            <div class="post-header">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                  <span class="post-type">${escapeHtml(post.type)}</span>
+                  <span class="status-badge status-${post.status}">${escapeHtml(post.status)}</span>
+                </div>
+                <div class="post-title">${escapeHtml(post.title)}</div>
+                <div class="post-meta">
+                  <span>by ${escapeHtml(post.profiles?.username || 'unknown')}</span>
+                  <span>·</span><span>${escapeHtml(post.game)}</span>
+                  <span>·</span><span>${escapeHtml(post.category)}</span>
+                  <span>·</span><span>${new Date(post.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div class="post-actions">
+                <a href="post.html?id=${post.id}" target="_blank" style="font-size:12px;color:var(--text-muted);text-decoration:none;border:1px solid var(--border2);padding:6px 10px;border-radius:3px;">Preview ↗</a>
+                ${status === 'pending' ? `
+                  <button class="btn-approve" onclick="moderateItem(${post.id},'post','approved','${escapeHtml(post.title).replace(/'/g,"\\'")}')">✓ Approve</button>
+                  <button class="btn-reject" onclick="openRejectModal(${post.id},'post','${escapeHtml(post.title).replace(/'/g,"\\'")}')">✕ Reject</button>
+                ` : status === 'approved' ? `
+                  <button class="btn-reject" onclick="openRejectModal(${post.id},'post','${escapeHtml(post.title).replace(/'/g,"\\'")}')">✕ Reject</button>
+                ` : `
+                  <button class="btn-approve" onclick="moderateItem(${post.id},'post','approved','${escapeHtml(post.title).replace(/'/g,"\\'")}')">✓ Approve</button>
+                `}
+              </div>
             </div>
-            <div class="post-title">${post.title}</div>
-            <div class="post-meta">
-              <span>by ${post.profiles?.username || 'unknown'}</span>
-              <span>·</span>
-              <span>${post.game}</span>
-              <span>·</span>
-              <span>${post.category}</span>
-              <span>·</span>
-              <span>${new Date(post.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-          <div class="post-actions">
-            ${status === 'pending' ? `
-              <button class="btn-approve" onclick="updatePost(${post.id}, 'approved')">✓ Approve</button>
-              <button class="btn-reject" onclick="updatePost(${post.id}, 'rejected')">✕ Reject</button>
-            ` : status === 'approved' ? `
-              <button class="btn-reject" onclick="updatePost(${post.id}, 'rejected')">✕ Reject</button>
-            ` : `
-              <button class="btn-approve" onclick="updatePost(${post.id}, 'approved')">✓ Approve</button>
-            `}
+            <div class="post-content">${escapeHtml(post.content || '').substring(0, 300)}${(post.content || '').length > 300 ? '…' : ''}</div>
           </div>
         </div>
-        <div class="post-content">${post.content.substring(0, 300)}${post.content.length > 300 ? '...' : ''}</div>
       </div>
     `).join('');
   }
 
-  async function updatePost(id, status) {
-    const { error } = await sb.from('posts').update({ status }).eq('id', id);
-    if (!error) {
-      document.getElementById('post-' + id).remove();
-      const list = document.getElementById('posts-list');
-      if (!list.querySelector('.post-card')) {
-        list.innerHTML = `<div class="empty">No more ${currentTab} posts.</div>`;
-      }
-    }
-  }
-
+  /* ── RENDERS ── */
   async function loadPendingRenders() {
     const list = document.getElementById('renders-list');
     if (!list) return;
     list.innerHTML = '<div class="loading">Loading...</div>';
-
-    const { data: uploads, error } = await sb
-      .from('renders_wallpapers')
-      .select('id, title, content, status, created_at, user_id, resource_link, profiles(username)')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false });
-
-    if (error || !uploads?.length) {
-      list.innerHTML = '<div class="empty">No pending 3D renders/wallpapers.</div>';
-      return;
-    }
-
+    const { data: uploads, error } = await sb.from('renders_wallpapers')
+      .select('id, title, content, status, created_at, resource_link, profiles(username)')
+      .eq('status', 'pending').order('created_at', { ascending: false });
+    if (error || !uploads?.length) { list.innerHTML = '<div class="empty">No pending renders.</div>'; return; }
     list.innerHTML = uploads.map(item => `
       <div class="post-card" id="render-post-${item.id}">
         <div class="post-header">
           <div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span class="post-type">3D Render</span>
-              <span class="status-badge status-pending">pending</span>
-            </div>
-            <div class="post-title">${item.title}</div>
-            <div class="post-meta">
-              <span>by ${item.profiles?.username || 'unknown'}</span>
-              <span>·</span>
-              <span>3D Renders/Wallpapers</span>
-              <span>·</span>
-              <span>${new Date(item.created_at).toLocaleDateString()}</span>
-            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span class="post-type">3D Render</span><span class="status-badge status-pending">pending</span></div>
+            <div class="post-title">${escapeHtml(item.title)}</div>
+            <div class="post-meta"><span>by ${escapeHtml(item.profiles?.username || 'unknown')}</span><span>·</span><span>${new Date(item.created_at).toLocaleDateString()}</span></div>
           </div>
           <div class="post-actions">
-            <button class="btn-approve" onclick="updateRenderStatus(${item.id}, 'approved')">✓ Approve</button>
-            <button class="btn-reject" onclick="updateRenderStatus(${item.id}, 'rejected')">✕ Reject</button>
+            ${item.resource_link ? `<a href="${escapeHtml(item.resource_link)}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:6px 10px;border-radius:3px;">Preview ↗</a>` : ''}
+            <button class="btn-approve" onclick="moderateItem(${item.id},'render','approved','${escapeHtml(item.title).replace(/'/g,"\\'")}')">✓ Approve</button>
+            <button class="btn-reject" onclick="openRejectModal(${item.id},'render','${escapeHtml(item.title).replace(/'/g,"\\'")}')">✕ Reject</button>
           </div>
         </div>
-        ${item.resource_link ? `<div class="post-meta" style="margin-bottom:10px;"><a href="${item.resource_link}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:none;">Open Resource ↗</a></div>` : ''}
-        <div class="post-content">${(item.content || '').substring(0, 300)}${(item.content || '').length > 300 ? '...' : ''}</div>
-      </div>
-    `).join('');
+        <div class="post-content">${escapeHtml(item.content || '').substring(0, 300)}</div>
+      </div>`).join('');
   }
 
-  async function updateRenderStatus(id, status) {
-    const { error } = await sb.from('renders_wallpapers').update({ status }).eq('id', id);
-    if (!error) {
-      document.getElementById('render-post-' + id)?.remove();
-      const list = document.getElementById('renders-list');
-      if (list && !list.querySelector('.post-card')) {
-        list.innerHTML = '<div class="empty">No pending 3D renders/wallpapers.</div>';
-      }
-    }
-  }
-
+  /* ── ASSETS ── */
   async function loadPendingAssets() {
     const list = document.getElementById('assets-list');
     if (!list) return;
     list.innerHTML = '<div class="loading">Loading...</div>';
-
-    const { data: uploads, error } = await sb
-      .from('game_assets_uploads')
-      .select('id, title, content, status, created_at, user_id, resource_link, profiles(username)')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false });
-
-    if (error || !uploads?.length) {
-      list.innerHTML = '<div class="empty">No pending game assets.</div>';
-      return;
-    }
-
+    const { data: uploads, error } = await sb.from('game_assets_uploads')
+      .select('id, title, content, status, created_at, resource_link, profiles(username)')
+      .eq('status', 'pending').order('created_at', { ascending: false });
+    if (error || !uploads?.length) { list.innerHTML = '<div class="empty">No pending assets.</div>'; return; }
     list.innerHTML = uploads.map(item => `
       <div class="post-card" id="asset-post-${item.id}">
         <div class="post-header">
           <div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span class="post-type">Game Asset</span>
-              <span class="status-badge status-pending">pending</span>
-            </div>
-            <div class="post-title">${item.title}</div>
-            <div class="post-meta">
-              <span>by ${item.profiles?.username || 'unknown'}</span>
-              <span>·</span>
-              <span>Game Assets</span>
-              <span>·</span>
-              <span>${new Date(item.created_at).toLocaleDateString()}</span>
-            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span class="post-type">Game Asset</span><span class="status-badge status-pending">pending</span></div>
+            <div class="post-title">${escapeHtml(item.title)}</div>
+            <div class="post-meta"><span>by ${escapeHtml(item.profiles?.username || 'unknown')}</span><span>·</span><span>${new Date(item.created_at).toLocaleDateString()}</span></div>
           </div>
           <div class="post-actions">
-            <button class="btn-approve" onclick="updateAssetStatus(${item.id}, 'approved')">✓ Approve</button>
-            <button class="btn-reject" onclick="updateAssetStatus(${item.id}, 'rejected')">✕ Reject</button>
+            ${item.resource_link ? `<a href="${escapeHtml(item.resource_link)}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:6px 10px;border-radius:3px;">Preview ↗</a>` : ''}
+            <button class="btn-approve" onclick="moderateItem(${item.id},'asset','approved','${escapeHtml(item.title).replace(/'/g,"\\'")}')">✓ Approve</button>
+            <button class="btn-reject" onclick="openRejectModal(${item.id},'asset','${escapeHtml(item.title).replace(/'/g,"\\'")}')">✕ Reject</button>
           </div>
         </div>
-        ${item.resource_link ? `<div class="post-meta" style="margin-bottom:10px;"><a href="${item.resource_link}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:none;">Open Resource ↗</a></div>` : ''}
-        <div class="post-content">${(item.content || '').substring(0, 300)}${(item.content || '').length > 300 ? '...' : ''}</div>
-      </div>
-    `).join('');
+        <div class="post-content">${escapeHtml(item.content || '').substring(0, 300)}</div>
+      </div>`).join('');
   }
 
-  async function updateAssetStatus(id, status) {
-    const { error } = await sb.from('game_assets_uploads').update({ status }).eq('id', id);
-    if (!error) {
-      document.getElementById('asset-post-' + id)?.remove();
-      const list = document.getElementById('assets-list');
-      if (list && !list.querySelector('.post-card')) {
-        list.innerHTML = '<div class="empty">No pending game assets.</div>';
-      }
+  /* ── AUDIT LOG ── */
+  async function loadAuditLog() {
+    const panel = document.getElementById('audit-panel');
+    panel.innerHTML = '<div class="loading">Loading audit log...</div>';
+
+    const { data: logs, error } = await sb
+      .from('moderation_log')
+      .select('*, profiles!moderation_log_admin_id_fkey(username)')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error || !logs?.length) {
+      panel.innerHTML = '<div class="empty">No moderation actions recorded yet.</div>';
+      return;
     }
+
+    panel.innerHTML = `
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:20px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;">Moderation History <span style="font-size:13px;color:var(--text-muted);font-family:'Barlow',sans-serif;font-weight:400;">(last 100 actions)</span></div>
+        ${logs.map(log => `
+          <div class="audit-row">
+            <div style="min-width:70px;"><span class="audit-action-${log.action}">${log.action}</span></div>
+            <div style="min-width:60px;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(log.target_type)}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="color:#fff;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(log.target_title || `#${log.target_id}`)}</div>
+              ${log.reason ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Reason: ${escapeHtml(log.reason)}</div>` : ''}
+            </div>
+            <div style="text-align:right;white-space:nowrap;">
+              <div style="font-size:12px;color:var(--gold);">${escapeHtml(log.profiles?.username || 'admin')}</div>
+              <div style="font-size:11px;color:var(--text-muted);">${new Date(log.created_at).toLocaleString()}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  /* ── ANALYTICS ── */
+  async function loadAnalytics() {
+    const panel = document.getElementById('analytics-panel');
+    panel.innerHTML = '<div class="loading">Loading analytics...</div>';
+
+    const [
+      { count: totalPosts },
+      { count: approvedPosts },
+      { count: pendingPosts },
+      { count: totalUsers },
+      { count: totalRenders },
+      { count: totalAssets },
+      { data: topPosts },
+      { data: recentUsers }
+    ] = await Promise.all([
+      sb.from('posts').select('id', { count: 'exact', head: true }),
+      sb.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
+      sb.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('profiles').select('id', { count: 'exact', head: true }),
+      sb.from('renders_wallpapers').select('id', { count: 'exact', head: true }),
+      sb.from('game_assets_uploads').select('id', { count: 'exact', head: true }),
+      sb.from('posts').select('id, title, upvotes, views, type, game').eq('status', 'approved').order('upvotes', { ascending: false }).limit(5),
+      sb.from('profiles').select('id, username, created_at').order('created_at', { ascending: false }).limit(5)
+    ]);
+
+    const statCard = (val, label, color = 'var(--gold)') =>
+      `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:20px 24px;min-width:130px;flex:1;">
+        <div style="font-size:32px;font-weight:700;color:${color};font-family:'Barlow Condensed',sans-serif;">${val ?? 0}</div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">${label}</div>
+      </div>`;
+
+    panel.innerHTML = `
+      <div style="margin-bottom:28px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:16px;">Site Overview</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          ${statCard(totalUsers, 'Total Users')}
+          ${statCard(totalPosts, 'Total Posts')}
+          ${statCard(approvedPosts, 'Approved', '#5cdb95')}
+          ${statCard(pendingPosts, 'Pending', 'var(--gold)')}
+          ${statCard(totalRenders, 'Renders')}
+          ${statCard(totalAssets, 'Assets')}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:20px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:1px;">TOP POSTS BY UPVOTES</div>
+          ${topPosts?.length ? topPosts.map((p, i) => `
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);${i === topPosts.length - 1 ? 'border-bottom:none;' : ''}">
+              <span style="font-size:18px;font-weight:700;color:var(--gold);font-family:'Barlow Condensed',sans-serif;min-width:24px;">${i + 1}</span>
+              <div style="flex:1;min-width:0;">
+                <a href="post.html?id=${p.id}" style="color:#fff;text-decoration:none;font-size:13px;font-weight:500;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.title)}</a>
+                <div style="font-size:11px;color:var(--text-muted);">${escapeHtml(p.game)} · ${escapeHtml(p.type)}</div>
+              </div>
+              <div style="text-align:right;white-space:nowrap;">
+                <div style="font-size:13px;color:var(--gold);">▲ ${p.upvotes || 0}</div>
+                <div style="font-size:11px;color:var(--text-muted);">👁 ${p.views || 0}</div>
+              </div>
+            </div>`).join('') : '<div style="color:var(--text-muted);font-size:13px;">No posts yet.</div>'}
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:20px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:14px;letter-spacing:1px;">RECENT MEMBERS</div>
+          ${recentUsers?.length ? recentUsers.map(u => `
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--gold);">${escapeHtml((u.username || '?').substring(0, 2).toUpperCase())}</div>
+              <div style="flex:1;">
+                <a href="profile.html?id=${u.id}" style="color:#fff;text-decoration:none;font-size:13px;font-weight:500;">${escapeHtml(u.username || 'Unknown')}</a>
+                <div style="font-size:11px;color:var(--text-muted);">Joined ${new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              </div>
+            </div>`).join('') : '<div style="color:var(--text-muted);font-size:13px;">No users yet.</div>'}
+        </div>
+      </div>`;
   }
 
   async function logout() {

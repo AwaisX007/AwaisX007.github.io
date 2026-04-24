@@ -114,6 +114,37 @@
         .btn-edit { border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600; }
         .btn-delete { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: #ff4444; padding: 6px 12px; border-radius: 3px; font-size: 12px; cursor: pointer; font-weight: 600; font-family: 'Barlow', sans-serif; }
         .empty-posts { color: var(--text-muted); font-size: 14px; text-align: center; padding: 40px 0; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 24px; }
+        .page-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; padding: 6px 12px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text-dim); border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+        .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .page-btn.active { background: var(--gold); color: #080808; border-color: var(--gold); }
+        .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* BADGES */
+        .badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid; }
+        .badge-staff { background: rgba(232,200,74,0.12); color: var(--gold); border-color: rgba(232,200,74,0.4); }
+        .badge-creator { background: rgba(92,219,149,0.1); color: #5cdb95; border-color: rgba(92,219,149,0.35); }
+        .badge-veteran { background: rgba(180,120,255,0.1); color: #b47fff; border-color: rgba(180,120,255,0.35); }
+        .badge-contributor { background: rgba(80,180,255,0.1); color: #50b4ff; border-color: rgba(80,180,255,0.35); }
+        .badge-artist { background: rgba(255,140,80,0.1); color: #ff8c50; border-color: rgba(255,140,80,0.35); }
+
+        /* FOLLOW BUTTON */
+        .follow-btn { padding: 8px 20px; border-radius: 3px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Barlow', sans-serif; transition: all 0.2s; border: 1px solid var(--gold); background: var(--gold); color: #080808; }
+        .follow-btn.following { background: transparent; color: var(--gold); }
+        .follow-btn:hover { opacity: 0.85; }
+
+        /* PINNED POST */
+        .pinned-post { background: linear-gradient(135deg, rgba(232,200,74,0.06), rgba(232,200,74,0.02)); border: 1px solid rgba(232,200,74,0.25); border-left: 3px solid var(--gold); border-radius: 4px; padding: 14px 16px; margin-bottom: 16px; }
+        .pinned-label { font-size: 10px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
+
+        /* ACTIVITY FEED */
+        .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { font-size: 18px; min-width: 28px; text-align: center; margin-top: 2px; }
+        .activity-text { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+        .activity-text a { color: var(--gold); text-decoration: none; }
+        .activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
         footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 60px; }
         footer a { transition: opacity 0.2s ease, text-decoration-color 0.2s ease; }
@@ -152,12 +183,28 @@
 
     <div class="tabs">
         <button class="tab active" id="tab-posts" onclick="switchTab('posts')">Public View</button>
+        <button class="tab" id="tab-activity" onclick="switchTab('activity')">Activity</button>
+        <button class="tab" id="tab-renders" onclick="switchTab('renders')">Renders</button>
+        <button class="tab" id="tab-assets" onclick="switchTab('assets')">Assets</button>
         <button class="tab" id="tab-edit" onclick="switchTab('edit')">Edit Profile</button>
     </div>
 
     <div id="tab-posts-content">
         <div id="public-view-note" style="display:none;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--gold);padding:10px 12px;border-radius:4px;font-size:12px;color:var(--text-dim);margin-bottom:12px;"></div>
+        <div id="pinned-post-section"></div>
         <div id="my-posts"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+
+    <div id="tab-activity-content" style="display:none">
+        <div id="activity-feed"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+
+    <div id="tab-renders-content" style="display:none">
+        <div id="renders-grid"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+
+    <div id="tab-assets-content" style="display:none">
+        <div id="assets-grid"><p style="color:var(--text-muted)">Loading...</p></div>
     </div>
 
     <div id="tab-edit-content" style="display:none">
@@ -263,6 +310,12 @@
     let isOwnProfile = false;
     let newAvatarFile = null;
     let bioPreviewEnabled = false;
+    const POSTS_PAGE_SIZE = 10;
+    let postsPage = 1;
+    let postsTotalCount = 0;
+    let isFollowing = false;
+    let followerCount = 0;
+    let followingCount = 0;
 
     function escapeHtml(value) {
         return String(value ?? '')
@@ -441,7 +494,7 @@
         renderNav();
 
         const { data: profile, error } = await sb.from('profiles')
-            .select('id, username, avatar_url, is_admin, created_at, bio, gender, date_of_birth, country, favorite_games, favorite_team, gaming_goal')
+            .select('id, username, avatar_url, is_admin, created_at, bio, gender, date_of_birth, country, favorite_games, favorite_team, gaming_goal, pinned_post_id')
             .eq('id', targetUserId)
             .single();
 
@@ -453,6 +506,24 @@
         }
 
         currentProfile = profile;
+
+        // Load follower counts + follow state in parallel
+        const [
+            { count: fwrCount },
+            { count: fwingCount },
+            { data: badges }
+        ] = await Promise.all([
+            sb.from('followers').select('id', { count: 'exact', head: true }).eq('following_id', targetUserId),
+            sb.from('followers').select('id', { count: 'exact', head: true }).eq('follower_id', targetUserId),
+            sb.from('badges').select('badge_type').eq('user_id', targetUserId)
+        ]);
+        followerCount = fwrCount || 0;
+        followingCount = fwingCount || 0;
+
+        if (currentUser && !isOwnProfile) {
+            const { data: fRow } = await sb.from('followers').select('id').eq('follower_id', currentUser.id).eq('following_id', targetUserId).maybeSingle();
+            isFollowing = !!fRow;
+        }
 
         if (isOwnProfile) {
             document.getElementById('tab-posts').textContent = 'Public View';
@@ -476,7 +547,7 @@
             document.getElementById('tab-edit').style.display = 'none';
         }
 
-        renderHeader(profile);
+        renderHeader(profile, badges || []);
         await loadPosts(targetUserId);
     }
 
@@ -497,7 +568,7 @@
         `;
     }
 
-    function renderHeader(p) {
+    function renderHeader(p, badges = []) {
         const initials = (p.username || '?').substring(0, 2).toUpperCase();
         const avatarHtml = p.avatar_url
             ? `<img class="avatar" src="${escapeHtml(p.avatar_url)}" alt="avatar">`
@@ -514,16 +585,49 @@
             p.gaming_goal ? `<span class="profile-detail">🎯 ${escapeHtml(p.gaming_goal)}</span>` : ''
         ].filter(Boolean).join('');
 
+        const BADGE_META = {
+            staff:       { label: '⭐ Staff',       cls: 'badge-staff' },
+            creator:     { label: '✍️ Creator',     cls: 'badge-creator' },
+            veteran:     { label: '🏅 Veteran',     cls: 'badge-veteran' },
+            contributor: { label: '💡 Contributor', cls: 'badge-contributor' },
+            artist:      { label: '🎨 Artist',      cls: 'badge-artist' }
+        };
+        const badgesHtml = badges.length
+            ? `<div class="badges-row">${badges.map(b => {
+                const m = BADGE_META[b.badge_type] || { label: escapeHtml(b.badge_type), cls: 'badge-contributor' };
+                return `<span class="badge ${m.cls}">${m.label}</span>`;
+              }).join('')}</div>`
+            : '';
+
+        const followBtn = (!isOwnProfile && currentUser)
+            ? `<button class="follow-btn ${isFollowing ? 'following' : ''}" id="follow-btn" onclick="toggleFollow()">
+                ${isFollowing ? '✓ Following' : '+ Follow'}
+               </button>`
+            : '';
+
         document.getElementById('profile-header-section').innerHTML = `
             <div class="profile-header">
                 <div class="avatar-section">
                     ${avatarHtml}
+                    ${isOwnProfile ? `<label class="avatar-upload-btn" for="avatar-input">Change photo</label><input type="file" id="avatar-input" accept="image/*" onchange="previewAvatar(this)" style="display:none;">` : ''}
                 </div>
                 <div class="profile-info">
                     <div style="font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">${roleLabel}</div>
-                    <div class="username">${escapeHtml(p.username || 'Unknown')}</div>
+                    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                        <div class="username">${escapeHtml(p.username || 'Unknown')}</div>
+                        ${followBtn}
+                    </div>
                     <div class="member-since">Joined ${new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}${dobAge}${gender}${country}</div>
-                    <div class="bio-card">
+                    <div style="display:flex;gap:20px;margin:8px 0 4px;flex-wrap:wrap;">
+                        <span style="font-size:13px;color:var(--text-dim);cursor:pointer;" onclick="showFollowers()">
+                            <strong style="color:#fff;" id="follower-count">${followerCount}</strong> Followers
+                        </span>
+                        <span style="font-size:13px;color:var(--text-dim);cursor:pointer;" onclick="showFollowing()">
+                            <strong style="color:#fff;" id="following-count">${followingCount}</strong> Following
+                        </span>
+                    </div>
+                    ${badgesHtml}
+                    <div class="bio-card" style="margin-top:10px;">
                         <div class="bio-title">Player Description</div>
                         <div class="bio-body is-collapsed" id="public-bio-body">
                             <div class="bio-text" id="public-bio-content">${formatProfileDescription(p.bio || '')}</div>
@@ -541,30 +645,61 @@
     }
 
     async function loadPosts(userId) {
-        let query = sb.from('posts').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+        const from = (postsPage - 1) * POSTS_PAGE_SIZE;
+        const to = from + POSTS_PAGE_SIZE - 1;
+
+        let query = sb.from('posts').select('*', { count: 'exact' }).eq('user_id', userId).order('created_at', { ascending: false }).range(from, to);
         if (!isOwnProfile) query = query.eq('status', 'approved');
 
-        const { data: posts } = await query;
+        const { data: posts, count } = await query;
+        postsTotalCount = count || 0;
+
+        // Pinned post
+        const pinnedSection = document.getElementById('pinned-post-section');
+        if (pinnedSection && currentProfile?.pinned_post_id) {
+            const { data: pinned } = await sb.from('posts').select('id, title, game, type').eq('id', currentProfile.pinned_post_id).eq('status', 'approved').maybeSingle();
+            if (pinned) {
+                pinnedSection.innerHTML = `
+                    <div class="pinned-post">
+                        <div class="pinned-label">📌 Pinned Post</div>
+                        <a href="post.html?id=${safeParam(pinned.id)}" style="color:#fff;text-decoration:none;font-size:15px;font-weight:600;">${escapeHtml(pinned.title)}</a>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${escapeHtml(pinned.game)} · ${escapeHtml(pinned.type)}</div>
+                    </div>`;
+            } else { pinnedSection.innerHTML = ''; }
+        } else if (pinnedSection) { pinnedSection.innerHTML = ''; }
+
         const { data: wallpaperUploads } = await sb.from('renders_wallpapers').select('id').eq('user_id', userId);
         const { data: assetUploads } = await sb.from('game_assets_uploads').select('id').eq('user_id', userId);
 
-        const total = posts?.length || 0;
-        const approved = posts?.filter(p => p.status === 'approved').length || 0;
-        const upvotes = posts?.reduce((sum, p) => sum + (p.upvotes || 0), 0) || 0;
+        // Stats: count all posts (not just current page)
+        const { count: totalPosts } = await sb.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', userId);
+        const { count: approvedPosts } = await sb.from('posts').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'approved');
+        const { data: allPosts } = await sb.from('posts').select('upvotes').eq('user_id', userId);
+        const upvotes = allPosts?.reduce((sum, p) => sum + (p.upvotes || 0), 0) || 0;
         const wallpaperUpvotes = await countVotes('renders_wallpaper_upvotes', 'render_id', (wallpaperUploads || []).map(item => item.id));
         const assetUpvotes = await countVotes('game_asset_upvotes', 'asset_id', (assetUploads || []).map(item => item.id));
         const totalUpvotes = upvotes + wallpaperUpvotes + assetUpvotes;
 
         document.getElementById('stats-row').innerHTML = `
-            <div class="stat-card"><span class="stat-val">${total}</span><span class="stat-lab">Posts</span></div>
-            <div class="stat-card"><span class="stat-val">${approved}</span><span class="stat-lab">Approved</span></div>
+            <div class="stat-card"><span class="stat-val">${totalPosts || 0}</span><span class="stat-lab">Posts</span></div>
+            <div class="stat-card"><span class="stat-val">${approvedPosts || 0}</span><span class="stat-lab">Approved</span></div>
             <div class="stat-card"><span class="stat-val">${totalUpvotes}</span><span class="stat-lab">Upvotes</span></div>
+            <div class="stat-card"><span class="stat-val">${(wallpaperUploads?.length || 0) + (assetUploads?.length || 0)}</span><span class="stat-lab">Media</span></div>
         `;
 
         if (!posts?.length) {
             document.getElementById('my-posts').innerHTML = `<div class="empty-posts">${isOwnProfile ? `You haven't posted anything yet. <a href="create.html" style="color:var(--gold)">Create your first post →</a>` : 'No public posts yet.'}</div>`;
             return;
         }
+
+        const totalPages = Math.ceil(postsTotalCount / POSTS_PAGE_SIZE);
+        const paginationHtml = totalPages > 1 ? `<div class="pagination">
+            <button class="page-btn" onclick="goToPostsPage(${postsPage - 1})" ${postsPage === 1 ? 'disabled' : ''}>← Prev</button>
+            ${Array.from({length: totalPages}, (_, i) => i + 1).map(p =>
+                `<button class="page-btn ${p === postsPage ? 'active' : ''}" onclick="goToPostsPage(${p})">${p}</button>`
+            ).join('')}
+            <button class="page-btn" onclick="goToPostsPage(${postsPage + 1})" ${postsPage === totalPages ? 'disabled' : ''}>Next →</button>
+        </div>` : '';
 
         document.getElementById('my-posts').innerHTML = posts.map(p => `
             <div class="post-list-item">
@@ -576,10 +711,62 @@
                     <span class="upvote-count">▲ ${p.upvotes || 0}</span>
                     ${isOwnProfile ? `<span class="status-badge status-${statusClass(p.status)}">${escapeHtml(p.status)}</span>` : ''}
                     ${isOwnProfile ? `<a href="edit.html?id=${safeParam(p.id)}" style="border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 3px; font-size: 12px; text-decoration: none; font-weight: 600; margin-right: 6px;">Edit</a>` : ''}
+                    ${isOwnProfile && p.status === 'approved' ? `<button class="btn-delete" style="background:rgba(232,200,74,0.08);border-color:rgba(232,200,74,0.3);color:var(--gold);" onclick="togglePin(${p.id})">${currentProfile?.pinned_post_id === p.id ? '📌 Unpin' : '📌 Pin'}</button>` : ''}
                     ${isOwnProfile ? `<button class="btn-delete" onclick="deletePost(${p.id})">Delete</button>` : ''}
                 </div>
             </div>
-        `).join('');
+        `).join('') + paginationHtml;
+    }
+
+    function goToPostsPage(page) {
+        const total = Math.ceil(postsTotalCount / POSTS_PAGE_SIZE);
+        if (page < 1 || page > total) return;
+        postsPage = page;
+        loadPosts(targetUserId);
+    }
+
+    async function loadRenders(userId) {
+        const { data: renders } = await sb.from('renders_wallpapers').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+        const grid = document.getElementById('renders-grid');
+        if (!renders?.length) {
+            grid.innerHTML = `<div class="empty-posts">${isOwnProfile ? 'No renders uploaded yet. <a href="renders-wallpapers.html" style="color:var(--gold)">Upload one →</a>' : 'No renders yet.'}</div>`;
+            return;
+        }
+        grid.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:8px;">
+            ${renders.map(r => `
+                <a href="render-wallpaper.html?id=${safeParam(r.id)}" style="text-decoration:none;display:block;background:var(--bg3);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="aspect-ratio:1;overflow:hidden;background:#111;">
+                        <img src="${escapeHtml(r.file_url || '')}" alt="${escapeHtml(r.title || '')}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                    </div>
+                    <div style="padding:10px 12px;">
+                        <div style="font-size:13px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.title || 'Untitled')}</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">▲ ${r.upvotes || 0}</div>
+                    </div>
+                </a>`).join('')}
+        </div>`;
+    }
+
+    async function loadAssets(userId) {
+        const { data: assets } = await sb.from('game_assets_uploads').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+        const grid = document.getElementById('assets-grid');
+        if (!assets?.length) {
+            grid.innerHTML = `<div class="empty-posts">${isOwnProfile ? 'No assets uploaded yet. <a href="game-assets.html" style="color:var(--gold)">Upload one →</a>' : 'No assets yet.'}</div>`;
+            return;
+        }
+        grid.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:8px;">
+            ${assets.map(a => {
+                const isImg = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(a.file_url || '');
+                return `<a href="game-asset.html?id=${safeParam(a.id)}" style="text-decoration:none;display:block;background:var(--bg3);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="aspect-ratio:1;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center;">
+                        ${isImg ? `<img src="${escapeHtml(a.file_url || '')}" alt="${escapeHtml(a.title || '')}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : `<div style="font-size:36px;opacity:0.4;">📦</div>`}
+                    </div>
+                    <div style="padding:10px 12px;">
+                        <div style="font-size:13px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(a.title || 'Untitled')}</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">▲ ${a.upvotes || 0}</div>
+                    </div>
+                </a>`;
+            }).join('')}
+        </div>`;
     }
 
     async function deletePost(id) {
@@ -588,6 +775,112 @@
         const { error } = await sb.from('posts').delete().eq('id', id);
         if (error) { alert('Error: ' + error.message); return; }
         loadPosts(currentUser.id);
+    }
+
+    /* ── FOLLOW / UNFOLLOW ── */
+    async function toggleFollow() {
+        if (!currentUser) { window.location.href = 'login.html'; return; }
+        const btn = document.getElementById('follow-btn');
+        if (btn) btn.disabled = true;
+        if (isFollowing) {
+            await sb.from('followers').delete().eq('follower_id', currentUser.id).eq('following_id', targetUserId);
+            isFollowing = false;
+            followerCount = Math.max(0, followerCount - 1);
+        } else {
+            await sb.from('followers').insert({ follower_id: currentUser.id, following_id: targetUserId });
+            isFollowing = true;
+            followerCount++;
+        }
+        if (btn) { btn.disabled = false; btn.className = `follow-btn ${isFollowing ? 'following' : ''}`; btn.textContent = isFollowing ? '✓ Following' : '+ Follow'; }
+        const fc = document.getElementById('follower-count');
+        if (fc) fc.textContent = String(followerCount);
+    }
+
+    async function showFollowers() {
+        const { data } = await sb.from('followers').select('profiles!followers_follower_id_fkey(id, username)').eq('following_id', targetUserId).limit(50);
+        showUserListModal('Followers', (data || []).map(r => r.profiles));
+    }
+
+    async function showFollowing() {
+        const { data } = await sb.from('followers').select('profiles!followers_following_id_fkey(id, username)').eq('follower_id', targetUserId).limit(50);
+        showUserListModal('Following', (data || []).map(r => r.profiles));
+    }
+
+    function showUserListModal(title, users) {
+        const existing = document.getElementById('user-list-modal');
+        if (existing) existing.remove();
+        const modal = document.createElement('div');
+        modal.id = 'user-list-modal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:24px;width:100%;max-width:360px;max-height:80vh;overflow-y:auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;">${escapeHtml(title)}</div>
+                    <button onclick="document.getElementById('user-list-modal').remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;">✕</button>
+                </div>
+                ${users.length ? users.map(u => `
+                    <a href="profile.html?id=${safeParam(u.id)}" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);text-decoration:none;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--gold);">${escapeHtml((u.username||'?').substring(0,2).toUpperCase())}</div>
+                        <span style="color:#fff;font-size:13px;">${escapeHtml(u.username||'Unknown')}</span>
+                    </a>`).join('') : '<div style="color:var(--text-muted);font-size:13px;">No users yet.</div>'}
+            </div>`;
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        document.body.appendChild(modal);
+    }
+
+    /* ── PIN / UNPIN ── */
+    async function togglePin(postId) {
+        if (!isOwnProfile || !currentUser) return;
+        const newPinned = currentProfile.pinned_post_id === postId ? null : postId;
+        const { error } = await sb.from('profiles').update({ pinned_post_id: newPinned }).eq('id', currentUser.id);
+        if (!error) { currentProfile.pinned_post_id = newPinned; loadPosts(targetUserId); }
+    }
+
+    /* ── ACTIVITY FEED ── */
+    function timeAgoActivity(date) {
+        const s = Math.floor((Date.now() - new Date(date)) / 1000);
+        if (s < 60) return 'just now';
+        const m = Math.floor(s/60); if (m < 60) return `${m}m ago`;
+        const h = Math.floor(m/60); if (h < 24) return `${h}h ago`;
+        const d = Math.floor(h/24); if (d < 30) return `${d}d ago`;
+        return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    async function loadActivityFeed(userId) {
+        const feed = document.getElementById('activity-feed');
+        feed.innerHTML = '<p style="color:var(--text-muted)">Loading...</p>';
+
+        const [
+            { data: posts },
+            { data: renders },
+            { data: assets },
+            { data: comments }
+        ] = await Promise.all([
+            sb.from('posts').select('id, title, type, created_at').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }).limit(10),
+            sb.from('renders_wallpapers').select('id, title, created_at').eq('user_id', userId).eq('status', 'approved').order('created_at', { ascending: false }).limit(5),
+            sb.from('game_assets_uploads').select('id, title, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
+            sb.from('post_comments').select('id, content, created_at, post_id').eq('user_id', userId).is('deleted_at', null).order('created_at', { ascending: false }).limit(10)
+        ]);
+
+        const events = [
+            ...(posts||[]).map(p => ({ icon: p.type === 'guide' ? '📖' : p.type === 'blog' ? '✍️' : p.type === 'tierlist' ? '🏆' : '⚙️', text: `Published <a href="post.html?id=${safeParam(p.id)}">${escapeHtml(p.title)}</a>`, date: p.created_at })),
+            ...(renders||[]).map(r => ({ icon: '🖼️', text: `Uploaded render <a href="render-wallpaper.html?id=${safeParam(r.id)}">${escapeHtml(r.title)}</a>`, date: r.created_at })),
+            ...(assets||[]).map(a => ({ icon: '📦', text: `Uploaded asset <a href="game-asset.html?id=${safeParam(a.id)}">${escapeHtml(a.title)}</a>`, date: a.created_at })),
+            ...(comments||[]).map(c => ({ icon: '💬', text: `Commented on <a href="post.html?id=${safeParam(c.post_id)}">a post</a>: <em style="color:#888;">"${escapeHtml((c.content||'').substring(0,60))}${(c.content||'').length > 60 ? '…' : ''}"</em>`, date: c.created_at }))
+        ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 20);
+
+        if (!events.length) { feed.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px 0;">No activity yet.</div>'; return; }
+
+        feed.innerHTML = `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:16px 20px;">
+            ${events.map(e => `
+                <div class="activity-item">
+                    <div class="activity-icon">${e.icon}</div>
+                    <div style="flex:1;">
+                        <div class="activity-text">${e.text}</div>
+                        <div class="activity-time">${timeAgoActivity(e.date)}</div>
+                    </div>
+                </div>`).join('')}
+        </div>`;
     }
 
     function populateEditForm(p) {
@@ -683,7 +976,14 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById('tab-' + tab).classList.add('active');
         document.getElementById('tab-posts-content').style.display = tab === 'posts' ? 'block' : 'none';
+        document.getElementById('tab-activity-content').style.display = tab === 'activity' ? 'block' : 'none';
+        document.getElementById('tab-renders-content').style.display = tab === 'renders' ? 'block' : 'none';
+        document.getElementById('tab-assets-content').style.display = tab === 'assets' ? 'block' : 'none';
         document.getElementById('tab-edit-content').style.display = tab === 'edit' ? 'block' : 'none';
+
+        if (tab === 'renders') loadRenders(targetUserId);
+        if (tab === 'assets') loadAssets(targetUserId);
+        if (tab === 'activity') loadActivityFeed(targetUserId);
 
         if (tab === 'edit') {
             autoResizeTextarea(document.getElementById('edit-bio'));

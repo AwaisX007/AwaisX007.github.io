@@ -56,12 +56,17 @@
         .upvote-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .comment-card { background: var(--bg2); border: 1px solid var(--border); padding: 20px; border-radius: 4px; margin-bottom: 15px; position: relative; }
         .comment-card.reply { margin-left: 28px; border-left: 3px solid rgba(232,200,74,0.35); }
+        .comment-card.deleted { opacity: 0.45; }
         .comment-author { color: var(--gold); font-size: 13px; font-weight: 700; margin-bottom: 5px; }
         .comment-body { color: #aaa; font-size: 15px; word-break: break-word; }
-        .btn-delete-comment { position: absolute; top: 15px; right: 15px; color: #ff4444; background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.6; font-family: 'Barlow', sans-serif; }
-        .btn-delete-comment:hover { opacity: 1; }
-        .btn-reply-comment { position: absolute; top: 15px; right: 72px; color: var(--gold); background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.7; font-family: 'Barlow', sans-serif; }
-        .btn-reply-comment:hover { opacity: 1; }
+        .comment-body .mention { color: var(--gold); font-weight: 600; }
+        .comment-edited { font-size: 11px; color: #555; margin-top: 4px; }
+        .comment-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .btn-comment-action { background: none; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 3px; font-family: 'Barlow', sans-serif; transition: all 0.15s; }
+        .btn-comment-action:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-comment-action.danger:hover { border-color: #ff4444; color: #ff4444; }
+        .comment-edit-box { width: 100%; background: #000; border: 1px solid var(--gold); color: #fff; padding: 10px; border-radius: 4px; margin-top: 10px; font-family: 'Barlow', sans-serif; resize: none; font-size: 14px; outline: none; }
+        .reply-thread { margin-top: 8px; }
         .comment-input { width: 100%; height: 100px; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 4px; margin: 20px 0 10px; font-family: 'Barlow', sans-serif; resize: none; font-size: 14px; outline: none; transition: border-color 0.2s; }
         .comment-input:focus { border-color: var(--gold); }
         .comment-submit { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: 700; cursor: pointer; border-radius: 3px; font-family: 'Barlow'; transition: background 0.2s; }
@@ -312,73 +317,155 @@
             const { data: comments } = await window.sb.from('post_comments')
                 .select('*, profiles(username)')
                 .eq('post_id', postId)
-                .order('created_at', { ascending: false });
+                .is('parent_id', null)
+                .order('created_at', { ascending: true });
+
+            // Fetch replies
+            const { data: replies } = await window.sb.from('post_comments')
+                .select('*, profiles(username)')
+                .eq('post_id', postId)
+                .not('parent_id', 'is', null)
+                .order('created_at', { ascending: true });
+
+            const replyMap = {};
+            (replies || []).forEach(r => {
+                if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
+                replyMap[r.parent_id].push(r);
+            });
+
+            const renderComment = (c, isReply = false) => {
+                const isDeleted = !!c.deleted_at;
+                const canEdit = currentUser && currentUser.id === c.user_id && !isDeleted
+                    && (Date.now() - new Date(c.created_at).getTime()) < 5 * 60 * 1000;
+                const canDelete = !isDeleted && (isAdmin || (currentUser && currentUser.id === c.user_id));
+                const bodyHtml = isDeleted
+                    ? '<em style="color:#555;">[deleted]</em>'
+                    : highlightMentions(escapeHtml(c.content));
+
+                return `
+                <div class="comment-card ${isReply ? 'reply' : ''} ${isDeleted ? 'deleted' : ''}" id="comment-${c.id}">
+                    <div class="comment-author">
+                        ${isDeleted ? '<span style="color:#555;">deleted</span>' : `<a href="profile.html?id=${escapeHtml(c.user_id)}" style="color:inherit;text-decoration:none;">${escapeHtml(c.profiles?.username || 'Unknown')}</a>`}
+                        <span style="font-size:11px;color:#555;font-weight:400;margin-left:8px;">${timeAgo(c.created_at)}</span>
+                    </div>
+                    <div class="comment-body" id="comment-body-${c.id}">${bodyHtml}</div>
+                    ${c.edited_at ? `<div class="comment-edited">edited ${timeAgo(c.edited_at)}</div>` : ''}
+                    ${!isDeleted ? `<div class="comment-actions">
+                        ${currentUser ? `<button class="btn-comment-action" onclick="startReply(${c.id}, '${escapeHtml(c.profiles?.username || 'Unknown').replace(/'/g,"\\'")}')">↩ Reply</button>` : ''}
+                        ${canEdit ? `<button class="btn-comment-action" onclick="startEdit(${c.id})">✏ Edit</button>` : ''}
+                        ${canDelete ? `<button class="btn-comment-action danger" onclick="softDeleteComment(${c.id})">✕ Delete</button>` : ''}
+                    </div>` : ''}
+                    <div id="reply-inline-${c.id}" style="display:none;margin-top:10px;">
+                        <textarea class="comment-edit-box" id="reply-box-${c.id}" placeholder="Write a reply..." rows="3" maxlength="2000"></textarea>
+                        <div style="display:flex;gap:8px;margin-top:6px;">
+                            <button class="comment-submit" style="padding:7px 14px;font-size:13px;" onclick="submitReply(${c.id})">Post Reply</button>
+                            <button class="btn-comment-action" onclick="cancelReply(${c.id})">Cancel</button>
+                        </div>
+                    </div>
+                    <div id="edit-inline-${c.id}" style="display:none;margin-top:10px;">
+                        <textarea class="comment-edit-box" id="edit-box-${c.id}" rows="3" maxlength="2000">${isDeleted ? '' : escapeHtml(c.content)}</textarea>
+                        <div style="display:flex;gap:8px;margin-top:6px;">
+                            <button class="comment-submit" style="padding:7px 14px;font-size:13px;" onclick="submitEdit(${c.id})">Save</button>
+                            <button class="btn-comment-action" onclick="cancelEdit(${c.id})">Cancel</button>
+                        </div>
+                    </div>
+                    ${(replyMap[c.id] || []).length ? `<div class="reply-thread">${(replyMap[c.id] || []).map(r => renderComment(r, true)).join('')}</div>` : ''}
+                </div>`;
+            };
 
             document.getElementById('comments-list').innerHTML = comments?.length
-                ? comments.map(c => `
-                    <div class="comment-card ${String(c.content || '').trim().startsWith('@') ? 'reply' : ''}">
-                        <div class="comment-author"><a href="profile.html?id=${escapeHtml(c.user_id)}" style="color:inherit;text-decoration:none;">${escapeHtml(c.profiles?.username || 'Unknown')}</a></div>
-                        <div class="comment-body">${escapeHtml(c.content)}</div>
-                        ${currentUser ? `<button class="btn-reply-comment" onclick="startReply(${c.id}, ${JSON.stringify(c.profiles?.username || 'Unknown')})">Reply</button>` : ''}
-                        ${(isAdmin || (currentUser && currentUser.id === c.user_id))
-                            ? `<button class="btn-delete-comment" onclick="deleteComment(${c.id})">Delete</button>`
-                            : ''}
-                    </div>`).join('')
+                ? comments.map(c => renderComment(c)).join('')
                 : '<p style="color:#444">No comments yet. Be the first!</p>';
+        }
+
+        function highlightMentions(text) {
+            return text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
         }
 
         function startReply(commentId, username) {
             replyTarget = { commentId, username };
-            const box = document.getElementById('c-box');
-            const note = document.getElementById('reply-target-note');
+            // Show inline reply box
+            document.querySelectorAll('[id^="reply-inline-"]').forEach(el => el.style.display = 'none');
+            const box = document.getElementById(`reply-inline-${commentId}`);
             if (box) {
-                box.value = `@${username} `;
-                box.focus();
+                box.style.display = 'block';
+                const ta = document.getElementById(`reply-box-${commentId}`);
+                if (ta) { ta.value = `@${username} `; ta.focus(); }
             }
-            if (note) {
-                note.style.display = 'block';
-                note.innerHTML = `Replying to <strong>@${escapeHtml(username)}</strong> <button type="button" onclick="clearReplyTarget()">Cancel</button>`;
-            }
+        }
+
+        function cancelReply(commentId) {
+            const box = document.getElementById(`reply-inline-${commentId}`);
+            if (box) box.style.display = 'none';
+            replyTarget = null;
+        }
+
+        async function submitReply(parentId) {
+            const ta = document.getElementById(`reply-box-${parentId}`);
+            const txt = ta?.value?.trim();
+            if (!txt || !currentUser) return;
+            const { error } = await window.sb.from('post_comments').insert({
+                post_id: parseInt(postId),
+                user_id: currentUser.id,
+                content: txt,
+                parent_id: parentId
+            });
+            if (!error) { cancelReply(parentId); loadComments(); }
+        }
+
+        function startEdit(commentId) {
+            document.querySelectorAll('[id^="edit-inline-"]').forEach(el => el.style.display = 'none');
+            const box = document.getElementById(`edit-inline-${commentId}`);
+            if (box) { box.style.display = 'block'; document.getElementById(`edit-box-${commentId}`)?.focus(); }
+        }
+
+        function cancelEdit(commentId) {
+            const box = document.getElementById(`edit-inline-${commentId}`);
+            if (box) box.style.display = 'none';
+        }
+
+        async function submitEdit(commentId) {
+            const ta = document.getElementById(`edit-box-${commentId}`);
+            const txt = ta?.value?.trim();
+            if (!txt || !currentUser) return;
+            const { error } = await window.sb.from('post_comments')
+                .update({ content: txt, edited_at: new Date().toISOString() })
+                .eq('id', commentId)
+                .eq('user_id', currentUser.id);
+            if (!error) { cancelEdit(commentId); loadComments(); }
+        }
+
+        async function softDeleteComment(id) {
+            if (!confirm('Delete this comment? It will show as [deleted].')) return;
+            await window.sb.from('post_comments')
+                .update({ deleted_at: new Date().toISOString(), content: '' })
+                .eq('id', id);
+            loadComments();
         }
 
         function clearReplyTarget() {
             replyTarget = null;
             const note = document.getElementById('reply-target-note');
-            if (note) {
-                note.style.display = 'none';
-                note.textContent = '';
-            }
+            if (note) { note.style.display = 'none'; note.textContent = ''; }
         }
 
         async function postComment() {
             const txt = document.getElementById('c-box')?.value?.trim();
             const errEl = document.getElementById('comment-error');
             errEl.style.display = 'none';
-
             if (!txt) return;
             if (txt.length > 2000) { errEl.textContent = 'Comment too long (max 2000 chars).'; errEl.style.display = 'block'; return; }
-
             const submitBtn = document.querySelector('.comment-submit');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Posting...';
-
-            // Use rate-limited RPC instead of direct insert
-            const { error } = await window.sb.rpc('post_comment_safe', {
-                p_post_id: parseInt(postId),
-                p_content: txt
+            submitBtn.disabled = true; submitBtn.textContent = 'Posting...';
+            const { error } = await window.sb.from('post_comments').insert({
+                post_id: parseInt(postId),
+                user_id: currentUser.id,
+                content: txt,
+                parent_id: null
             });
-
-            if (error) {
-                errEl.textContent = error.message || 'Failed to post comment.';
-                errEl.style.display = 'block';
-            } else {
-                document.getElementById('c-box').value = '';
-                clearReplyTarget();
-                loadComments();
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Post Comment';
+            if (error) { errEl.textContent = error.message || 'Failed to post comment.'; errEl.style.display = 'block'; }
+            else { document.getElementById('c-box').value = ''; clearReplyTarget(); loadComments(); }
+            submitBtn.disabled = false; submitBtn.textContent = 'Post Comment';
         }
 
         async function deleteComment(id) {

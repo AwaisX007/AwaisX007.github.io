@@ -54,6 +54,11 @@
     .empty-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; max-width: 400px; margin-left: auto; margin-right: auto; }
     .empty-cta { display: inline-block; padding: 11px 28px; background: var(--gold); color: #080808; font-weight: 600; font-size: 14px; border-radius: 3px; font-family: 'Barlow', sans-serif; border: none; cursor: pointer; }
     .empty-cta:hover { background: #f0d060; }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 32px; padding-bottom: 8px; }
+    .page-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; padding: 7px 14px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text-dim); border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+    .page-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .page-btn.active { background: var(--gold); color: #080808; border-color: var(--gold); }
+    .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
     footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: auto; }
     footer a { transition: opacity 0.2s ease, text-decoration-color 0.2s ease; }
     footer a:hover { opacity: 0.92; text-decoration: underline !important; }
@@ -102,7 +107,7 @@
   <button class="filter-tab" onclick="setFilter(this, 'R6 Siege')">R6 Siege</button>
 </div>
 
-<div class="content">
+<div class="content" id="content">
   <div class="empty-state">
     <div class="empty-icon">⚙️</div>
     <div class="empty-title">No settings yet</div>
@@ -125,7 +130,10 @@
 <script src="config.js"></script>
 <script>
   const sb = window.sb || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const PAGE_SIZE = 12;
   let currentFilter = '';
+  let currentPage = 1;
+  let totalCount = 0;
   let postsChannel = null;
 
   function escapeHtml(value) {
@@ -173,30 +181,65 @@
   }
 
   async function loadSettings() {
-    const content = document.querySelector('.content');
+    const content = document.getElementById('content');
+    const from = (currentPage - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
     let query = sb.from('posts')
-      .select('*, profiles!posts_user_id_fkey(username)')
+      .select('*, profiles!posts_user_id_fkey(username)', { count: 'exact' })
       .eq('status', 'approved')
       .eq('type', 'settings')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
     if (currentFilter) query = query.eq('game', currentFilter);
 
-    const { data: posts, error } = await query;
-    if (error || !posts?.length) return;
+    const { data: posts, error, count } = await query;
+    totalCount = count || 0;
+
+    if (error || !posts?.length) {
+      content.innerHTML = `<div class="empty-state"><div class="empty-icon">⚙️</div><div class="empty-title">No settings found</div><div class="empty-sub">Share your sensitivity, DPI, crosshair and video settings${currentFilter ? ' for ' + currentFilter : ''}.</div><button class="empty-cta" onclick="window.location='create.html'">Submit your settings</button></div>`;
+      return;
+    }
+
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
     content.innerHTML = `<div class="cards-grid">
       ${posts.map(p => `
         <div class="content-card" role="link" tabindex="0" onclick="window.location='post.html?id=${safeParam(p.id)}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${safeParam(p.id)}'; }" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
           <div class="content-card-game">${escapeHtml(p.game)}</div>
           <div class="content-card-title">${escapeHtml(p.title)}</div>
-          <div class="content-card-author">by <a href="profile.html?id=${safeParam(p.user_id)}">${escapeHtml(p.profiles?.username || 'unknown')}</a></div>
-        </div>`).join('')}</div>`;
+          <div class="content-card-author">by <a href="profile.html?id=${safeParam(p.user_id)}" onclick="event.stopPropagation()">${escapeHtml(p.profiles?.username || 'unknown')}</a></div>
+        </div>`).join('')}
+    </div>
+    ${totalPages > 1 ? renderPagination(currentPage, totalPages) : ''}`;
+  }
+
+  function renderPagination(page, total) {
+    const pages = [];
+    for (let i = 1; i <= total; i++) {
+      if (i === 1 || i === total || (i >= page - 2 && i <= page + 2)) pages.push(i);
+      else if (pages[pages.length - 1] !== '...') pages.push('...');
+    }
+    return `<div class="pagination">
+      <button class="page-btn" onclick="goToPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>← Prev</button>
+      ${pages.map(p => p === '...' ? `<span style="color:var(--text-muted);padding:0 4px">…</span>` : `<button class="page-btn ${p === page ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`).join('')}
+      <button class="page-btn" onclick="goToPage(${page + 1})" ${page === total ? 'disabled' : ''}>Next →</button>
+    </div>`;
+  }
+
+  function goToPage(page) {
+    const total = Math.ceil(totalCount / PAGE_SIZE);
+    if (page < 1 || page > total) return;
+    currentPage = page;
+    loadSettings();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function setFilter(el, game) {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     currentFilter = game;
+    currentPage = 1;
     loadSettings();
   }
 
