@@ -170,19 +170,46 @@
   let currentUser = null;
   let isPreviewing = false;
 
-  async function init() {
+  async function getCurrentUser() {
+    const { data: { session } } = await window.sb.auth.getSession();
+    if (session?.user) return session.user;
+
     const { data: { user } } = await window.sb.auth.getUser();
-    if (user) {
-      currentUser = user;
-      const { data: profile } = await window.sb.from('profiles').select('username').eq('id', user.id).single();
-      document.getElementById('nav-user').innerHTML = `
-        <a href="profile.html" style="text-decoration:none; color:inherit;">
-          <span style="cursor:pointer; margin-right:12px; font-size:13px; color:var(--text-dim);">${profile?.username || user.email}</span>
-        </a>`;
-      document.getElementById('logout-btn').style.display = 'block';
-      document.getElementById('post-form').style.display = 'block';
-    } else {
-      document.getElementById('not-logged-in').style.display = 'block';
+    return user || null;
+  }
+
+  function showLoggedOutState() {
+    document.getElementById('post-form').style.display = 'none';
+    document.getElementById('not-logged-in').style.display = 'block';
+    document.getElementById('nav-user').textContent = '';
+    document.getElementById('logout-btn').style.display = 'none';
+  }
+
+  async function renderAuthState() {
+    currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      showLoggedOutState();
+      return;
+    }
+
+    const { data: profile } = await window.sb.from('profiles').select('username').eq('id', currentUser.id).single();
+    document.getElementById('nav-user').innerHTML = `
+      <a href="profile.html?id=${encodeURIComponent(currentUser.id)}" style="text-decoration:none; color:inherit;">
+        <span style="cursor:pointer; margin-right:12px; font-size:13px; color:var(--text-dim);">${profile?.username || currentUser.email}</span>
+      </a>`;
+    document.getElementById('logout-btn').style.display = 'block';
+    document.getElementById('not-logged-in').style.display = 'none';
+    document.getElementById('post-form').style.display = 'block';
+  }
+
+  async function init() {
+    await renderAuthState();
+
+    if (window.sb?.auth?.onAuthStateChange) {
+      window.sb.auth.onAuthStateChange(async () => {
+        await renderAuthState();
+      });
     }
   }
 
@@ -291,6 +318,13 @@
     const msg = document.getElementById('msg');
     msg.className = 'msg';
 
+    if (!currentUser) {
+      msg.className = 'msg error';
+      msg.textContent = 'Your session expired. Please log in again.';
+      showLoggedOutState();
+      return;
+    }
+
     if (!type || !game || !category || !title || !content) {
       msg.className = 'msg error'; msg.textContent = 'Please fill in all fields.'; return;
     }
@@ -308,13 +342,26 @@
 
     btn.disabled = true; btn.textContent = 'Submitting...';
 
-    const { error } = await window.sb.from('posts').insert({
-      user_id: currentUser.id, type, game, category, title, content, status: 'pending'
-    });
+    try {
+      const { error } = await window.sb.from('posts').insert({
+        user_id: currentUser.id,
+        type,
+        game,
+        category,
+        title,
+        content,
+        status: 'pending'
+      });
 
-    if (error) {
-      msg.className = 'msg error'; msg.textContent = error.message;
-      btn.disabled = false; btn.textContent = 'Submit for Review'; return;
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      msg.className = 'msg error';
+      msg.textContent = error?.message || 'Failed to submit post. Please try again.';
+      btn.disabled = false;
+      btn.textContent = 'Submit for Review';
+      return;
     }
 
     msg.className = 'msg success';
