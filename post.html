@@ -274,7 +274,7 @@
             document.getElementById('comments-list').innerHTML = comments?.length
                 ? comments.map(c => `
                     <div class="comment-card">
-                        <div class="comment-author">${escapeHtml(c.profiles?.username || 'Unknown')}</div>
+                        <div class="comment-author"><a href="profile.html?id=${escapeHtml(c.user_id)}" style="color:inherit;text-decoration:none;">${escapeHtml(c.profiles?.username || 'Unknown')}</a></div>
                         <div class="comment-body">${escapeHtml(c.content)}</div>
                         ${(isAdmin || (currentUser && currentUser.id === c.user_id))
                             ? `<button class="btn-delete-comment" onclick="deleteComment(${c.id})">Delete</button>`
