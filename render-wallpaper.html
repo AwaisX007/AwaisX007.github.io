@@ -127,7 +127,7 @@
     }
 
     async function init() {
-      const { data: { user } } = await window.sb.auth.getUser();
+      const user = window.authUtils?.getCurrentUser ? await window.authUtils.getCurrentUser() : (await window.sb.auth.getUser()).data?.user || null;
       currentUser = user || null;
 
       if (!renderId) {
@@ -334,8 +334,8 @@
         return;
       }
 
-      const { data: { user } } = await window.sb.auth.getUser();
-      const { data: profile } = user ? await window.sb.from('profiles').select('is_admin').eq('id', user.id).single() : { data: null };
+      const user = window.authUtils?.getCurrentUser ? await window.authUtils.getCurrentUser() : (await window.sb.auth.getUser()).data?.user || null;
+      const profile = user ? await window.authUtils.getProfile(user.id, 'is_admin') : null;
 
       list.innerHTML = comments.map((comment) => `
         <div class="comment">
@@ -360,7 +360,7 @@
       if (!currentUpload) return;
       if (!content) return;
 
-      const { data: { user } } = await window.sb.auth.getUser();
+      const user = window.authUtils?.getCurrentUser ? await window.authUtils.getCurrentUser() : (await window.sb.auth.getUser()).data?.user || null;
       if (!user) {
         window.location.href = 'login.html';
         return;

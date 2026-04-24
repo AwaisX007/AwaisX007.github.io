@@ -110,6 +110,7 @@
     renderAdmin(profile.username);
     loadPosts('pending');
     loadPendingRenders();
+    loadPendingAssets();
   }
 
   function showDenied(msg) {
@@ -129,6 +130,10 @@
       <div style="margin-top:34px;">
         <div class="page-sub" style="margin-bottom:14px;">3D Renders/Wallpapers — Pending Approval</div>
         <div id="renders-list"><div class="loading">Loading render submissions...</div></div>
+      </div>
+      <div style="margin-top:34px;">
+        <div class="page-sub" style="margin-bottom:14px;">Game Assets — Pending Approval</div>
+        <div id="assets-list"><div class="loading">Loading asset submissions...</div></div>
       </div>
     `;
   }
@@ -251,6 +256,61 @@
       const list = document.getElementById('renders-list');
       if (list && !list.querySelector('.post-card')) {
         list.innerHTML = '<div class="empty">No pending 3D renders/wallpapers.</div>';
+      }
+    }
+  }
+
+  async function loadPendingAssets() {
+    const list = document.getElementById('assets-list');
+    if (!list) return;
+    list.innerHTML = '<div class="loading">Loading...</div>';
+
+    const { data: uploads, error } = await sb
+      .from('game_assets_uploads')
+      .select('id, title, content, status, created_at, user_id, resource_link, profiles(username)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (error || !uploads?.length) {
+      list.innerHTML = '<div class="empty">No pending game assets.</div>';
+      return;
+    }
+
+    list.innerHTML = uploads.map(item => `
+      <div class="post-card" id="asset-post-${item.id}">
+        <div class="post-header">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span class="post-type">Game Asset</span>
+              <span class="status-badge status-pending">pending</span>
+            </div>
+            <div class="post-title">${item.title}</div>
+            <div class="post-meta">
+              <span>by ${item.profiles?.username || 'unknown'}</span>
+              <span>·</span>
+              <span>Game Assets</span>
+              <span>·</span>
+              <span>${new Date(item.created_at).toLocaleDateString()}</span>
+            </div>
+          </div>
+          <div class="post-actions">
+            <button class="btn-approve" onclick="updateAssetStatus(${item.id}, 'approved')">✓ Approve</button>
+            <button class="btn-reject" onclick="updateAssetStatus(${item.id}, 'rejected')">✕ Reject</button>
+          </div>
+        </div>
+        ${item.resource_link ? `<div class="post-meta" style="margin-bottom:10px;"><a href="${item.resource_link}" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:none;">Open Resource ↗</a></div>` : ''}
+        <div class="post-content">${(item.content || '').substring(0, 300)}${(item.content || '').length > 300 ? '...' : ''}</div>
+      </div>
+    `).join('');
+  }
+
+  async function updateAssetStatus(id, status) {
+    const { error } = await sb.from('game_assets_uploads').update({ status }).eq('id', id);
+    if (!error) {
+      document.getElementById('asset-post-' + id)?.remove();
+      const list = document.getElementById('assets-list');
+      if (list && !list.querySelector('.post-card')) {
+        list.innerHTML = '<div class="empty">No pending game assets.</div>';
       }
     }
   }

@@ -129,8 +129,8 @@
     let currentUser = null;
 
     async function loadPostData() {
-        const { data: { user }, error: authError } = await sb.auth.getUser();
-        if (authError || !user) { window.location.href = 'login.html'; return; }
+        const user = window.authUtils?.getCurrentUser ? await window.authUtils.getCurrentUser() : (await sb.auth.getUser()).data?.user || null;
+        if (!user) { window.location.href = 'login.html'; return; }
         currentUser = user;
 
         if (!postId) { window.location.href = 'profile.html'; return; }

@@ -427,7 +427,7 @@
         const params = new URLSearchParams(window.location.search);
         const requestedId = params.get('id');
 
-        const { data: { user } } = await sb.auth.getUser();
+        const user = window.authUtils?.getCurrentUser ? await window.authUtils.getCurrentUser() : (await sb.auth.getUser()).data?.user || null;
         currentUser = user || null;
 
         if (!requestedId && !currentUser) {

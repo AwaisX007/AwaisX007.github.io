@@ -159,16 +159,18 @@
 <script>
   async function init() {
     const navRight = document.getElementById('nav-right');
-    const { data: { user } } = await window.sb.auth.getUser();
-    if (user) {
-      const { data: profile } = await window.sb.from('profiles').select('username, is_admin').eq('id', user.id).single();
-      document.getElementById('nav-right').innerHTML = `
-        <a href="profile.html" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
-          <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
-        </a>
-        ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
-        <button onclick="window.sb.auth.signOut().then(() => window.location.reload())" style="font-size:12px;padding:6px 14px;background:transparent;border:1px solid var(--border2);color:var(--text-muted);border-radius:3px;cursor:pointer;font-family:'Barlow',sans-serif;">Log out</button>
-      `;
+    if (window.authUtils?.getCurrentUser) {
+      const user = await window.authUtils.getCurrentUser();
+      if (user) {
+        const profile = await window.authUtils.getProfile(user.id, 'username, is_admin');
+        navRight.innerHTML = `
+          <a href="profile.html?id=${encodeURIComponent(user.id)}" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
+            <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${profile?.username || ''}</span>
+          </a>
+          ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
+          <button onclick="window.sb.auth.signOut().then(() => window.location.reload())" style="font-size:12px;padding:6px 14px;background:transparent;border:1px solid var(--border2);color:var(--text-muted);border-radius:3px;cursor:pointer;font-family:'Barlow',sans-serif;">Log out</button>
+        `;
+      }
     }
     navRight?.classList.remove('auth-pending');
   }
