@@ -81,6 +81,52 @@
         gap: 14px;
       }
 
+      .marineo-nav-toggle {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid rgba(42, 42, 42, 0.95);
+        background: rgba(255, 255, 255, 0.02);
+        color: #e0e0e0;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+      }
+
+      .marineo-nav-toggle:hover,
+      .marineo-nav-toggle:focus-visible {
+        color: #fff;
+        border-color: rgba(232, 200, 74, 0.35);
+        background: rgba(232, 200, 74, 0.06);
+        outline: none;
+      }
+
+      .marineo-nav-toggle-icon {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .marineo-nav-toggle-icon span {
+        width: 14px;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+        display: block;
+      }
+
+      .marineo-nav-panel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+
       .marineo-nav-brand {
         display: inline-flex;
         align-items: center;
@@ -171,6 +217,7 @@
         justify-content: flex-end;
         gap: 10px;
         flex-shrink: 0;
+        margin-left: auto;
       }
 
       .marineo-nav-actions .btn-login,
@@ -235,25 +282,44 @@
       @media (max-width: 1024px) {
         .marineo-nav-shell {
           flex-wrap: wrap;
-          padding: 10px 16px 14px;
+          padding: 10px 16px 12px;
+        }
+
+        .marineo-nav-toggle {
+          display: inline-flex;
+        }
+
+        .marineo-nav-panel {
+          order: 4;
+          width: 100%;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          max-height: 0;
+          overflow: hidden;
+          opacity: 0;
+          pointer-events: none;
+          transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+        }
+
+        nav.marineo-nav.menu-open .marineo-nav-panel {
+          max-height: 420px;
+          opacity: 1;
+          pointer-events: auto;
         }
 
         .marineo-nav-links {
-          order: 4;
           width: 100%;
           justify-content: flex-start;
-          gap: 14px 18px;
-          padding-top: 10px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          gap: 12px 16px;
         }
 
         .marineo-nav-featured {
-          order: 3;
           width: 100%;
           justify-content: flex-start;
           flex-wrap: wrap;
-          padding-top: 10px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .marineo-nav-links a.active::after {
@@ -277,6 +343,11 @@
         .marineo-nav-featured a {
           padding: 7px 10px;
           font-size: 11px;
+        }
+
+        .marineo-nav-toggle {
+          width: 100%;
+          justify-content: center;
         }
 
         .marineo-nav-links {
@@ -327,18 +398,58 @@
       nav.innerHTML = `
         <div class="marineo-nav-shell">
           <a class="marineo-nav-brand" href="index.html">MARINEO<span>FPS</span></a>
-          <div class="marineo-nav-links">
-            ${navigationLinks.map(link => `<a href="${link.href}"${isActiveLink(link) ? ' class="active"' : ''}>${link.label}</a>`).join('')}
-          </div>
-          <div class="marineo-nav-featured">
-            ${featuredLinks.map(link => `<a href="${link.href}"${isActiveLink(link) ? ' class="active"' : ''}>${link.label}</a>`).join('')}
-          </div>
-          <div class="marineo-nav-actions" id="nav-right">
-            ${buildGuestActions()}
+          <button class="marineo-nav-toggle" type="button" aria-expanded="false" aria-controls="marineo-nav-panel">
+            <span class="marineo-nav-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span>Menu</span>
+          </button>
+          <div class="marineo-nav-panel" id="marineo-nav-panel">
+            <div class="marineo-nav-links">
+              ${navigationLinks.map(link => `<a href="${link.href}"${isActiveLink(link) ? ' class="active"' : ''}>${link.label}</a>`).join('')}
+            </div>
+            <div class="marineo-nav-featured">
+              ${featuredLinks.map(link => `<a href="${link.href}"${isActiveLink(link) ? ' class="active"' : ''}>${link.label}</a>`).join('')}
+            </div>
+            <div class="marineo-nav-actions" id="nav-right">
+              ${buildGuestActions()}
+            </div>
           </div>
         </div>
       `;
     });
+
+      function setupNavigationToggle() {
+        const nav = document.querySelector('nav.marineo-nav');
+        const toggle = nav?.querySelector('.marineo-nav-toggle');
+        const panel = nav?.querySelector('.marineo-nav-panel');
+
+        if (!nav || !toggle || !panel) {
+          return;
+        }
+
+        const closeMenu = () => {
+          nav.classList.remove('menu-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        };
+
+        toggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('menu-open');
+          toggle.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        panel.querySelectorAll('a, button').forEach((element) => {
+          element.addEventListener('click', () => {
+            if (window.matchMedia('(max-width: 1024px)').matches) {
+              closeMenu();
+            }
+          });
+        });
+
+        window.addEventListener('resize', () => {
+          if (!window.matchMedia('(max-width: 1024px)').matches) {
+            closeMenu();
+          }
+        });
+      }
   }
 
   async function syncNavigationAuth() {
@@ -445,6 +556,7 @@
   function initFooters() {
     injectNavigationStyles();
     renderNavigationShell();
+    setupNavigationToggle();
     syncNavigationAuth();
     document.querySelectorAll('footer[data-footer-links]').forEach(renderFooter);
     hardenExternalLinks();
