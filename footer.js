@@ -5,10 +5,13 @@
     { label: 'Blog', href: 'blog.html', match: ['blog.html'] },
     { label: 'Tier Lists', href: 'tierlists.html', match: ['tierlists.html'] },
     { label: 'Pro Settings', href: 'prosettings.html', match: ['prosettings.html'] },
-    { label: 'Renders', href: 'renders-wallpapers.html', match: ['renders-wallpapers.html'] },
-    { label: 'Assets', href: 'game-assets.html', match: ['game-assets.html'] },
     { label: 'Leaderboard', href: 'leaderboard.html', match: ['leaderboard.html'] },
     { label: 'About Us', href: 'about.html', match: ['about.html'] },
+  ];
+
+  const featuredLinks = [
+    { label: 'Renders', href: 'renders-wallpapers.html', match: ['renders-wallpapers.html'] },
+    { label: 'Game Assets', href: 'game-assets.html', match: ['game-assets.html'] },
   ];
 
   const linkDefinitions = {
@@ -69,13 +72,13 @@
       }
 
       .marineo-nav-shell {
-        max-width: 1240px;
+        max-width: 1480px;
         margin: 0 auto;
-        padding: 0 24px;
-        min-height: 64px;
+        padding: 0 18px;
+        min-height: 66px;
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: 14px;
       }
 
       .marineo-nav-brand {
@@ -100,7 +103,7 @@
         flex: 1;
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: 14px;
         flex-wrap: wrap;
         justify-content: center;
       }
@@ -131,6 +134,35 @@
         bottom: -18px;
         height: 2px;
         background: #e8c84a;
+      }
+
+      .marineo-nav-featured {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .marineo-nav-featured a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(232, 200, 74, 0.24);
+        color: #e8c84a;
+        background: rgba(232, 200, 74, 0.05);
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .marineo-nav-featured a:hover {
+        background: rgba(232, 200, 74, 0.12);
+        border-color: rgba(232, 200, 74, 0.4);
+        transform: translateY(-1px);
       }
 
       .marineo-nav-actions {
@@ -207,10 +239,19 @@
         }
 
         .marineo-nav-links {
-          order: 3;
+          order: 4;
           width: 100%;
           justify-content: flex-start;
           gap: 14px 18px;
+          padding-top: 10px;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .marineo-nav-featured {
+          order: 3;
+          width: 100%;
+          justify-content: flex-start;
+          flex-wrap: wrap;
           padding-top: 10px;
           border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
@@ -227,6 +268,15 @@
       @media (max-width: 640px) {
         .marineo-nav-shell {
           gap: 12px;
+        }
+
+        .marineo-nav-featured {
+          gap: 8px;
+        }
+
+        .marineo-nav-featured a {
+          padding: 7px 10px;
+          font-size: 11px;
         }
 
         .marineo-nav-links {
@@ -279,6 +329,9 @@
           <a class="marineo-nav-brand" href="index.html">MARINEO<span>FPS</span></a>
           <div class="marineo-nav-links">
             ${navigationLinks.map(link => `<a href="${link.href}"${isActiveLink(link) ? ' class="active"' : ''}>${link.label}</a>`).join('')}
+          </div>
+          <div class="marineo-nav-featured">
+            ${featuredLinks.map(link => `<a href="${link.href}"${isActiveLink(link) ? ' class="active"' : ''}>${link.label}</a>`).join('')}
           </div>
           <div class="marineo-nav-actions" id="nav-right">
             ${buildGuestActions()}
