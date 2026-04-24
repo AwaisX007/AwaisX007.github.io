@@ -40,7 +40,7 @@
         .bio-title { font-size: 10px; color: var(--gold); letter-spacing: 1.8px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
         .bio-body { position: relative; transition: max-height 0.28s ease; }
         .bio-body.is-collapsed { max-height: calc(1.65em * 5); overflow: hidden; }
-        .bio-body.is-collapsed::after {
+        .bio-body.has-overflow.is-collapsed::after {
             content: '';
             position: absolute;
             left: 0;
@@ -51,7 +51,7 @@
             pointer-events: none;
         }
         .bio-body.is-expanded { max-height: 2000px; overflow: hidden; }
-        .bio-text { font-size: 14px; color: var(--text-dim); line-height: 1.65; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+        .bio-text { font-size: 14px; color: #c9c9c9; line-height: 1.65; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
         .bio-text p { margin: 0 0 8px; }
         .bio-text p:last-child { margin-bottom: 0; }
         .bio-text ul { margin: 6px 0 10px 18px; padding: 0; }
@@ -374,19 +374,24 @@
         const buttonEl = document.getElementById(buttonId);
         if (!contentEl || !buttonEl) return;
 
-        const bodyEl = contentEl.closest('.bio-body') || contentEl.parentElement;
+        const bodyEl = (bodyId ? document.getElementById(bodyId) : null) || contentEl.closest('.bio-body') || contentEl.parentElement;
         if (!bodyEl) return;
 
-        bodyEl.classList.add('is-collapsed');
-        bodyEl.classList.remove('is-expanded');
+        bodyEl.classList.remove('is-expanded', 'is-collapsed', 'has-overflow');
         buttonEl.style.display = 'none';
         buttonEl.textContent = 'Show more';
 
         requestAnimationFrame(() => {
-            const collapsedOverflow = contentEl.scrollHeight > bodyEl.clientHeight + 2;
-            if (collapsedOverflow) {
-                buttonEl.style.display = 'inline-flex';
+            const lineHeight = parseFloat(getComputedStyle(contentEl).lineHeight) || 22;
+            const maxCollapsedHeight = lineHeight * 5;
+            const collapsedOverflow = contentEl.scrollHeight > maxCollapsedHeight + 2;
+
+            if (!collapsedOverflow) {
+                return;
             }
+
+            bodyEl.classList.add('has-overflow', 'is-collapsed');
+            buttonEl.style.display = 'inline-flex';
         });
     }
 
@@ -396,7 +401,7 @@
         if (!contentEl || !buttonEl) return;
 
         const bodyEl = contentEl.closest('.bio-body');
-        if (!bodyEl) return;
+        if (!bodyEl || !bodyEl.classList.contains('has-overflow')) return;
 
         const expanded = bodyEl.classList.toggle('is-expanded');
         bodyEl.classList.toggle('is-collapsed', !expanded);
