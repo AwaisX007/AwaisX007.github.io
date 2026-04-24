@@ -67,8 +67,41 @@
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
   .modal-cancel { padding: 8px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; font-size: 13px; }
   .modal-confirm { padding: 8px 18px; background: rgba(220,50,50,0.15); color: #ff6b6b; border: 1px solid rgba(220,50,50,0.3); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 600; }
-  /* Audit log */
-  .audit-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  /* User management styles */
+  .user-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .user-avatar-sm { width: 40px; height: 40px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; color: var(--gold); flex-shrink: 0; overflow: hidden; }
+  .user-avatar-sm img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 15px; color: #fff; font-weight: 600; }
+  .user-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .user-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .badge-pill { font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid; font-weight: 700; }
+  .badge-staff { background: rgba(232,200,74,0.12); color: var(--gold); border-color: rgba(232,200,74,0.4); }
+  .badge-creator { background: rgba(92,219,149,0.1); color: #5cdb95; border-color: rgba(92,219,149,0.35); }
+  .badge-veteran { background: rgba(180,120,255,0.1); color: #b47fff; border-color: rgba(180,120,255,0.35); }
+  .badge-contributor { background: rgba(80,180,255,0.1); color: #50b4ff; border-color: rgba(80,180,255,0.35); }
+  .badge-artist { background: rgba(255,140,80,0.1); color: #ff8c50; border-color: rgba(255,140,80,0.35); }
+  .badge-admin { background: rgba(232,200,74,0.2); color: var(--gold); border-color: var(--gold); }
+  .badge-banned { background: rgba(255,68,68,0.15); color: #ff6b6b; border-color: rgba(255,68,68,0.4); }
+  .user-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .btn-user { padding: 5px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Barlow', sans-serif; border: 1px solid; transition: all 0.15s; }
+  .btn-user-view { color: var(--text-muted); border-color: var(--border2); background: transparent; }
+  .btn-user-view:hover { color: var(--gold); border-color: var(--gold); }
+  .btn-user-admin { color: var(--gold); border-color: rgba(232,200,74,0.4); background: rgba(232,200,74,0.08); }
+  .btn-user-admin:hover { background: rgba(232,200,74,0.15); }
+  .btn-user-ban { color: #ff6b6b; border-color: rgba(255,68,68,0.3); background: rgba(255,68,68,0.08); }
+  .btn-user-ban:hover { background: rgba(255,68,68,0.15); }
+  .btn-user-badge { color: #50b4ff; border-color: rgba(80,180,255,0.3); background: rgba(80,180,255,0.08); }
+  .btn-user-badge:hover { background: rgba(80,180,255,0.15); }
+  .user-search { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 10px 14px; outline: none; margin-bottom: 16px; }
+  .user-search:focus { border-color: var(--gold); }
+  /* Badge picker modal */
+  .badge-picker { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .badge-option { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg4); border: 1px solid var(--border2); border-radius: 4px; }
+  .badge-option-label { font-size: 13px; color: var(--text); }
+  .badge-option-btn { padding: 4px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Barlow', sans-serif; border: 1px solid; }
+  .badge-option-btn.grant { color: #5cdb95; border-color: rgba(92,219,149,0.4); background: rgba(92,219,149,0.1); }
+  .badge-option-btn.revoke { color: #ff6b6b; border-color: rgba(255,68,68,0.3); background: rgba(255,68,68,0.08); } display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .audit-row:last-child { border-bottom: none; }
   .audit-action-approved { color: #5cdb95; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
   .audit-action-rejected { color: #ff6b6b; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
@@ -134,6 +167,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="badge-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" id="badge-modal-title">Manage Badges</div>
+    <div id="badge-picker" class="badge-picker"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeBadgeModal()">Done</button>
+    </div>
+  </div>
+</div>
+
 <footer data-footer-links="support,discord" data-footer-justify="center">
   <div class="footer-inner">
     <div class="footer-logo">MARINEO<span>FPS</span></div>
@@ -180,6 +223,7 @@
         <button class="tab active" id="tab-pending" onclick="switchTab('pending')">Pending Review</button>
         <button class="tab" id="tab-approved" onclick="switchTab('approved')">Approved</button>
         <button class="tab" id="tab-rejected" onclick="switchTab('rejected')">Rejected</button>
+        <button class="tab" id="tab-users" onclick="switchTab('users')">👥 Users</button>
         <button class="tab" id="tab-audit" onclick="switchTab('audit')">📋 Audit Log</button>
         <button class="tab" id="tab-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
       </div>
@@ -192,6 +236,7 @@
       <div id="posts-list"><div class="loading">Loading posts...</div></div>
       <div id="analytics-panel" style="display:none;"></div>
       <div id="audit-panel" style="display:none;"></div>
+      <div id="users-panel" style="display:none;"></div>
       <div style="margin-top:34px;" id="renders-section">
         <div class="page-sub" style="margin-bottom:14px;">3D Renders/Wallpapers — Pending Approval</div>
         <div id="renders-list"><div class="loading">Loading render submissions...</div></div>
