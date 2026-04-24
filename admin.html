@@ -157,7 +157,7 @@
   }
 
   async function init() {
-    const { data: { user } } = await sb.auth.getUser();
+    const user = await window.authUtils.getCurrentUser();
     if (!user) { showDenied('You must be logged in.'); return; }
     const { data: profile } = await sb.from('profiles').select('is_admin, username, id').eq('id', user.id).single();
     if (!profile?.is_admin) { showDenied('You do not have admin access.'); return; }

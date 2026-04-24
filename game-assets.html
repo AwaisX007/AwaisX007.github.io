@@ -290,6 +290,7 @@
       const { data: uploads, error } = await window.sb
         .from('game_assets_uploads')
         .select('id, user_id, title, content, resource_link, created_at, upvotes, views, profiles(username)')
+        .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
       if (error || !uploads?.length) {

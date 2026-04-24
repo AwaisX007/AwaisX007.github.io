@@ -165,6 +165,7 @@
         .from('game_assets_uploads')
         .select('id, user_id, title, content, resource_link, created_at, upvotes, views, profiles(username)')
         .eq('id', id)
+        .eq('status', 'approved')
         .single();
 
       if (error || !asset) {
