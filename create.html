@@ -204,7 +204,22 @@
   }
 
   async function init() {
-    await renderAuthState();
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+      submitBtn.onclick = handleSubmit;
+    }
+
+    try {
+      await renderAuthState();
+    } catch (error) {
+      const msg = document.getElementById('msg');
+      if (msg) {
+        msg.className = 'msg error';
+        msg.textContent = 'Failed to initialize create page. Please refresh and try again.';
+      }
+      showLoggedOutState();
+      return;
+    }
 
     if (window.sb?.auth?.onAuthStateChange) {
       window.sb.auth.onAuthStateChange(async () => {
@@ -318,6 +333,7 @@
     const msg = document.getElementById('msg');
     msg.className = 'msg';
 
+    currentUser = await getCurrentUser();
     if (!currentUser) {
       msg.className = 'msg error';
       msg.textContent = 'Your session expired. Please log in again.';
@@ -372,6 +388,8 @@
     document.getElementById('post-type').value = '';
     document.getElementById('game').value = '';
     document.getElementById('category').value = '';
+    btn.disabled = false;
+    btn.textContent = 'Submit for Review';
   }
 
   init();

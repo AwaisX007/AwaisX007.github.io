@@ -154,8 +154,8 @@
       if (!currentUser) {
         isAdmin = false;
         showUploadBtn.disabled = true;
-        showUploadBtn.textContent = 'Log in as Admin';
-        adminNote.textContent = 'Log in as an admin to upload in Game Assets.';
+        showUploadBtn.textContent = 'Admin Upload Only';
+        adminNote.textContent = 'Uploads in Game Assets are admin-only.';
         return;
       }
 
@@ -164,7 +164,7 @@
 
       showUploadBtn.disabled = !isAdmin;
       showUploadBtn.textContent = isAdmin ? '+ Upload Asset' : 'Admin Only';
-      adminNote.textContent = isAdmin ? '' : 'Only admins can upload in Game Assets.';
+      adminNote.textContent = isAdmin ? '' : 'Uploads in Game Assets are admin-only.';
     }
 
     function escapeHtml(text) {
