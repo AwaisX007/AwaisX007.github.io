@@ -179,7 +179,7 @@
 
   async function loadBlogs() {
     const content = document.getElementById('content');
-    content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Loading posts...</div>';
+    content.innerHTML = window.skeletonUtils.grid(6);
 
     const from = (currentPage - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;

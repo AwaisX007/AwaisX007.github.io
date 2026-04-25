@@ -220,6 +220,7 @@
               <div class="actions">
                 <button class="upvote-btn ${hasUpvoted ? 'active' : ''}" id="upvote-btn" onclick="toggleRenderUpvote()">${hasUpvoted ? '▲ Remove Upvote' : '▲ Upvote'}</button>
                 <a class="download-btn" href="${escapeHtml(upload.resource_link || '#')}" download="${escapeHtml(getDownloadName(upload.resource_link || '', upload.title))}" target="_blank" rel="noopener noreferrer">⇩ Download</a>
+                <button class="download-btn" onclick="window.contentUtils.share(window.location.href,'${escapeHtml(upload.title).replace(/'/g,"\\'")}')">⬆ Share</button>
                 <div class="count-pill">▲ <span id="upvote-count">${upload.upvotes || 0}</span></div>
                 <div class="count-pill">👁️ <span id="view-count">${upload.views || 0}</span></div>
                 ${isImageResource(upload.resource_link) ? `<div class="zoom-group"><button class="zoom-btn" type="button" onclick="zoomWallpaper(-0.15)">− Zoom</button><button class="zoom-btn" type="button" onclick="resetWallpaperZoom()">Reset</button><button class="zoom-btn" type="button" onclick="zoomWallpaper(0.15)">+ Zoom</button></div>` : ''}
@@ -321,6 +322,7 @@
             .eq('user_id', currentUser.id);
           if (error) throw error;
           hasUpvoted = false;
+          window.toastUtils.info('Upvote removed.');
         } else {
           const { error } = await window.sb.from('renders_wallpaper_upvotes').insert({
             render_id: currentUpload.id,
@@ -328,6 +330,7 @@
           });
           if (error) throw error;
           hasUpvoted = true;
+          window.toastUtils.success('▲ Upvoted!');
         }
 
         await syncUpvoteState(currentUpload.id);

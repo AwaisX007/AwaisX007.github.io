@@ -182,6 +182,7 @@
 
   async function loadSettings() {
     const content = document.getElementById('content');
+    content.innerHTML = window.skeletonUtils.grid(6);
     const from = (currentPage - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
