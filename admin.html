@@ -101,7 +101,9 @@
   .badge-option-label { font-size: 13px; color: var(--text); }
   .badge-option-btn { padding: 4px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Barlow', sans-serif; border: 1px solid; }
   .badge-option-btn.grant { color: #5cdb95; border-color: rgba(92,219,149,0.4); background: rgba(92,219,149,0.1); }
-  .badge-option-btn.revoke { color: #ff6b6b; border-color: rgba(255,68,68,0.3); background: rgba(255,68,68,0.08); } display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .badge-option-btn.revoke { color: #ff6b6b; border-color: rgba(255,68,68,0.3); background: rgba(255,68,68,0.08); }
+  /* Audit log */
+  .audit-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .audit-row:last-child { border-bottom: none; }
   .audit-action-approved { color: #5cdb95; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
   .audit-action-rejected { color: #ff6b6b; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
@@ -264,6 +266,8 @@
     postsList.style.display = 'none';
     analyticsPanel.style.display = 'none';
     auditPanel.style.display = 'none';
+    const usersPanel = document.getElementById('users-panel');
+    if (usersPanel) usersPanel.style.display = 'none';
     if (rendersSection) rendersSection.style.display = 'none';
     if (assetsSection) assetsSection.style.display = 'none';
     if (bulkBar) bulkBar.classList.remove('visible');
@@ -274,6 +278,9 @@
     } else if (tab === 'audit') {
       auditPanel.style.display = 'block';
       loadAuditLog();
+    } else if (tab === 'users') {
+      const usersPanel = document.getElementById('users-panel');
+      if (usersPanel) { usersPanel.style.display = 'block'; loadUsers(); }
     } else {
       postsList.style.display = 'block';
       if (tab === 'pending') {
@@ -593,6 +600,173 @@
             </div>`).join('') : '<div style="color:var(--text-muted);font-size:13px;">No users yet.</div>'}
         </div>
       </div>`;
+  }
+
+  /* ── USERS ── */
+  const BADGE_DEFS = [
+    { type: 'staff',       label: '⭐ Staff',       cls: 'badge-staff' },
+    { type: 'creator',     label: '✍️ Creator',     cls: 'badge-creator' },
+    { type: 'veteran',     label: '🏅 Veteran',     cls: 'badge-veteran' },
+    { type: 'contributor', label: '💡 Contributor', cls: 'badge-contributor' },
+    { type: 'artist',      label: '🎨 Artist',      cls: 'badge-artist' }
+  ];
+
+  let allUsers = [];
+  let badgeModalUserId = null;
+  let badgeModalUserBadges = [];
+
+  async function loadUsers(searchTerm = '') {
+    const panel = document.getElementById('users-panel');
+    if (!panel) return;
+
+    if (!allUsers.length || searchTerm === '') {
+      panel.innerHTML = `
+        <input class="user-search" id="user-search-input" placeholder="🔍 Search by username..." oninput="filterUsers(this.value)" value="${escapeHtml(searchTerm)}">
+        <div id="user-list"><div class="loading">Loading users...</div></div>`;
+
+      const { data: users } = await sb
+        .from('profiles')
+        .select('id, username, avatar_url, is_admin, banned, created_at')
+        .order('created_at', { ascending: false });
+
+      const { data: allBadges } = await sb.from('badges').select('user_id, badge_type');
+      const { data: postCounts } = await sb.from('posts').select('user_id');
+
+      const badgeMap = {};
+      (allBadges || []).forEach(b => {
+        if (!badgeMap[b.user_id]) badgeMap[b.user_id] = [];
+        badgeMap[b.user_id].push(b.badge_type);
+      });
+
+      const postCountMap = {};
+      (postCounts || []).forEach(p => {
+        postCountMap[p.user_id] = (postCountMap[p.user_id] || 0) + 1;
+      });
+
+      allUsers = (users || []).map(u => ({
+        ...u,
+        badges: badgeMap[u.id] || [],
+        postCount: postCountMap[u.id] || 0
+      }));
+    }
+
+    renderUserList(searchTerm);
+  }
+
+  function filterUsers(term) {
+    renderUserList(term);
+  }
+
+  function renderUserList(searchTerm = '') {
+    const list = document.getElementById('user-list');
+    if (!list) return;
+
+    const filtered = searchTerm
+      ? allUsers.filter(u => (u.username || '').toLowerCase().includes(searchTerm.toLowerCase()))
+      : allUsers;
+
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty">No users found.</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(u => {
+      const initials = (u.username || '?').substring(0, 2).toUpperCase();
+      const avatarHtml = u.avatar_url
+        ? `<img src="${escapeHtml(u.avatar_url)}" alt="">`
+        : escapeHtml(initials);
+
+      const badgePills = [
+        u.is_admin ? `<span class="badge-pill badge-admin">⭐ Admin</span>` : '',
+        u.banned ? `<span class="badge-pill badge-banned">🚫 Banned</span>` : '',
+        ...u.badges.map(b => {
+          const def = BADGE_DEFS.find(d => d.type === b);
+          return def ? `<span class="badge-pill ${def.cls}">${def.label}</span>` : '';
+        })
+      ].filter(Boolean).join('');
+
+      return `
+        <div class="user-card" id="ucard-${u.id}">
+          <div class="user-avatar-sm">${avatarHtml}</div>
+          <div class="user-info">
+            <div class="user-name">${escapeHtml(u.username || 'Unknown')}</div>
+            <div class="user-meta">Joined ${new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · ${u.postCount} post${u.postCount !== 1 ? 's' : ''}</div>
+            ${badgePills ? `<div class="user-badges">${badgePills}</div>` : ''}
+          </div>
+          <div class="user-actions">
+            <a href="profile.html?id=${encodeURIComponent(u.id)}" target="_blank" class="btn-user btn-user-view">View Profile ↗</a>
+            <button class="btn-user btn-user-badge" onclick="openBadgeModal('${u.id}','${escapeHtml(u.username||'').replace(/'/g,"\\'")}')">🏅 Badges</button>
+            <button class="btn-user btn-user-admin" onclick="toggleAdmin('${u.id}', ${u.is_admin})">${u.is_admin ? '★ Revoke Admin' : '☆ Make Admin'}</button>
+            <button class="btn-user btn-user-ban" onclick="toggleBan('${u.id}', ${u.banned})">${u.banned ? '✓ Unban' : '🚫 Ban'}</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function toggleAdmin(userId, isCurrentlyAdmin) {
+    if (userId === currentAdminId) { alert("You can't change your own admin status."); return; }
+    if (!confirm(`${isCurrentlyAdmin ? 'Revoke' : 'Grant'} admin access for this user?`)) return;
+    const { error } = await sb.from('profiles').update({ is_admin: !isCurrentlyAdmin }).eq('id', userId);
+    if (!error) {
+      const u = allUsers.find(u => u.id === userId);
+      if (u) { u.is_admin = !isCurrentlyAdmin; renderUserList(document.getElementById('user-search-input')?.value || ''); }
+    }
+  }
+
+  async function toggleBan(userId, isCurrentlyBanned) {
+    if (userId === currentAdminId) { alert("You can't ban yourself."); return; }
+    if (!confirm(`${isCurrentlyBanned ? 'Unban' : 'Ban'} this user?`)) return;
+    const { error } = await sb.from('profiles').update({ banned: !isCurrentlyBanned }).eq('id', userId);
+    if (!error) {
+      const u = allUsers.find(u => u.id === userId);
+      if (u) { u.banned = !isCurrentlyBanned; renderUserList(document.getElementById('user-search-input')?.value || ''); }
+    }
+  }
+
+  function openBadgeModal(userId, username) {
+    badgeModalUserId = userId;
+    const u = allUsers.find(u => u.id === userId);
+    badgeModalUserBadges = u ? [...u.badges] : [];
+
+    document.getElementById('badge-modal-title').textContent = `Badges — ${username}`;
+    renderBadgePicker();
+    document.getElementById('badge-modal').classList.add('open');
+  }
+
+  function closeBadgeModal() {
+    document.getElementById('badge-modal').classList.remove('open');
+    badgeModalUserId = null;
+    badgeModalUserBadges = [];
+  }
+
+  function renderBadgePicker() {
+    const picker = document.getElementById('badge-picker');
+    picker.innerHTML = BADGE_DEFS.map(def => {
+      const has = badgeModalUserBadges.includes(def.type);
+      return `
+        <div class="badge-option">
+          <span class="badge-option-label">${def.label}</span>
+          <button class="badge-option-btn ${has ? 'revoke' : 'grant'}" onclick="toggleBadge('${def.type}', ${has})">
+            ${has ? '✕ Revoke' : '+ Grant'}
+          </button>
+        </div>`;
+    }).join('');
+  }
+
+  async function toggleBadge(badgeType, currentlyHas) {
+    if (!badgeModalUserId) return;
+    if (currentlyHas) {
+      await sb.from('badges').delete().eq('user_id', badgeModalUserId).eq('badge_type', badgeType);
+      badgeModalUserBadges = badgeModalUserBadges.filter(b => b !== badgeType);
+    } else {
+      await sb.from('badges').insert({ user_id: badgeModalUserId, badge_type: badgeType });
+      badgeModalUserBadges.push(badgeType);
+    }
+    // Update local cache
+    const u = allUsers.find(u => u.id === badgeModalUserId);
+    if (u) u.badges = [...badgeModalUserBadges];
+    renderBadgePicker();
+    renderUserList(document.getElementById('user-search-input')?.value || '');
   }
 
   async function logout() {
