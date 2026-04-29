@@ -38,27 +38,27 @@
     .content { max-width: 1000px; margin: 0 auto; padding: 60px 32px; }
     .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; }
     .staff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); gap: 24px; margin-bottom: 60px; justify-content: center; }
-    .staff-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 30px; text-align: center; transition: transform 0.2s, border-color 0.2s; width: 100%; }
-    .staff-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+    .staff-card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 30px; text-align: center; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; width: 100%; box-shadow: 0 14px 32px rgba(0,0,0,0.18); }
+    .staff-card:hover { transform: translateY(-3px); border-color: rgba(232,200,74,0.22); box-shadow: 0 18px 36px rgba(0,0,0,0.26); }
     .staff-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--bg4); margin: 0 auto 16px; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
     .staff-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .staff-avatar-fallback { width: 100%; height: 100%; display: none; align-items: center; justify-content: center; font-family: 'Barlow Condensed'; font-size: 30px; font-weight: 700; color: var(--gold); background: var(--bg4); }
     .staff-role { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
     .staff-name { font-size: 22px; color: #fff; font-family: 'Barlow Condensed'; font-weight: 600; margin-bottom: 12px; }
     .staff-bio { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-    .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 40px; }
+    .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 40px; box-shadow: 0 14px 32px rgba(0,0,0,0.18); }
     .contact-info h3 { font-family: 'Barlow Condensed'; font-size: 24px; color: #fff; margin-bottom: 16px; }
     .contact-info p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
-    .social-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: #5865F2; color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 3px; transition: opacity 0.2s; }
-    .social-btn:hover { opacity: 0.9; }
+    .social-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: linear-gradient(180deg, #6a77f8, #5865F2); color: #fff; text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 999px; transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 10px 24px rgba(88,101,242,0.18); }
+    .social-btn:hover { opacity: 0.92; transform: translateY(-1px); }
     .contact-form { display: flex; flex-direction: column; gap: 16px; }
-    .contact-form input, .contact-form textarea { width: 100%; background: var(--bg4); border: 1px solid var(--border2); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 3px; padding: 12px 16px; outline: none; transition: border-color 0.2s; }
-    .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold); }
+    .contact-form input, .contact-form textarea { width: 100%; background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.08); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 14px; border-radius: 14px; padding: 12px 16px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232,200,74,0.08); }
     .contact-form textarea { resize: vertical; min-height: 120px; }
-    .submit-btn { padding: 12px; background: var(--gold); color: #080808; font-weight: 700; border: none; border-radius: 3px; cursor: pointer; font-family: 'Barlow'; transition: background 0.2s; }
-    .submit-btn:hover { background: #f0d060; }
+    .submit-btn { padding: 12px; background: linear-gradient(180deg, var(--gold), #d5b43e); color: #080808; font-weight: 700; border: none; border-radius: 999px; cursor: pointer; font-family: 'Barlow'; transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 10px 24px rgba(232,200,74,0.16); }
+    .submit-btn:hover { transform: translateY(-1px); opacity: 0.95; }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .form-msg { padding: 10px 14px; border-radius: 3px; font-size: 13px; display: none; }
+    .form-msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; display: none; }
     .form-msg.success { background: rgba(50,200,100,0.1); border: 1px solid rgba(50,200,100,0.3); color: #5cdb95; display: block; }
     .form-msg.error { background: rgba(220,50,50,0.1); border: 1px solid rgba(220,50,50,0.3); color: #ff6b6b; display: block; }
     footer { border-top: 1px solid var(--border); padding: 24px 32px; background: var(--bg2); margin-top: 40px; }

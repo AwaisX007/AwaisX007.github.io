@@ -78,14 +78,16 @@
     .hero-shell { max-width: 1480px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
     .hero-inner { max-width: 640px; position: relative; }
     .hero-social { display: flex; flex-direction: column; gap: 16px; min-width: 0; width: 100%; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.2); padding: 4px 12px; border-radius: 2px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.22); background: rgba(232,200,74,0.06); padding: 7px 14px; border-radius: 999px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
     .hero-badge span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
     .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 700; line-height: 1.0; color: #fff; margin-bottom: 16px; letter-spacing: 1px; }
     .hero h1 em { color: var(--gold); font-style: normal; }
     .hero p { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
     .hero-btns { display: flex; gap: 12px; }
-    .hero-btn-main { padding: 12px 28px; background: var(--gold); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.2s; text-decoration: none; }
-    .hero-btn-sec { padding: 12px 28px; background: transparent; color: var(--text-dim); font-size: 14px; border: 1px solid var(--border2); border-radius: 3px; cursor: pointer; text-decoration: none; }
+    .hero-btn-main { padding: 12px 28px; background: linear-gradient(180deg, var(--gold), #d5b43e); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 999px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; text-decoration: none; box-shadow: 0 10px 24px rgba(232,200,74,0.18); }
+    .hero-btn-main:hover { transform: translateY(-1px); opacity: 0.95; }
+    .hero-btn-sec { padding: 12px 28px; background: rgba(255,255,255,0.03); color: var(--text-dim); font-size: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; cursor: pointer; text-decoration: none; transition: transform 0.2s, border-color 0.2s, color 0.2s; }
+    .hero-btn-sec:hover { transform: translateY(-1px); border-color: rgba(232,200,74,0.2); color: #fff; }
     .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); }
     .game-bar-inner { max-width: 1480px; margin: 0 auto; padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; }
     .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
@@ -98,8 +100,8 @@
     .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
     .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; }
     .posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 32px; align-items: stretch; }
-    .post-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; display: flex; flex-direction: column; min-width: 0; }
-    .post-card:hover { border-color: #444; transform: translateY(-2px); }
+    .post-card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; min-width: 0; box-shadow: 0 14px 32px rgba(0,0,0,0.18); }
+    .post-card:hover { border-color: rgba(232,200,74,0.22); transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,0.26); }
     .card-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .card-title { font-size: 13px; color: var(--text); line-height: 1.45; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; line-clamp: 3; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
@@ -107,7 +109,7 @@
     .card-author { font-size: 11px; color: var(--text-muted); min-width: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-author a { color: var(--gold); text-decoration: none; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
     .card-votes { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
-    .sidebar-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 18px; margin-bottom: 16px; }
+    .sidebar-box { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px; margin-bottom: 16px; box-shadow: 0 14px 28px rgba(0,0,0,0.14); }
     .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
     .join-btn { width: 100%; padding: 10px; background: var(--gold); color: #080808; font-weight: 700; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; display: block; text-align: center; }
@@ -155,8 +157,8 @@
     </div>
 
     <div class="hero-social">
-      <a href="https://discord.gg/b3KebadbpA" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #5865F2;padding:16px;border-radius:4px;">
-        <div style="width:40px;height:40px;background:#5865F2;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <a href="https://discord.gg/b3KebadbpA" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-left:3px solid #5865F2;padding:16px;border-radius:14px;box-shadow:0 14px 32px rgba(0,0,0,0.18);">
+        <div style="width:40px;height:40px;background:linear-gradient(180deg, #6a77f8, #5865F2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 20px rgba(88,101,242,0.16);">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="17" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Z"/></svg>
         </div>
         <div>
