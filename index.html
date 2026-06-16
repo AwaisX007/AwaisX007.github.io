@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marineo – Developer Portfolio</title>
+  <title>Learn with Marineo</title>
   <meta name="description" content="Explore advanced developer tools, coding projects, and learning resources by Syed Awais Shah (Marineo).">
   
   <!-- Google Fonts -->
@@ -255,6 +255,15 @@
 
     .nav-link:hover { color: var(--gold-bright); }
 
+    /* Desktop: hide icon links; Mobile: hide text links */
+    .nav-icon-link {
+      display: none;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+      align-items: center;
+    }
+    .nav-icon-link:hover { color: var(--gold-bright); }
+
     .nav-cta {
       background: linear-gradient(135deg, #d4af37, #a07c10);
       color: #000 !important;
@@ -278,12 +287,12 @@
     main {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 5rem 2rem;
+      padding: 4rem 2rem 2rem;
       position: relative;
       z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 7rem;
+      gap: 5rem;
     }
 
     /* ==========================================================================
@@ -424,6 +433,21 @@
       display: flex;
       gap: 2.5rem;
       padding-top: 0.5rem;
+    }
+
+    /* Collaboration line */
+    .collab-line {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .collab-line span:last-child {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
     }
 
     .stat-item {
@@ -759,13 +783,13 @@
     ========================================================================== */
     footer {
       border-top: 1px solid var(--border-color);
-      padding: 3rem 2.5rem;
-      background: #020201;
+      padding: 2rem 2.5rem;
+      background: var(--bg-dark);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 1.5rem;
+      gap: 1rem;
       z-index: 10;
       position: relative;
     }
@@ -807,34 +831,52 @@
        13. Responsive
     ========================================================================== */
     @media (max-width: 960px) {
-      main { padding: 3rem 1.5rem; gap: 5rem; }
+      main { padding: 2.5rem 1.5rem 1.5rem; gap: 4rem; }
 
       .hero {
         grid-template-columns: 1fr;
         text-align: center;
-        gap: 2.5rem;
+        gap: 2rem;
       }
 
-      .badge, .hero-actions { align-self: center; justify-content: center; }
+      .hero-actions { justify-content: center; }
       .hero-stats { justify-content: center; }
       .hero-desc { margin: 0 auto; }
-      .hero-visual { height: 320px; order: -1; }
+      .hero-visual { height: 280px; order: -1; }
+      .collab-line { justify-content: center; }
 
-      .app-card { grid-template-columns: 1fr; gap: 2rem; padding: 2rem; }
+      .app-card { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.75rem; }
       .app-preview-visual { display: none; }
 
-      .profile-section { grid-template-columns: 1fr; gap: 3rem; }
-      .matrix-grid { grid-template-columns: 1fr; }
+      .profile-section { grid-template-columns: 1fr; gap: 2.5rem; }
+      .matrix-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-      footer { flex-direction: column; text-align: center; }
-      .footer-links { justify-content: center; }
+      .cta-banner { padding: 3rem 2rem; }
+      .cta-actions { flex-direction: column; align-items: stretch; }
+      .cta-actions a { justify-content: center; }
+
+      footer { flex-direction: column; text-align: center; padding: 1.75rem 1.5rem; }
+      .footer-links { justify-content: center; flex-wrap: wrap; gap: 1rem; }
     }
 
     @media (max-width: 600px) {
       header { padding: 0.75rem 1.25rem; }
-      nav .nav-link { display: none; }
-      nav .nav-cta { display: flex; }
-      .cta-banner { padding: 2.5rem 1.5rem; }
+
+      /* On mobile: hide text nav links, show icon links */
+      .nav-text-link { display: none; }
+      .nav-icon-link { display: flex; }
+      nav { gap: 0.6rem; }
+
+      .hero-title { font-size: 2.5rem; }
+      .hero-visual { height: 240px; }
+
+      .matrix-grid { grid-template-columns: 1fr; }
+
+      .cta-banner { padding: 2rem 1.25rem; border-radius: 1.25rem; }
+      .cta-banner h3 { font-size: 1.5rem; }
+
+      footer { padding: 1.5rem 1.25rem; }
+      .footer-links { gap: 0.75rem; font-size: 0.8rem; }
     }
 
     /* ==========================================================================
@@ -864,10 +906,6 @@
   ====================================================================== -->
   <div id="intro-overlay">
     <canvas id="intro-canvas"></canvas>
-    <div class="intro-label">
-      <h1>Marineo</h1>
-      <p>// initializing portfolio</p>
-    </div>
     <button class="intro-skip" id="intro-skip-btn">skip intro ↓</button>
   </div>
 
@@ -885,12 +923,24 @@
       <div class="nav-container">
         <a href="#" class="logo">
           <div class="logo-icon">M</div>
-          <h1>marineofps.dev</h1>
+          <h1>Learn with Marineo</h1>
         </a>
         <nav>
-          <a href="#apps" class="nav-link">Apps</a>
-          <a href="#about" class="nav-link">About</a>
-          <a href="mailto:shahawais35@gmail.com" class="nav-link">Contact</a>
+          <a href="#apps" class="nav-link nav-text-link">Apps</a>
+          <a href="#about" class="nav-link nav-text-link">About</a>
+          <a href="https://youtube.com/@LearnwithMarineo" target="_blank" class="nav-link nav-text-link">YouTube</a>
+          <a href="https://github.com/AwaisX007" target="_blank" class="nav-link nav-text-link">GitHub</a>
+          <a href="https://discord.com/invite/b3KebadbpA" target="_blank" class="nav-link nav-text-link">Discord</a>
+          <!-- Mobile icon links -->
+          <a href="https://youtube.com/@LearnwithMarineo" target="_blank" class="nav-icon-link" title="YouTube" aria-label="YouTube">
+            <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+          <a href="https://github.com/AwaisX007" target="_blank" class="nav-icon-link" title="GitHub" aria-label="GitHub">
+            <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          </a>
+          <a href="https://discord.com/invite/b3KebadbpA" target="_blank" class="nav-icon-link" title="Discord" aria-label="Discord">
+            <svg fill="currentColor" viewBox="0 0 24 24" width="18" height="18"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+          </a>
           <a href="./cv-studio/" class="nav-link nav-cta">CV Studio ↗</a>
         </nav>
       </div>
@@ -901,15 +951,11 @@
       <!-- Hero -->
       <section class="hero">
         <div class="hero-content">
-          <div class="badge">
-            <span class="badge-dot"></span>
-            Open for Collaboration
-          </div>
           <h2 class="hero-title">
             Engineering ideas<br>into <span class="gold-word">responsive</span><br>digital experiences.
           </h2>
           <p class="hero-desc">
-            Welcome to my developer hub. I build modern web applications, design electrical grid solutions, and craft premium developer tools that push boundaries.
+            I build innovative apps and web-based tools that make people's lives genuinely easier — from premium resume builders to powerful desktop utilities. My mission is simple: turn complex problems into elegant, accessible software.
           </p>
           <div class="hero-actions">
             <a href="#apps" class="btn-primary">
@@ -932,6 +978,11 @@
               <span class="stat-label">Possibilities</span>
             </div>
           </div>
+          <!-- Subtle collaboration indicator -->
+          <div class="collab-line">
+            <span class="badge-dot" style="flex-shrink:0;"></span>
+            <span>Open for Collaboration</span>
+          </div>
         </div>
         <div class="hero-visual">
           <canvas id="dna-canvas"></canvas>
@@ -942,7 +993,6 @@
       <section id="apps" class="reveal">
         <div class="section-head">
           <h3 class="section-title">Featured Applications</h3>
-          <span class="section-subtitle">// projects[]</span>
         </div>
         <div class="apps-grid">
           
@@ -982,6 +1032,45 @@
             </div>
           </div>
 
+          <!-- StreamDrop Card -->
+          <div class="app-card reveal reveal-delay-2">
+            <div class="app-info">
+              <span class="app-badge" style="background:rgba(88,101,242,0.12);border-color:rgba(88,101,242,0.3);color:#818cf8;">🖥 Desktop App</span>
+              <h4 class="app-name">StreamDrop</h4>
+              <p class="app-description">A sleek, native Windows desktop app that wraps the power of <strong style="color:var(--text-main)">yt-dlp</strong> in a clean, beginner-friendly GUI. No command lines, no confusion — just paste a URL, pick your quality, and download. StreamDrop makes media downloading accessible to everyone, not just developers.</p>
+              <div class="app-tags">
+                <span class="tag">Electron</span>
+                <span class="tag">Node.js</span>
+                <span class="tag">yt-dlp</span>
+                <span class="tag">Desktop App</span>
+                <span class="tag">Windows</span>
+                <span class="tag">Open Source</span>
+              </div>
+              <a href="https://github.com/AwaisX007/StreamDrop" target="_blank" class="btn-primary" style="align-self:flex-start;margin-top:0.25rem;">
+                View on GitHub
+                <svg fill="currentColor" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              </a>
+            </div>
+
+            <div class="app-preview-visual">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                <div style="width:8px;height:8px;border-radius:50%;background:#818cf8;box-shadow:0 0 8px rgba(129,140,248,0.6);"></div>
+                <div class="mock-bar" style="width:55%;height:6px;"></div>
+              </div>
+              <div class="mock-bar full" style="height:30px;border-radius:8px;background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.15);"></div>
+              <div class="mock-sep"></div>
+              <div style="display:flex;gap:0.4rem;">
+                <div class="mock-bar" style="flex:1;height:6px;"></div>
+                <div class="mock-bar" style="width:28%;height:6px;background:rgba(129,140,248,0.4);border-radius:4px;"></div>
+              </div>
+              <div class="mock-bar medium" style="height:6px;"></div>
+              <div class="mock-sep"></div>
+              <div class="mock-bar gold full" style="height:10px;border-radius:6px;opacity:0.7;"></div>
+              <div class="mock-bar" style="width:40%;height:6px;margin-top:0.2rem;"></div>
+              <div class="mock-bar full" style="height:6px;"></div>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -989,8 +1078,8 @@
       <section id="about" class="profile-section reveal">
         <div class="profile-text">
           <h3 class="section-title">About the Developer</h3>
-          <p class="profile-para">I am <strong>Syed Awais Shah (Marineo)</strong>, an Electrical Engineering (Power) student at the <strong>University of Engineering and Technology (UET), Peshawar</strong>. I bridge the gap between hardware engineering and modern software architectures.</p>
-          <p class="profile-para">My background blends power grid infrastructure with modern frontend design. I've built web tools for grid operations and crafted fluid user interfaces using JavaScript, React, and Flutter.</p>
+          <p class="profile-para">I am <strong>Syed Awais Shah (Marineo)</strong>, an Electrical Engineering (Power) student at the <strong>University of Engineering and Technology (UET), Peshawar</strong>. I believe technology should work for people — not the other way around.</p>
+          <p class="profile-para">My mission is to build innovative apps and web-based solutions that make people's daily lives <strong>genuinely easier</strong>. Whether it's a tool that removes the command-line barrier for everyday users, or a web app that saves hours of manual work — I ship software that matters.</p>
           <div class="skills-list">
             <span class="skill-chip">JavaScript</span>
             <span class="skill-chip">React</span>
@@ -1051,7 +1140,18 @@
               Get in Touch
               <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
             </a>
-            <a href="./cv-studio/" class="btn-secondary">View CV Studio</a>
+            <a href="https://youtube.com/@LearnwithMarineo" target="_blank" class="btn-secondary">
+              <svg fill="currentColor" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              @LearnwithMarineo
+            </a>
+            <a href="https://github.com/AwaisX007" target="_blank" class="btn-secondary">
+              <svg fill="currentColor" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              GitHub
+            </a>
+            <a href="https://discord.com/invite/b3KebadbpA" target="_blank" class="btn-secondary">
+              <svg fill="currentColor" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg>
+              Join Discord
+            </a>
           </div>
         </div>
       </section>
@@ -1066,7 +1166,9 @@
       </div>
       <div class="footer-links">
         <a href="mailto:shahawais35@gmail.com">Email</a>
-        <a href="https://github.com/MarineoFPS" target="_blank">GitHub</a>
+        <a href="https://github.com/AwaisX007" target="_blank">GitHub</a>
+        <a href="https://youtube.com/@LearnwithMarineo" target="_blank">YouTube</a>
+        <a href="https://discord.com/invite/b3KebadbpA" target="_blank">Discord</a>
         <a href="./cv-studio/">CV Studio</a>
       </div>
     </footer>
@@ -1137,19 +1239,29 @@
       /* Skip button */
       skipBtn.addEventListener('click', startDissolve);
 
+      /* --- Typewriter state --- */
+      const fullText   = 'Learn with Marineo';
+      const subText    = '// where code meets engineering';
+      let   typedChars = 0;
+      let   typeTick   = 0;
+
       /* --- Draw frame --- */
       function draw() {
         const w = W(), h = H();
         ctx.clearRect(0, 0, w, h);
 
-        /* Background gradient */
-        const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h) * 0.7);
-        bg.addColorStop(0, `rgba(20, 14, 3, ${1 - dissolve})`);
-        bg.addColorStop(1, `rgba(0, 0, 0, ${1 - dissolve})`);
-        ctx.fillStyle = bg;
+        const alpha = 1 - dissolve;
+
+        /* Background */
+        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
         ctx.fillRect(0, 0, w, h);
 
-        const alpha = 1 - dissolve;
+        /* Subtle radial glow behind M */
+        const bgGlow = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.min(w,h) * 0.6);
+        bgGlow.addColorStop(0, `rgba(25, 18, 3, ${alpha})`);
+        bgGlow.addColorStop(1, `rgba(0, 0, 0, 0)`);
+        ctx.fillStyle = bgGlow;
+        ctx.fillRect(0, 0, w, h);
 
         /* --- Floating particles --- */
         particles.forEach(p => {
@@ -1159,93 +1271,158 @@
           if (p.x > w) p.x = 0;
           if (p.y < 0) p.y = h;
           if (p.y > h) p.y = 0;
-
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha * alpha * 0.6})`;
+          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha * alpha * 0.5})`;
           ctx.fill();
         });
 
-        /* --- DNA Helix (centered on screen) --- */
+        /* =======================================================
+           GIANT 'M' LOGO — drawn as outlined text on canvas
+        ======================================================= */
+        const mSize  = Math.min(w, h) * 0.72;
+        const cx     = w / 2;
+        const cy     = h / 2 - mSize * 0.04; // slightly above center for text below
+
+        ctx.save();
+        ctx.font        = `900 ${mSize}px 'Outfit', sans-serif`;
+        ctx.textAlign   = 'center';
+        ctx.textBaseline = 'middle';
+
+        /* Outer glow passes */
+        for (let g = 5; g >= 1; g--) {
+          ctx.shadowBlur  = g * 28;
+          ctx.shadowColor = `rgba(212, 175, 55, ${0.06 * alpha})`;
+          ctx.strokeStyle = `rgba(212, 175, 55, ${0.04 * alpha})`;
+          ctx.lineWidth   = g * 6;
+          ctx.strokeText('M', cx, cy);
+        }
+        ctx.shadowBlur = 0;
+
+        /* Main M stroke — elegant thin outline */
+        const mGrad = ctx.createLinearGradient(cx - mSize * 0.4, cy - mSize * 0.4, cx + mSize * 0.4, cy + mSize * 0.4);
+        mGrad.addColorStop(0,   `rgba(255, 240, 160, ${0.18 * alpha})`);
+        mGrad.addColorStop(0.4, `rgba(212, 175, 55,  ${0.14 * alpha})`);
+        mGrad.addColorStop(1,   `rgba(120,  90,  15, ${0.08 * alpha})`);
+        ctx.strokeStyle = mGrad;
+        ctx.lineWidth   = Math.max(1, mSize * 0.008);
+        ctx.strokeText('M', cx, cy);
+        ctx.restore();
+
+        /* =======================================================
+           DNA HELIX — threaded vertically through the M's center
+        ======================================================= */
         angle += 0.018;
-        const cx = w / 2;
-        const cy = h / 2;
+
+        /* DNA spans the full height of the M letter */
+        const dnaHeight = mSize * 0.78;
+        const dnaTop    = cy - dnaHeight / 2;
+        const dnaNodes  = NUM_NODES;
 
         const nodes = [];
-        for (let i = 0; i < NUM_NODES; i++) {
-          const theta = (i * 0.38) + angle;
-          const yOff  = (i - NUM_NODES / 2) * SPACING;
-          const y     = cy + yOff;
+        for (let i = 0; i < dnaNodes; i++) {
+          const theta  = (i * 0.38) + angle;
+          const yFrac  = i / (dnaNodes - 1);       // 0 → 1 along height
+          const y      = dnaTop + yFrac * dnaHeight;
 
           const z1 = Math.sin(theta) * RADIUS;
           const z2 = Math.sin(theta + Math.PI) * RADIUS;
-          const d  = 200;
-
-          const scale1 = d / (d + z1);
-          const scale2 = d / (d + z2);
+          const d  = 220;
+          const s1 = d / (d + z1);
+          const s2 = d / (d + z2);
 
           nodes.push({
-            x1: cx + Math.cos(theta) * RADIUS * scale1,
-            y1: y,
-            z1, scale1,
-            x2: cx + Math.cos(theta + Math.PI) * RADIUS * scale2,
-            y2: y,
-            z2, scale2
+            x1: cx + Math.cos(theta) * RADIUS * s1,
+            y1: y, z1, scale1: s1,
+            x2: cx + Math.cos(theta + Math.PI) * RADIUS * s2,
+            y2: y, z2, scale2: s2
           });
         }
 
-        /* Draw rungs */
-        nodes.forEach(n => {
-          const avgZ = (n.z1 + n.z2) / 2;
-          const depth = Math.max(0.05, 1 - (avgZ + RADIUS) / (RADIUS * 2));
+        /* Clip DNA to a vertical band through the M's spine */
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(cx - RADIUS * 1.5, dnaTop - 10, RADIUS * 3, dnaHeight + 20);
+        ctx.clip();
 
+        /* Rungs */
+        nodes.forEach(n => {
+          const avgZ  = (n.z1 + n.z2) / 2;
+          const depth = Math.max(0.05, 1 - (avgZ + RADIUS) / (RADIUS * 2));
+          const grad  = ctx.createLinearGradient(n.x1, n.y1, n.x2, n.y2);
+          grad.addColorStop(0,   `rgba(212,175,55,${depth * 0.55 * alpha})`);
+          grad.addColorStop(0.5, `rgba(255,240,160,${depth * 0.35 * alpha})`);
+          grad.addColorStop(1,   `rgba(212,175,55,${depth * 0.55 * alpha})`);
           ctx.beginPath();
           ctx.moveTo(n.x1, n.y1);
           ctx.lineTo(n.x2, n.y2);
-
-          const grad = ctx.createLinearGradient(n.x1, n.y1, n.x2, n.y2);
-          grad.addColorStop(0, `rgba(212, 175, 55, ${depth * 0.5 * alpha})`);
-          grad.addColorStop(0.5, `rgba(255, 255, 200, ${depth * 0.3 * alpha})`);
-          grad.addColorStop(1, `rgba(212, 175, 55, ${depth * 0.5 * alpha})`);
-
           ctx.strokeStyle = grad;
           ctx.lineWidth   = 1.5 * ((n.scale1 + n.scale2) / 2);
           ctx.stroke();
         });
 
-        /* Draw strand 1 nodes (bright gold) */
+        /* Strand 1 — bright gold nodes */
         nodes.forEach(n => {
-          const depth = Math.max(0.1, 1 - (n.z1 + RADIUS) / (RADIUS * 2));
-          const glow  = ctx.createRadialGradient(n.x1, n.y1, 0, n.x1, n.y1, 8 * n.scale1);
-          glow.addColorStop(0,   `rgba(255, 230, 120, ${depth * alpha})`);
-          glow.addColorStop(0.5, `rgba(212, 175, 55, ${depth * alpha * 0.7})`);
-          glow.addColorStop(1,   'rgba(0,0,0,0)');
-
+          const depth = Math.max(0.12, 1 - (n.z1 + RADIUS) / (RADIUS * 2));
           ctx.beginPath();
-          ctx.arc(n.x1, n.y1, 8 * n.scale1, 0, Math.PI * 2);
-          ctx.fillStyle = glow;
+          ctx.arc(n.x1, n.y1, 4.5 * n.scale1, 0, Math.PI * 2);
+          ctx.fillStyle   = `rgba(255,230,120,${depth * alpha})`;
+          ctx.shadowBlur  = 16 * n.scale1;
+          ctx.shadowColor = `rgba(212,175,55,${alpha})`;
           ctx.fill();
-
-          ctx.beginPath();
-          ctx.arc(n.x1, n.y1, 3.5 * n.scale1, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 230, 120, ${depth * alpha})`;
-          ctx.shadowBlur  = 18 * n.scale1;
-          ctx.shadowColor = `rgba(212, 175, 55, ${alpha})`;
-          ctx.fill();
-          ctx.shadowBlur = 0;
+          ctx.shadowBlur  = 0;
         });
 
-        /* Draw strand 2 nodes (dimmer gold) */
+        /* Strand 2 — warm dim gold nodes */
         nodes.forEach(n => {
-          const depth = Math.max(0.1, 1 - (n.z2 + RADIUS) / (RADIUS * 2));
+          const depth = Math.max(0.08, 1 - (n.z2 + RADIUS) / (RADIUS * 2));
           ctx.beginPath();
-          ctx.arc(n.x2, n.y2, 3.5 * n.scale2, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180, 130, 30, ${depth * alpha})`;
-          ctx.shadowBlur  = 12 * n.scale2;
-          ctx.shadowColor = `rgba(160, 110, 20, ${alpha * 0.6})`;
+          ctx.arc(n.x2, n.y2, 3.8 * n.scale2, 0, Math.PI * 2);
+          ctx.fillStyle   = `rgba(180,130,30,${depth * alpha})`;
+          ctx.shadowBlur  = 10 * n.scale2;
+          ctx.shadowColor = `rgba(140,100,15,${alpha * 0.6})`;
           ctx.fill();
-          ctx.shadowBlur = 0;
+          ctx.shadowBlur  = 0;
         });
+
+        ctx.restore(); /* end clip */
+
+        /* =======================================================
+           TYPEWRITER TEXT — "Learn with Marineo"
+        ======================================================= */
+        typeTick++;
+        if (typeTick % 3 === 0 && typedChars < fullText.length) typedChars++;
+
+        const titleSize = Math.max(18, Math.min(w * 0.032, 42));
+        const textY     = cy + mSize * 0.46;
+
+        /* Title */
+        ctx.save();
+        ctx.font        = `800 ${titleSize}px 'Outfit', sans-serif`;
+        ctx.textAlign   = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur  = 24;
+        ctx.shadowColor = `rgba(212,175,55,${0.7 * alpha})`;
+
+        const tGrad = ctx.createLinearGradient(cx - 200, 0, cx + 200, 0);
+        tGrad.addColorStop(0,   `rgba(255,240,160,${alpha})`);
+        tGrad.addColorStop(0.5, `rgba(212,175,55,${alpha})`);
+        tGrad.addColorStop(1,   `rgba(255,240,160,${alpha})`);
+        ctx.fillStyle = tGrad;
+        ctx.fillText(fullText.slice(0, typedChars) + (typedChars < fullText.length ? '|' : ''), cx, textY);
+        ctx.restore();
+
+        /* Subtitle */
+        if (typedChars >= fullText.length) {
+          const subSize = Math.max(11, Math.min(w * 0.016, 20));
+          ctx.save();
+          ctx.font        = `500 ${subSize}px 'Fira Code', monospace`;
+          ctx.textAlign   = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle   = `rgba(180,150,60,${alpha * 0.75})`;
+          ctx.fillText(subText, cx, textY + titleSize * 1.4);
+          ctx.restore();
+        }
 
         /* Handle dissolve progression */
         if (dissolving) {
