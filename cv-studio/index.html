@@ -1,0 +1,3116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marineo CV Studio - Premium Resume Builder</title>
+  <meta name="description" content="Build and export professional, print-ready resumes instantly with six custom-designed templates. Fully offline and reactive.">
+  
+  <!-- Google Fonts for diverse template styling -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,400&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* ==========================================================================
+       1. Base Reset & Design System Variables
+       ========================================================================== */
+    :root {
+      /* Editor UI (Chrome) Variables */
+      --editor-bg: #09090b;
+      --editor-sidebar-bg: #121214;
+      --editor-card-bg: #1a1a1e;
+      --editor-text: #fafafa;
+      --editor-text-muted: #a1a1aa;
+      --editor-border: #2e2e33;
+      --editor-accent: #d4af37;
+      --editor-accent-hover: #f3cd59;
+      --editor-danger: #ef4444;
+      --editor-danger-hover: #dc2626;
+      --editor-success: #10b981;
+      --editor-input-bg: #09090b;
+      
+      /* Resume Preview Default Variables (Overridden by Templates) */
+      --resume-bg: #ffffff;
+      --resume-primary: #1e293b;
+      --resume-secondary: #475569;
+      --resume-accent: #2563eb;
+      --resume-text: #334155;
+      --resume-text-light: #64748b;
+      --resume-font-title: 'Inter', sans-serif;
+      --resume-font-body: 'Inter', sans-serif;
+      --resume-line-height: 1.5;
+      --resume-spacing: 1.25rem;
+      --resume-border-color: #e2e8f0;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--editor-bg);
+      color: var(--editor-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Custom scrollbar for editor panels */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--editor-sidebar-bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--editor-card-bg);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--editor-border);
+    }
+
+    /* ==========================================================================
+       2. Editor Shell Layout
+       ========================================================================== */
+    .app-header {
+      background-color: var(--editor-sidebar-bg);
+      border-bottom: 1px solid var(--editor-border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand svg {
+      width: 2rem;
+      height: 2rem;
+      color: var(--editor-accent);
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #f3cd59, #b8860b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Split-Pane Main Container */
+    .app-main {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 65px);
+      position: relative;
+    }
+
+    /* Form Section (Left Panel) */
+    .editor-pane {
+      width: 45%;
+      min-width: 400px;
+      max-width: 600px;
+      background-color: var(--editor-sidebar-bg);
+      border-right: 1px solid var(--editor-border);
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Preview Section (Right Panel) */
+    .preview-pane {
+      flex: 1;
+      background-color: var(--editor-bg);
+      overflow-y: auto;
+      padding: 2.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       3. Accordion & Input Forms
+       ========================================================================== */
+    .accordion {
+      background-color: var(--editor-card-bg);
+      border: 1px solid var(--editor-border);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .accordion.expanded {
+      border-color: var(--editor-accent);
+      box-shadow: 0 0 0 1px var(--editor-accent);
+    }
+
+    .accordion-header {
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      background-color: rgba(255, 255, 255, 0.02);
+      transition: background-color 0.2s ease;
+    }
+
+    .accordion-header:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .accordion-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .accordion-title svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--editor-accent);
+    }
+
+    .accordion-toggle {
+      width: 1.25rem;
+      height: 1.25rem;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .accordion.expanded .accordion-toggle {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .accordion.expanded .accordion-content {
+      max-height: 2000px; /* high threshold for nested forms */
+      border-top: 1px solid var(--editor-border);
+    }
+
+    .form-grid {
+      padding: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-group-full {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--editor-text-muted);
+    }
+
+    input, textarea {
+      background-color: var(--editor-input-bg);
+      border: 1px solid var(--editor-border);
+      border-radius: 0.375rem;
+      padding: 0.625rem 0.75rem;
+      color: var(--editor-text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      width: 100%;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--editor-accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+      padding: 0;
+      cursor: pointer;
+      accent-color: var(--editor-accent);
+    }
+
+    .hint-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.25rem;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--editor-text-muted);
+    }
+
+    /* Dynamic Entries Styles */
+    .dynamic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .dynamic-item {
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px dashed var(--editor-border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      color: var(--editor-danger);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease;
+    }
+
+    .remove-btn:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .remove-btn svg {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px dashed var(--editor-border);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      color: var(--editor-text);
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .add-btn:hover {
+      background-color: rgba(59, 130, 246, 0.1);
+      border-color: var(--editor-accent);
+      color: var(--editor-accent);
+    }
+
+    .add-btn svg {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    /* ==========================================================================
+       4. Buttons & Interactive Controls
+       ========================================================================== */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--editor-accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--editor-accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--editor-card-bg);
+      color: var(--editor-text);
+      border: 1px solid var(--editor-border);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--editor-border);
+    }
+
+    .btn-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--editor-danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-danger:hover {
+      background-color: var(--editor-danger);
+      color: #ffffff;
+    }
+
+    .btn svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    /* Template Switcher Bar */
+    .template-selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background-color: var(--editor-sidebar-bg);
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--editor-border);
+      position: absolute;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      box-shadow: var(--shadow-lg);
+      max-width: calc(100% - 2rem);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .template-btn {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: none;
+      border: 1px solid transparent;
+      color: var(--editor-text-muted);
+      cursor: pointer;
+      border-radius: 0.375rem;
+      transition: all 0.15s ease;
+    }
+
+    .template-btn:hover {
+      color: var(--editor-text);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .template-btn.active {
+      background-color: var(--editor-accent);
+      color: #ffffff;
+      border-color: var(--editor-accent);
+    }
+
+    /* ==========================================================================
+       5. Resume Page A4 Preview Container
+       ========================================================================== */
+    .resume-paper-shadow {
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)) drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: 3.5rem; /* Allow space for template switcher */
+    }
+
+    .resume-paper {
+      width: 210mm;
+      min-height: 297mm;
+      background-color: var(--resume-bg);
+      color: var(--resume-text);
+      font-family: var(--resume-font-body);
+      line-height: var(--resume-line-height);
+      padding: 2.2cm 1.8cm;
+      box-sizing: border-box;
+      position: relative;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      flex-direction: column;
+      gap: var(--resume-spacing);
+      font-size: calc(1rem * var(--resume-font-scale, 1.0));
+      --resume-primary-resolved: var(--resume-custom-accent, var(--resume-primary));
+      --resume-accent-resolved: var(--resume-custom-accent, var(--resume-accent));
+      --resume-secondary-resolved: var(--resume-custom-accent, var(--resume-secondary));
+    }
+
+    /* Empty state placeholder styling */
+    .placeholder-text {
+      color: var(--resume-text-light) !important;
+      opacity: 0.45;
+      font-style: italic;
+    }
+
+    /* Contact Bar Icon Alignment */
+    .resume-contact-bar div {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .resume-contact-bar svg {
+      width: 0.85rem;
+      height: 0.85rem;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       6. Core Resume Layout & Global Element Styling
+       ========================================================================== */
+    .resume-section-title {
+      font-family: var(--resume-font-title);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      letter-spacing: 0.075em;
+      color: var(--resume-primary-resolved);
+      border-bottom: 2px solid var(--resume-border-color);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .resume-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    /* Job, Degree, Project Item */
+    .resume-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      page-break-inside: avoid;
+    }
+
+    .resume-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 0.9rem;
+    }
+
+    .resume-item-title {
+      font-weight: 700;
+      color: var(--resume-primary-resolved);
+    }
+
+    .resume-item-org {
+      font-weight: 500;
+      color: var(--resume-secondary-resolved);
+    }
+
+    .resume-item-meta {
+      font-size: 0.85rem;
+      color: var(--resume-text-light);
+      text-align: right;
+      font-weight: 400;
+    }
+
+    .resume-item-desc {
+      font-size: 0.85rem;
+      color: var(--resume-text);
+      white-space: pre-line;
+      line-height: 1.45;
+    }
+
+    /* Skills Pill Container */
+    .resume-skills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .resume-skill-pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      background-color: var(--resume-border-color);
+      color: var(--resume-primary-resolved);
+      border-radius: 0.25rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    /* ==========================================================================
+       7. CV Templates Specifications
+       ========================================================================== */
+
+    /* ----------------------------------------------------
+       TEMPLATE 1: CLASSIC (Serif, elegant, traditional)
+       ---------------------------------------------------- */
+    .tpl-classic {
+      --resume-font-title: 'Playfair Display', serif;
+      --resume-font-body: 'Lora', serif;
+      --resume-primary: #111827;
+      --resume-secondary: #374151;
+      --resume-accent: #111827;
+      --resume-text: #1f2937;
+      --resume-text-light: #4b5563;
+      --resume-border-color: #374151;
+      --resume-spacing: 1.5rem;
+      --resume-line-height: 1.6;
+    }
+    
+    .tpl-classic .resume-header {
+      text-align: center;
+      border-bottom: 2px double var(--resume-border-color);
+      padding-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tpl-classic .resume-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .tpl-classic .resume-title {
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--resume-text-light);
+    }
+
+    .tpl-classic .resume-contact-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      font-size: 0.8rem;
+      color: var(--resume-text-light);
+    }
+
+    .tpl-classic .resume-section-title {
+      border-bottom: 1px solid var(--resume-border-color);
+      text-align: center;
+      justify-content: center;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+    }
+
+    .tpl-classic .resume-item-header {
+      font-size: 0.95rem;
+    }
+
+    .tpl-classic .resume-skill-pill {
+      background: none;
+      border: 1px solid var(--resume-secondary);
+      border-radius: 0;
+      padding: 0.15rem 0.45rem;
+    }
+
+    /* ----------------------------------------------------
+       TEMPLATE 2: MODERN (Sans-serif, left color sidebar)
+       ---------------------------------------------------- */
+    .tpl-modern {
+      --resume-font-title: 'Outfit', sans-serif;
+      --resume-font-body: 'Inter', sans-serif;
+      --resume-primary: #0f172a;
+      --resume-secondary: #334155;
+      --resume-accent: #0f172a;
+      --resume-text: #334155;
+      --resume-text-light: #64748b;
+      --resume-border-color: #cbd5e1;
+      --resume-spacing: 1.25rem;
+      padding: 0 !important; /* Managed by grid columns */
+      display: grid;
+      grid-template-columns: 32% 68%;
+      min-height: 297mm;
+    }
+
+    .tpl-modern .resume-sidebar {
+      background-color: #f1f5f9;
+      border-right: 1px solid #e2e8f0;
+      padding: 2.2cm 1.2cm 2.2cm 1.5cm;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tpl-modern .resume-content {
+      padding: 2.2cm 1.5cm 2.2cm 1.2cm;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tpl-modern .resume-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .tpl-modern .resume-name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--resume-primary);
+    }
+
+    .tpl-modern .resume-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--resume-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tpl-modern .resume-contact-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      word-break: break-all;
+    }
+
+    .tpl-modern .resume-contact-bar div {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tpl-modern .resume-contact-bar div svg {
+      width: 0.9rem;
+      height: 0.9rem;
+      flex-shrink: 0;
+      color: var(--resume-secondary);
+    }
+
+    .tpl-modern .resume-section-title {
+      border-bottom: 2px solid var(--resume-primary);
+      padding-bottom: 0.15rem;
+      font-size: 0.85rem;
+    }
+
+    .tpl-modern .resume-sidebar .resume-section-title {
+      border-bottom: 2px solid #94a3b8;
+    }
+
+    .tpl-modern .resume-skill-pill {
+      background-color: var(--resume-primary);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.7rem;
+    }
+
+    /* Hide sidebar layout elements when not in tpl-modern */
+    .resume-paper:not(.tpl-modern) .resume-sidebar,
+    .resume-paper:not(.tpl-modern) .resume-content {
+      display: contents;
+    }
+
+    /* ----------------------------------------------------
+       TEMPLATE 3: EXECUTIVE (Navy header band, structured columns)
+       ---------------------------------------------------- */
+    .tpl-executive {
+      --resume-font-title: 'Outfit', sans-serif;
+      --resume-font-body: 'Inter', sans-serif;
+      --resume-primary: #1e3a8a;
+      --resume-secondary: #1e293b;
+      --resume-accent: #2563eb;
+      --resume-text: #334155;
+      --resume-text-light: #64748b;
+      --resume-border-color: #cbd5e1;
+      --resume-spacing: 1.5rem;
+      padding: 0 !important;
+      background-color: #ffffff;
+    }
+
+    .tpl-executive .resume-header {
+      background-color: #0f172a;
+      color: #ffffff;
+      padding: 2.2rem 1.8cm;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .tpl-executive .resume-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+
+    .tpl-executive .resume-title {
+      font-size: 1.05rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+
+    .tpl-executive .resume-contact-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+    }
+
+    .tpl-executive .resume-body-grid {
+      padding: 1.5rem 1.8cm 2.2cm;
+      display: grid;
+      grid-template-columns: 65% 30%;
+      gap: 5%;
+    }
+
+    .tpl-executive .resume-main-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tpl-executive .resume-side-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .tpl-executive .resume-section-title {
+      border-bottom: 2px solid var(--resume-primary);
+      color: var(--resume-primary);
+      font-size: 0.9rem;
+    }
+
+    .tpl-executive .resume-skill-pill {
+      background-color: #f1f5f9;
+      color: var(--resume-secondary);
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Fallback layout for elements when not in tpl-executive */
+    .resume-paper:not(.tpl-executive) .resume-body-grid,
+    .resume-paper:not(.tpl-executive) .resume-main-col,
+    .resume-paper:not(.tpl-executive) .resume-side-col {
+      display: contents;
+    }
+
+    /* ----------------------------------------------------
+       TEMPLATE 4: CREATIVE (Asymmetric, gradient accents, modern)
+       ---------------------------------------------------- */
+    .tpl-creative {
+      --resume-font-title: 'Outfit', sans-serif;
+      --resume-font-body: 'Inter', sans-serif;
+      --resume-primary: #7c3aed;
+      --resume-secondary: #0f172a;
+      --resume-accent: #ec4899;
+      --resume-text: #334155;
+      --resume-text-light: #64748b;
+      --resume-border-color: #f472b6;
+      --resume-spacing: 1.5rem;
+    }
+
+    .tpl-creative .resume-header {
+      position: relative;
+      padding-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tpl-creative .resume-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #7c3aed, #ec4899);
+      border-radius: 2px;
+    }
+
+    .tpl-creative .resume-name {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      background: linear-gradient(135deg, #7c3aed, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tpl-creative .resume-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--resume-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .tpl-creative .resume-contact-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--resume-text-light);
+    }
+
+    .tpl-creative .resume-section-title {
+      font-size: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      color: var(--resume-primary);
+    }
+
+    .tpl-creative .resume-item-title {
+      color: var(--resume-primary);
+    }
+
+    .tpl-creative .resume-skill-pill {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.1));
+      color: #7c3aed;
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    /* ----------------------------------------------------
+       TEMPLATE 5: COMPACT (Dense spacing, high text density)
+       ---------------------------------------------------- */
+    .tpl-compact {
+      --resume-font-title: 'Roboto Condensed', sans-serif;
+      --resume-font-body: 'Roboto Condensed', sans-serif;
+      --resume-primary: #1e293b;
+      --resume-secondary: #475569;
+      --resume-accent: #0f172a;
+      --resume-text: #334155;
+      --resume-text-light: #64748b;
+      --resume-border-color: #cbd5e1;
+      --resume-spacing: 0.75rem;
+      --resume-line-height: 1.35;
+      padding: 1.2cm 1.2cm !important;
+    }
+
+    .tpl-compact .resume-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--resume-primary);
+      padding-bottom: 0.35rem;
+    }
+
+    .tpl-compact .resume-name-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tpl-compact .resume-name {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.05;
+    }
+
+    .tpl-compact .resume-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--resume-secondary);
+      text-transform: uppercase;
+    }
+
+    .tpl-compact .resume-contact-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.15rem;
+      font-size: 0.75rem;
+      color: var(--resume-text-light);
+    }
+
+    .tpl-compact .resume-section-title {
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      padding-bottom: 0.1rem;
+    }
+
+    .tpl-compact .resume-grid {
+      gap: 0.45rem;
+    }
+
+    .tpl-compact .resume-item {
+      gap: 0.1rem;
+    }
+
+    .tpl-compact .resume-item-header {
+      font-size: 0.8rem;
+    }
+
+    .tpl-compact .resume-item-desc {
+      font-size: 0.78rem;
+      line-height: 1.3;
+    }
+
+    .tpl-compact .resume-skill-pill {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+    }
+
+    /* ----------------------------------------------------
+       TEMPLATE 6: TECH (Monospace touches, markdown-like layout)
+       ---------------------------------------------------- */
+    .tpl-tech {
+      --resume-font-title: 'Fira Code', monospace;
+      --resume-font-body: 'Fira Code', monospace;
+      --resume-primary: #0f172a;
+      --resume-secondary: #000000;
+      --resume-accent: #0284c7;
+      --resume-text: #1e293b;
+      --resume-text-light: #64748b;
+      --resume-border-color: #cbd5e1;
+      --resume-spacing: 1.25rem;
+      --resume-line-height: 1.45;
+      font-size: 0.8rem;
+    }
+
+    .tpl-tech .resume-header {
+      border: 1.5px solid var(--resume-primary);
+      padding: 1rem;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .tpl-tech .resume-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--resume-primary);
+    }
+
+    .tpl-tech .resume-name::before {
+      content: '> ';
+      color: var(--resume-accent);
+    }
+
+    .tpl-tech .resume-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--resume-text-light);
+    }
+
+    .tpl-tech .resume-contact-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      font-size: 0.75rem;
+      border-top: 1px dashed var(--resume-border-color);
+      padding-top: 0.5rem;
+    }
+
+    .tpl-tech .resume-section-title {
+      border: none;
+      font-size: 0.9rem;
+      color: var(--resume-accent);
+      padding: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .tpl-tech .resume-section-title::before {
+      content: '## ';
+    }
+
+    .tpl-tech .resume-item-header {
+      font-size: 0.8rem;
+    }
+
+    .tpl-tech .resume-item-title {
+      color: var(--resume-primary);
+    }
+
+    .tpl-tech .resume-item-title::before {
+      content: '* ';
+      color: var(--resume-accent);
+    }
+
+    .tpl-tech .resume-skill-pill {
+      background-color: #f8fafc;
+      border: 1px solid var(--resume-border-color);
+      color: var(--resume-text);
+      font-size: 0.7rem;
+      border-radius: 4px;
+    }
+
+    .tpl-tech .resume-skill-pill::before {
+      content: '[';
+      color: var(--resume-text-light);
+    }
+
+    .tpl-tech .resume-skill-pill::after {
+      content: ']';
+      color: var(--resume-text-light);
+    }
+
+    /* ==========================================================================
+       8. Mobile Sticky Layout Controls
+       ========================================================================== */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--editor-sidebar-bg);
+      border: 1px solid var(--editor-border);
+      border-radius: 30px;
+      padding: 0.4rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      gap: 0.25rem;
+    }
+
+    .mobile-nav-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      border: none;
+      background: none;
+      color: var(--editor-text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .mobile-nav-btn.active {
+      background-color: var(--editor-accent);
+      color: #ffffff;
+    }
+
+    .mobile-nav-btn svg {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    /* Modal Confirmation Box */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background-color: var(--editor-sidebar-bg);
+      border: 1px solid var(--editor-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-title svg {
+      color: var(--editor-danger);
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      color: var(--editor-text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* ==========================================================================
+       9. Responsive Overrides (Screen Width < 900px)
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .app-main {
+        flex-direction: column;
+        height: auto;
+        overflow-y: visible;
+      }
+
+      .editor-pane {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        height: auto;
+        overflow-y: visible;
+        border-right: none;
+        border-bottom: 1px solid var(--editor-border);
+        display: flex;
+      }
+
+      .preview-pane {
+        width: 100%;
+        overflow-y: visible;
+        padding: 1rem;
+        padding-top: 4.5rem;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* Sticky Mobile Panel switching */
+      body.show-preview .editor-pane {
+        display: none;
+      }
+
+      body:not(.show-preview) .preview-pane {
+        display: none;
+      }
+
+      .mobile-nav {
+        display: flex;
+      }
+
+      .resume-paper-shadow {
+        transform: scale(0.95);
+        transform-origin: top center;
+        margin-top: 1rem;
+      }
+
+      .resume-paper {
+        width: 100%;
+        min-height: 0;
+        aspect-ratio: auto;
+        padding: 1.5rem;
+      }
+      
+      .tpl-modern {
+        grid-template-columns: 1fr;
+      }
+      
+      .tpl-modern .resume-sidebar {
+        padding: 1.5rem;
+      }
+      
+      .tpl-modern .resume-content {
+        padding: 1.5rem;
+      }
+
+      .tpl-executive .resume-body-grid {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 1.5rem;
+      }
+    }
+
+    /* Scale preview paper down slightly on smaller monitors to fit nicely */
+    @media (min-width: 901px) and (max-width: 1250px) {
+      .resume-paper-shadow {
+        transform: scale(0.8);
+        transform-origin: top center;
+      }
+    }
+    
+    @media (min-width: 1251px) and (max-width: 1450px) {
+      .resume-paper-shadow {
+        transform: scale(0.9);
+        transform-origin: top center;
+      }
+    }
+
+    /* ==========================================================================
+       10. High-Fidelity Print Styling (@media print)
+       ========================================================================== */
+    @media print {
+      /* Hide all UI Chrome elements */
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
+      }
+
+      .app-header,
+      .editor-pane,
+      .template-selector-bar,
+      .mobile-nav,
+      .modal-overlay,
+      .preview-pane::before,
+      .placeholder-text {
+        display: none !important;
+      }
+
+      .app-main {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      .preview-pane {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        background: transparent !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      .resume-paper-shadow {
+        filter: none !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+
+      .resume-paper {
+        width: 100% !important;
+        min-height: 100vh !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 2cm 1.5cm !important;
+        box-shadow: none !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Specific adjustments for template print blocks */
+      .tpl-modern {
+        display: grid !important;
+        grid-template-columns: 32% 68% !important;
+        min-height: 100vh !important;
+      }
+      
+      .tpl-modern .resume-sidebar {
+        background-color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .tpl-executive {
+        display: block !important;
+      }
+
+      .tpl-executive .resume-header {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .tpl-executive .resume-body-grid {
+        display: grid !important;
+        grid-template-columns: 65% 30% !important;
+        gap: 5% !important;
+      }
+
+      /* Prevent pagination break items */
+      .resume-item {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Shared CV Banner -->
+  <div id="shared-banner" style="display: none; background: linear-gradient(90deg, #6d28d9, #d4af37); color: #ffffff; padding: 0.75rem; text-align: center; font-size: 0.9rem; font-weight: 600; z-index: 1001; position: relative; box-shadow: var(--shadow-md);">
+    Viewing a Shared Resume (Read-Only).
+    <button class="btn" onclick="createNewResume()" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin-left: 1rem; border: 1px solid #ffffff; background: transparent; color: #ffffff; cursor: pointer; border-radius: 4px; font-weight: 600; transition: all 0.2s;">Create Your Own</button>
+  </div>
+
+  <!-- App Header / Toolbar -->
+  <header class="app-header">
+    <div class="brand">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h1>Marineo CV Studio</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="loadSampleData()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"></path>
+        </svg>
+        Load Demo
+      </button>
+      <button class="btn btn-danger" onclick="openClearModal()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Clear All
+      </button>
+      <button class="btn btn-primary" onclick="exportToPDF()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        Download PDF
+      </button>
+      <button class="btn btn-secondary" onclick="shareResume()" id="btn-share" style="background-color: #6d28d9; color: #ffffff; border-color: #7c3aed;">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem; margin-right: 0.25rem; display: inline-block; vertical-align: middle;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186l5.308-2.843a2.25 2.25 0 11.901 1.886l-5.308 2.842m0 0a2.25 2.25 0 102.25 2.25h-.002m0 0l5.308-2.843a2.25 2.25 0 11.9 1.886l-5.308 2.842m-1.047-.137a2.25 2.25 0 102.25-2.25h-.002m0 0a2.25 2.25 0 10-2.25-2.25h-.002"></path>
+        </svg>
+        Share CV
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+    
+    <!-- Form Panel (Left) -->
+    <div class="editor-pane">
+
+      <!-- Accordion Section: Layout & Theme Options -->
+      <div class="accordion expanded" id="sec-layout-options">
+        <div class="accordion-header" onclick="toggleAccordion('sec-layout-options')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Layout & Theme Options
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full">
+              <label for="input-fontscale">Font Scale: <span id="fontscale-val">100%</span></label>
+              <input type="range" id="input-fontscale" min="0.8" max="1.2" step="0.05" value="1.0" oninput="updateFontScale(this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-accentcolor">Custom Accent Color</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="color" id="input-accentcolor" value="#d4af37" oninput="updateAccentColor(this.value)" style="width: 2.5rem; height: 2.5rem; padding: 0.1rem; cursor: pointer; border-radius: 0.25rem; background: none; border: 1px solid var(--editor-border);">
+                <button class="btn btn-secondary" onclick="resetAccentColor()" style="padding: 0.4rem 0.75rem; font-size: 0.75rem;">Reset</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Color Presets</label>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.2rem;">
+                <button style="width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 1px solid #ffffff; background-color: #d4af37; cursor: pointer;" onclick="updateAccentColor('#d4af37')" title="Gold"></button>
+                <button style="width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 1px solid #ffffff; background-color: #3b82f6; cursor: pointer;" onclick="updateAccentColor('#3b82f6')" title="Blue"></button>
+                <button style="width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 1px solid #ffffff; background-color: #10b981; cursor: pointer;" onclick="updateAccentColor('#10b981')" title="Emerald"></button>
+                <button style="width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 1px solid #ffffff; background-color: #ec4899; cursor: pointer;" onclick="updateAccentColor('#ec4899')" title="Pink"></button>
+                <button style="width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 1px solid #ffffff; background-color: #000000; cursor: pointer;" onclick="updateAccentColor('#000000')" title="Black"></button>
+              </div>
+            </div>
+            <div class="form-group form-group-full" style="border-top: 1px solid var(--editor-border); padding-top: 0.75rem;">
+              <label>Reorder Sections</label>
+              <div style="display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.8rem;">
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem; color: var(--editor-accent);">Main Column</div>
+                  <div id="main-sections-order-list" style="display: flex; flex-direction: column; gap: 0.25rem;"></div>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem; color: var(--editor-accent);">Side Column</div>
+                  <div id="side-sections-order-list" style="display: flex; flex-direction: column; gap: 0.25rem;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group form-group-full" style="border-top: 1px solid var(--editor-border); padding-top: 0.75rem; display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary" onclick="exportDataJSON()" style="flex: 1; font-size: 0.8rem; padding: 0.5rem; height: auto;">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 4v12m0 0l-4-4m4 4l4-4"></path></svg>
+                Backup
+              </button>
+              <button class="btn btn-secondary" onclick="triggerImportJSON()" style="flex: 1; font-size: 0.8rem; padding: 0.5rem; height: auto;">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 16V4m0 12l-4-4m4 4l4-4"></path></svg>
+                Restore
+              </button>
+              <input type="file" id="input-import-json" accept=".json" onchange="importDataJSON(event)" style="display: none;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Personal Info -->
+      <div class="accordion" id="sec-personal">
+        <div class="accordion-header" onclick="toggleAccordion('sec-personal')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Personal Information
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="input-fullname">Full Name</label>
+              <input type="text" id="input-fullname" placeholder="e.g. John Doe" oninput="updateField('fullname', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-jobtitle">Professional Title</label>
+              <input type="text" id="input-jobtitle" placeholder="e.g. Senior Software Engineer" oninput="updateField('jobtitle', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-email">Email Address</label>
+              <input type="email" id="input-email" placeholder="e.g. john.doe@example.com" oninput="updateField('email', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-phone">Phone Number</label>
+              <input type="tel" id="input-phone" placeholder="e.g. +1 (555) 000-0000" oninput="updateField('phone', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-location">Location</label>
+              <input type="text" id="input-location" placeholder="e.g. San Francisco, CA" oninput="updateField('location', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-website">Website / Portfolio</label>
+              <input type="text" id="input-website" placeholder="e.g. portfolio.com" oninput="updateField('website', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-github">GitHub Username</label>
+              <input type="text" id="input-github" placeholder="e.g. github.com/username" oninput="updateField('github', this.value)">
+            </div>
+            <div class="form-group">
+              <label for="input-linkedin">LinkedIn Username</label>
+              <input type="text" id="input-linkedin" placeholder="e.g. linkedin.com/in/username" oninput="updateField('linkedin', this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Summary -->
+      <div class="accordion" id="sec-summary">
+        <div class="accordion-header" onclick="toggleAccordion('sec-summary')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path>
+            </svg>
+            Professional Summary
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full" style="display: flex; flex-direction: row; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.02); padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px dashed var(--editor-border); margin-bottom: 0.5rem;">
+              <input type="checkbox" id="hide-sec-summary" onchange="toggleSectionHide('summary', this.checked)" style="width: auto; cursor: pointer; margin: 0;">
+              <label for="hide-sec-summary" style="text-transform: none; font-size: 0.8rem; cursor: pointer; color: var(--editor-text-muted); margin: 0; user-select: none;">Hide this section from CV</label>
+            </div>
+            <div class="form-group form-group-full">
+              <label for="input-summary">Summary / Objective</label>
+              <textarea id="input-summary" placeholder="Write a short summary of your professional background and goals..." oninput="updateSummaryField(this.value)"></textarea>
+              <div class="hint-container">
+                <span class="hint" id="summary-char-hint">0 / 350 characters (recommended)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Work Experience -->
+      <div class="accordion" id="sec-work">
+        <div class="accordion-header" onclick="toggleAccordion('sec-work')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            Work Experience
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full" style="display: flex; flex-direction: row; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.02); padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px dashed var(--editor-border); margin-bottom: 0.5rem;">
+              <input type="checkbox" id="hide-sec-work" onchange="toggleSectionHide('work', this.checked)" style="width: auto; cursor: pointer; margin: 0;">
+              <label for="hide-sec-work" style="text-transform: none; font-size: 0.8rem; cursor: pointer; color: var(--editor-text-muted); margin: 0; user-select: none;">Hide this section from CV</label>
+            </div>
+            <div class="form-group form-group-full">
+              <div class="dynamic-list" id="work-list">
+                <!-- Dynamically populated -->
+              </div>
+              <button class="add-btn" onclick="addDynamicItem('work')" style="margin-top: 1rem; width: 100%;">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                </svg>
+                Add Work Experience
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Education -->
+      <div class="accordion" id="sec-education">
+        <div class="accordion-header" onclick="toggleAccordion('sec-education')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
+            </svg>
+            Education
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full" style="display: flex; flex-direction: row; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.02); padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px dashed var(--editor-border); margin-bottom: 0.5rem;">
+              <input type="checkbox" id="hide-sec-education" onchange="toggleSectionHide('education', this.checked)" style="width: auto; cursor: pointer; margin: 0;">
+              <label for="hide-sec-education" style="text-transform: none; font-size: 0.8rem; cursor: pointer; color: var(--editor-text-muted); margin: 0; user-select: none;">Hide this section from CV</label>
+            </div>
+            <div class="form-group form-group-full">
+              <div class="dynamic-list" id="education-list">
+                <!-- Dynamically populated -->
+              </div>
+              <button class="add-btn" onclick="addDynamicItem('education')" style="margin-top: 1rem; width: 100%;">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                </svg>
+                Add Education Entry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Skills -->
+      <div class="accordion" id="sec-skills">
+        <div class="accordion-header" onclick="toggleAccordion('sec-skills')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            </svg>
+            Skills & Expertise
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full" style="display: flex; flex-direction: row; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.02); padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px dashed var(--editor-border); margin-bottom: 0.5rem;">
+              <input type="checkbox" id="hide-sec-skills" onchange="toggleSectionHide('skills', this.checked)" style="width: auto; cursor: pointer; margin: 0;">
+              <label for="hide-sec-skills" style="text-transform: none; font-size: 0.8rem; cursor: pointer; color: var(--editor-text-muted); margin: 0; user-select: none;">Hide this section from CV</label>
+            </div>
+            <div class="form-group form-group-full">
+              <label for="input-skills">Skills (Comma-separated)</label>
+              <textarea id="input-skills" placeholder="e.g. JavaScript, React, Node.js, CSS, UI Design" oninput="updateField('skills', this.value)"></textarea>
+              <div class="hint-container">
+                <span class="hint">Tags will render as styled pills in your CV</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Projects -->
+      <div class="accordion" id="sec-projects">
+        <div class="accordion-header" onclick="toggleAccordion('sec-projects')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+            </svg>
+            Key Projects
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full" style="display: flex; flex-direction: row; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.02); padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px dashed var(--editor-border); margin-bottom: 0.5rem;">
+              <input type="checkbox" id="hide-sec-projects" onchange="toggleSectionHide('projects', this.checked)" style="width: auto; cursor: pointer; margin: 0;">
+              <label for="hide-sec-projects" style="text-transform: none; font-size: 0.8rem; cursor: pointer; color: var(--editor-text-muted); margin: 0; user-select: none;">Hide this section from CV</label>
+            </div>
+            <div class="form-group form-group-full">
+              <div class="dynamic-list" id="projects-list">
+                <!-- Dynamically populated -->
+              </div>
+              <button class="add-btn" onclick="addDynamicItem('projects')" style="margin-top: 1rem; width: 100%;">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                </svg>
+                Add Key Project
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Section: Custom Sections -->
+      <div class="accordion" id="sec-custom">
+        <div class="accordion-header" onclick="toggleAccordion('sec-custom')">
+          <div class="accordion-title">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Custom Sections
+          </div>
+          <svg class="accordion-toggle" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="form-grid">
+            <div class="form-group form-group-full">
+              <div id="custom-sections-list" class="dynamic-list">
+                <!-- User created custom sections -->
+              </div>
+              <button class="add-btn" onclick="addCustomSection()" style="margin-top: 1rem; width: 100%;">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                </svg>
+                Create New Custom Section
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtle Developer Credit Footer -->
+      <footer style="margin-top: auto; padding-top: 1.25rem; border-top: 1px solid var(--editor-border); text-align: center; font-size: 0.75rem; color: var(--editor-text-muted); display: flex; flex-direction: column; gap: 0.35rem;">
+        <div>Developed by <span style="color: var(--editor-text); font-weight: 600;">Syed Awais Shah ( Marineo )</span></div>
+        <div style="font-size: 0.7rem; opacity: 0.85;">Contact: <a href="mailto:shahawais35@gmail.com" style="color: var(--editor-accent); text-decoration: none;">shahawais35@gmail.com</a></div>
+        <div style="font-size: 0.65rem; opacity: 0.6; margin-top: 0.25rem;">© 2026 Syed Awais Shah ( Marineo ). All rights reserved.</div>
+      </footer>
+
+    </div>
+
+    <!-- Live Preview Panel (Right) -->
+    <div class="preview-pane">
+      
+      <!-- Template Selector Bar -->
+      <div class="template-selector-bar">
+        <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--editor-text-muted); margin-right: 0.5rem;">Template:</span>
+        <button class="template-btn active" id="btn-tpl-classic" onclick="setTemplate('classic')">Classic</button>
+        <button class="template-btn" id="btn-tpl-modern" onclick="setTemplate('modern')">Modern</button>
+        <button class="template-btn" id="btn-tpl-executive" onclick="setTemplate('executive')">Executive</button>
+        <button class="template-btn" id="btn-tpl-creative" onclick="setTemplate('creative')">Creative</button>
+        <button class="template-btn" id="btn-tpl-compact" onclick="setTemplate('compact')">Compact</button>
+        <button class="template-btn" id="btn-tpl-tech" onclick="setTemplate('tech')">Tech</button>
+      </div>
+
+      <!-- CV Document Container -->
+      <div class="resume-paper-shadow">
+        <div class="resume-paper tpl-classic" id="resume-document">
+          
+          <!-- Modern and Executive templates structural wrappers are managed conditionally via CSS grid divisions -->
+          <div class="resume-sidebar">
+            <!-- Left sidebar container for modern layout -->
+            <div class="resume-header">
+              <div class="resume-name-title">
+                <div class="resume-name" id="view-fullname">John Doe</div>
+                <div class="resume-title" id="view-jobtitle">Senior Software Engineer</div>
+              </div>
+              <div class="resume-contact-bar" id="view-contact-bar">
+                <!-- Restored contact elements -->
+              </div>
+            </div>
+            
+            <div class="resume-sidebar-items">
+              <!-- Sidebar specific elements dynamically toggled in modern template -->
+            </div>
+          </div>
+          
+          <div class="resume-content">
+            <!-- Executive Layout split template wrapper -->
+            <div class="resume-body-grid">
+              
+              <!-- Main column wrapper for Executive template -->
+              <div class="resume-main-col" id="resume-main-content">
+                
+                <!-- Summary Section -->
+                <div id="view-sec-summary">
+                  <div class="resume-section-title">Professional Summary</div>
+                  <div class="resume-item-desc" id="view-summary" style="font-size: 0.88rem;">Expert resume summary detail...</div>
+                </div>
+
+                <!-- Work Experience Section -->
+                <div id="view-sec-work" style="margin-top: 0.5rem;">
+                  <div class="resume-section-title">Work Experience</div>
+                  <div class="resume-grid" id="view-work-entries">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+
+                <!-- Projects Section -->
+                <div id="view-sec-projects" style="margin-top: 0.5rem;">
+                  <div class="resume-section-title">Key Projects</div>
+                  <div class="resume-grid" id="view-projects-entries">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Secondary Sidebar column for Executive template -->
+              <div class="resume-side-col" id="resume-side-content">
+                
+                <!-- Education Section -->
+                <div id="view-sec-education">
+                  <div class="resume-section-title">Education</div>
+                  <div class="resume-grid" id="view-education-entries">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div id="view-sec-skills" style="margin-top: 0.5rem;">
+                  <div class="resume-section-title">Skills & Expertise</div>
+                  <div class="resume-skills-container" id="view-skills-entries">
+                    <!-- Dynamic chips -->
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Mobile sticky navigation pills -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-btn active" id="mob-btn-edit" onclick="setMobileView('edit')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+      </svg>
+      Edit Info
+    </button>
+    <button class="mobile-nav-btn" id="mob-btn-view" onclick="setMobileView('view')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+      </svg>
+      Preview
+    </button>
+  </nav>
+
+  <!-- Clear All confirmation modal -->
+  <div class="modal-overlay" id="clear-modal">
+    <div class="modal">
+      <div class="modal-title">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        Are you absolutely sure?
+      </div>
+      <div class="modal-body">
+        This action will completely wipe out your filled out resume, including work history, tags, and education entries. This process cannot be undone.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeClearModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmClearAll()">Yes, Clear Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Code logic -->
+  <script>
+    /* ==========================================================================
+       A. Application State definition
+       ========================================================================== */
+    let resumeState = {
+      fullname: '',
+      jobtitle: '',
+      email: '',
+      phone: '',
+      location: '',
+      website: '',
+      github: '',
+      linkedin: '',
+      summary: '',
+      skills: '',
+      work: [],
+      education: [],
+      projects: [],
+      template: 'classic',
+      fontScale: 1.0,
+      customAccent: '',
+      mainSectionsOrder: ['summary', 'work', 'projects'],
+      sideSectionsOrder: ['education', 'skills'],
+      customSections: [],
+      hiddenSections: []
+    };
+
+    /* Ghost sample values shown when inputs are blank */
+    const ghostPlaceholders = {
+      fullname: 'Syed Awais Shah ( Marineo )',
+      jobtitle: 'Professional App Developer & Electrical Engineer',
+      email: 'shahawais35@gmail.com',
+      phone: '+92 300 1234567',
+      location: 'Pakistan',
+      website: 'syedawais.dev',
+      github: 'github.com/MarineoFPS',
+      linkedin: 'linkedin.com/in/syed-awais-shah',
+      summary: 'Results-driven Electrical Engineer (Power) and professional Application Developer with extensive expertise in High Voltage Direct Current (HVDC) systems, power grid simulation, and full-stack software development. A passionate coding enthusiast who bridges the gap between hardware engineering and modern software architectures to build robust, scalable solutions.',
+      skills: 'HVDC Systems, Power Systems Analysis, Electrical Transmission, React, Node.js, Flutter, Python, MATLAB, Grid Simulations, SCADA Integration',
+      work: [
+        {
+          company: 'National Grid Transmission',
+          position: 'Senior HVDC Systems Engineer & App Developer',
+          location: 'Islamabad, Pakistan',
+          startdate: 'Nov 2023',
+          enddate: 'Present',
+          description: '• Spearheaded the development of proprietary grid monitoring apps using React and Node.js, reducing simulation times by 35%.\n• Conducted comprehensive analysis of High Voltage Direct Current (HVDC) converter station layouts and harmonics filters.\n• Designed and tested supervisory control dashboards for real-time power flow control across major national grid nodes.'
+        },
+        {
+          company: 'VoltTech Solutions',
+          position: 'Power Systems Engineer & Software Developer',
+          location: 'Lahore, Pakistan',
+          startdate: 'Aug 2020',
+          enddate: 'Oct 2023',
+          description: '• Developed interactive power-flow simulation software, enabling real-time transients analysis for senior engineering teams.\n• Managed engineering designs for HVDC transformer protection schemes and sub-station automation protocols.\n• Integrated modern REST APIs with legacy SCADA systems to streamline database reporting and telemetry charts.'
+        }
+      ],
+      education: [
+        {
+          institution: 'University of Engineering and Technology (UET), Peshawar',
+          degree: 'B.S. in Electrical Engineering (Power)',
+          startdate: '2016',
+          enddate: '2020',
+          details: 'Specialized in HVDC Transmission, Power Systems Analysis, and Control Engineering. Completed senior project in Real-time HVDC Link Controller Simulation.'
+        }
+      ],
+      projects: [
+        {
+          title: 'HVDCSim Link',
+          role: 'Lead Developer & Power Analyst',
+          description: 'An open-source MATLAB-coupled web application for simulating transient stability and voltage profiles across multi-terminal HVDC grids.',
+          link: 'github.com/MarineoFPS/hvdcsim-link'
+        },
+        {
+          title: 'GridFlow Mobile',
+          role: 'Creator & Developer',
+          description: 'A premium mobile app built with Flutter and Node.js for electrical sub-station engineers to monitor load shedding and grid frequencies in real time.',
+          link: 'syedawais.dev/gridflow'
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       B. Initialization & Auto-Save Actions
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      // First check if this is a shared resume
+      const params = new URLSearchParams(window.location.search);
+      const shareId = params.get('share');
+      
+      if (shareId) {
+        checkSharedResume(shareId);
+      } else {
+        // Load saved state from localStorage or load default placeholder view
+        const savedData = localStorage.getItem('antigravity_resume_data');
+        if (savedData) {
+          try {
+            resumeState = JSON.parse(savedData);
+            
+            // Migrate schema for older saves
+            if (resumeState.fontScale === undefined) resumeState.fontScale = 1.0;
+            if (resumeState.customAccent === undefined) resumeState.customAccent = '';
+            if (!resumeState.mainSectionsOrder) resumeState.mainSectionsOrder = ['summary', 'work', 'projects'];
+            if (!resumeState.sideSectionsOrder) resumeState.sideSectionsOrder = ['education', 'skills'];
+            if (!resumeState.customSections) resumeState.customSections = [];
+            if (!resumeState.hiddenSections) resumeState.hiddenSections = [];
+            
+            fillFormFromState();
+          } catch(e) {
+            console.error('Error loading saved state. Pre-loading sample state.', e);
+            loadSampleState();
+          }
+        } else {
+          // First-time visit: start with demo sample data so it's not empty
+          loadSampleState();
+        }
+        renderPreview();
+      }
+    });
+
+    function saveToLocalStorage() {
+      localStorage.setItem('antigravity_resume_data', JSON.stringify(resumeState));
+    }
+
+    function loadSampleState() {
+      resumeState = JSON.parse(JSON.stringify(ghostPlaceholders)); // Deep clone
+      resumeState.template = 'classic';
+      resumeState.fontScale = 1.0;
+      resumeState.customAccent = '';
+      resumeState.mainSectionsOrder = ['summary', 'work', 'projects'];
+      resumeState.sideSectionsOrder = ['education', 'skills'];
+      resumeState.customSections = [];
+      resumeState.hiddenSections = [];
+    }
+
+    function loadSampleData() {
+      loadSampleState();
+      fillFormFromState();
+      renderPreview();
+      saveToLocalStorage();
+    }
+
+    /* Restore Form fields based on internal state */
+    function fillFormFromState() {
+      // Personal Details
+      document.getElementById('input-fullname').value = resumeState.fullname || '';
+      document.getElementById('input-jobtitle').value = resumeState.jobtitle || '';
+      document.getElementById('input-email').value = resumeState.email || '';
+      document.getElementById('input-phone').value = resumeState.phone || '';
+      document.getElementById('input-location').value = resumeState.location || '';
+      document.getElementById('input-website').value = resumeState.website || '';
+      document.getElementById('input-github').value = resumeState.github || '';
+      document.getElementById('input-linkedin').value = resumeState.linkedin || '';
+      
+      // Summary
+      document.getElementById('input-summary').value = resumeState.summary || '';
+      updateCharHint(resumeState.summary || '');
+      
+      // Skills
+      document.getElementById('input-skills').value = resumeState.skills || '';
+      
+      // Dynamic Work List
+      renderDynamicFormList('work');
+      // Dynamic Education List
+      renderDynamicFormList('education');
+      // Dynamic Projects List
+      renderDynamicFormList('projects');
+
+      // Sync checkboxes for hidden sections
+      const hiddenSecs = resumeState.hiddenSections || [];
+      document.getElementById('hide-sec-summary').checked = hiddenSecs.includes('summary');
+      document.getElementById('hide-sec-work').checked = hiddenSecs.includes('work');
+      document.getElementById('hide-sec-education').checked = hiddenSecs.includes('education');
+      document.getElementById('hide-sec-projects').checked = hiddenSecs.includes('projects');
+      document.getElementById('hide-sec-skills').checked = hiddenSecs.includes('skills');
+
+      // Font scale
+      const scale = resumeState.fontScale || 1.0;
+      document.getElementById('input-fontscale').value = scale;
+      document.getElementById('fontscale-val').textContent = Math.round(scale * 100) + '%';
+      document.getElementById('resume-document').style.setProperty('--resume-font-scale', scale);
+
+      // Accent color
+      const customColor = resumeState.customAccent || '';
+      if (customColor) {
+        document.getElementById('input-accentcolor').value = customColor;
+        document.getElementById('resume-document').style.setProperty('--resume-custom-accent', customColor);
+      } else {
+        document.getElementById('input-accentcolor').value = "#d4af37";
+        document.getElementById('resume-document').style.removeProperty('--resume-custom-accent');
+      }
+
+      // Render section ordering lists
+      renderSectionOrderLists();
+
+      // Render custom sections forms
+      renderCustomSectionsForm();
+
+      // Set Template Toggle
+      setTemplate(resumeState.template || 'classic');
+    }
+
+    /* ==========================================================================
+       C. Form Value Listeners & Updates
+       ========================================================================== */
+    function updateField(key, val) {
+      resumeState[key] = val;
+      renderPreview();
+      saveToLocalStorage();
+    }
+
+    function updateSummaryField(val) {
+      updateField('summary', val);
+      updateCharHint(val);
+    }
+
+    function updateCharHint(val) {
+      const charCount = val.length;
+      const hint = document.getElementById('summary-char-hint');
+      hint.textContent = `${charCount} / 350 characters (recommended)`;
+      if (charCount > 350) {
+        hint.style.color = '#f87171'; // soft red highlight
+      } else {
+        hint.style.color = 'var(--editor-text-muted)';
+      }
+    }
+
+    /* Font Scale Modifier */
+    function updateFontScale(val) {
+      document.getElementById('fontscale-val').textContent = Math.round(val * 100) + '%';
+      document.getElementById('resume-document').style.setProperty('--resume-font-scale', val);
+      resumeState.fontScale = parseFloat(val);
+      saveToLocalStorage();
+    }
+
+    /* Accent color override */
+    function updateAccentColor(color) {
+      resumeState.customAccent = color;
+      document.getElementById('input-accentcolor').value = color;
+      document.getElementById('resume-document').style.setProperty('--resume-custom-accent', color);
+      saveToLocalStorage();
+    }
+
+    function resetAccentColor() {
+      resumeState.customAccent = '';
+      document.getElementById('input-accentcolor').value = "#d4af37";
+      document.getElementById('resume-document').style.removeProperty('--resume-custom-accent');
+      saveToLocalStorage();
+    }
+
+    /* JSON Backup & Restore operations */
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(resumeState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `marineo_resume_backup.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function triggerImportJSON() {
+      document.getElementById('input-import-json').click();
+    }
+
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedState = JSON.parse(e.target.result);
+          
+          if (importedState.fullname !== undefined) {
+            resumeState = importedState;
+            
+            // Migrate structure fields
+            if (resumeState.fontScale === undefined) resumeState.fontScale = 1.0;
+            if (resumeState.customAccent === undefined) resumeState.customAccent = '';
+            if (!resumeState.mainSectionsOrder) resumeState.mainSectionsOrder = ['summary', 'work', 'projects'];
+            if (!resumeState.sideSectionsOrder) resumeState.sideSectionsOrder = ['education', 'skills'];
+            if (!resumeState.customSections) resumeState.customSections = [];
+            
+            fillFormFromState();
+            renderPreview();
+            saveToLocalStorage();
+            alert("Resume backup successfully restored!");
+          } else {
+            alert("Invalid JSON format. Please use a backup downloaded from Marineo CV Studio.");
+          }
+        } catch (err) {
+          alert("Error parsing file: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* Collapsible Sections Toggle */
+    function toggleAccordion(id) {
+      const sec = document.getElementById(id);
+      const isOpen = sec.classList.contains('expanded');
+      
+      // Close all other panels
+      document.querySelectorAll('.accordion').forEach(el => {
+        el.classList.remove('expanded');
+      });
+
+      if (!isOpen) {
+        sec.classList.add('expanded');
+      }
+    }
+
+    /* ==========================================================================
+       D. Dynamic Input Form Managers (Work, Education, Projects)
+       ========================================================================== */
+    function addDynamicItem(type) {
+      if (type === 'work') {
+        resumeState.work.push({ company: '', position: '', location: '', startdate: '', enddate: '', description: '' });
+      } else if (type === 'education') {
+        resumeState.education.push({ institution: '', degree: '', startdate: '', enddate: '', details: '' });
+      } else if (type === 'projects') {
+        resumeState.projects.push({ title: '', role: '', description: '', link: '' });
+      }
+      renderDynamicFormList(type);
+      renderPreview();
+      saveToLocalStorage();
+    }
+
+    function removeDynamicItem(type, idx) {
+      resumeState[type].splice(idx, 1);
+      renderDynamicFormList(type);
+      renderPreview();
+      saveToLocalStorage();
+    }
+
+    function updateDynamicField(type, idx, fieldName, value) {
+      resumeState[type][idx][fieldName] = value;
+      renderPreview();
+      saveToLocalStorage();
+    }
+
+    /* Render structural forms in Editor UI */
+    function renderDynamicFormList(type) {
+      const container = document.getElementById(`${type}-list`);
+      container.innerHTML = '';
+      
+      const items = resumeState[type];
+      
+      items.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        
+        if (type === 'work') {
+          div.innerHTML = `
+            <button class="remove-btn" onclick="removeDynamicItem('work', ${idx})" title="Remove item">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label>Company</label>
+                <input type="text" value="${item.company || ''}" placeholder="e.g. Acme Corp" oninput="updateDynamicField('work', ${idx}, 'company', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Position</label>
+                <input type="text" value="${item.position || ''}" placeholder="e.g. Software Engineer" oninput="updateDynamicField('work', ${idx}, 'position', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" value="${item.location || ''}" placeholder="e.g. London, UK" oninput="updateDynamicField('work', ${idx}, 'location', this.value)">
+              </div>
+              <div class="form-group" style="display: flex; gap: 0.5rem; flex-direction: row; align-items: flex-end;">
+                <div style="flex: 1;">
+                  <label>Start / End Date</label>
+                  <input type="text" value="${item.startdate || ''}" placeholder="Jan 2020" oninput="updateDynamicField('work', ${idx}, 'startdate', this.value)">
+                </div>
+                <div style="flex: 1;">
+                  <input type="text" value="${item.enddate || ''}" placeholder="Present" oninput="updateDynamicField('work', ${idx}, 'enddate', this.value)">
+                </div>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Description (One bullet per line)</label>
+                <textarea placeholder="• Built responsive user interfaces...\n• Decreased build speeds by..." oninput="updateDynamicField('work', ${idx}, 'description', this.value)">${item.description || ''}</textarea>
+              </div>
+            </div>
+          `;
+        } else if (type === 'education') {
+          div.innerHTML = `
+            <button class="remove-btn" onclick="removeDynamicItem('education', ${idx})" title="Remove item">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label>Institution</label>
+                <input type="text" value="${item.institution || ''}" placeholder="e.g. Oxford University" oninput="updateDynamicField('education', ${idx}, 'institution', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Degree / Field</label>
+                <input type="text" value="${item.degree || ''}" placeholder="e.g. B.S. in Mathematics" oninput="updateDynamicField('education', ${idx}, 'degree', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Start Year</label>
+                <input type="text" value="${item.startdate || ''}" placeholder="2016" oninput="updateDynamicField('education', ${idx}, 'startdate', this.value)">
+              </div>
+              <div class="form-group">
+                <label>End Year</label>
+                <input type="text" value="${item.enddate || ''}" placeholder="2020" oninput="updateDynamicField('education', ${idx}, 'enddate', this.value)">
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Details / GPA / Honors</label>
+                <input type="text" value="${item.details || ''}" placeholder="e.g. GPA 3.8/4.0. Completed senior project in Cryptography" oninput="updateDynamicField('education', ${idx}, 'details', this.value)">
+              </div>
+            </div>
+          `;
+        } else if (type === 'projects') {
+          div.innerHTML = `
+            <button class="remove-btn" onclick="removeDynamicItem('projects', ${idx})" title="Remove item">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" value="${item.title || ''}" placeholder="e.g. DevPortfolio" oninput="updateDynamicField('projects', ${idx}, 'title', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Role / Tech Stack</label>
+                <input type="text" value="${item.role || ''}" placeholder="e.g. Sole Architect / Next.js, Node" oninput="updateDynamicField('projects', ${idx}, 'role', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Link / URL</label>
+                <input type="text" value="${item.link || ''}" placeholder="e.g. github.com/user/project" oninput="updateDynamicField('projects', ${idx}, 'link', this.value)">
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Description</label>
+                <textarea placeholder="Describe the core outcomes, scale, and functionalities..." oninput="updateDynamicField('projects', ${idx}, 'description', this.value)">${item.description || ''}</textarea>
+              </div>
+            </div>
+          `;
+        }
+        container.appendChild(div);
+      });
+    }
+
+    /* ==========================================================================
+       E. Custom Sections Manager
+       ========================================================================== */
+    function addCustomSection() {
+      const id = 'custom-' + Date.now();
+      resumeState.customSections.push({
+        id: id,
+        title: 'New Custom Section',
+        items: [
+          { title: 'Item Title', desc: 'Item description or details...' }
+        ]
+      });
+      resumeState.mainSectionsOrder.push(id);
+      
+      renderCustomSectionsForm();
+      renderPreview();
+      renderSectionOrderLists();
+      saveToLocalStorage();
+    }
+
+    function removeCustomSection(id) {
+      const idx = resumeState.customSections.findIndex(s => s.id === id);
+      if (idx !== -1) {
+        resumeState.customSections.splice(idx, 1);
+      }
+      resumeState.mainSectionsOrder = resumeState.mainSectionsOrder.filter(x => x !== id);
+      resumeState.sideSectionsOrder = resumeState.sideSectionsOrder.filter(x => x !== id);
+
+      const el = document.getElementById(`view-${id}`);
+      if (el) el.remove();
+
+      renderCustomSectionsForm();
+      renderPreview();
+      renderSectionOrderLists();
+      saveToLocalStorage();
+    }
+
+    function addCustomSectionItem(secId) {
+      const sec = resumeState.customSections.find(s => s.id === secId);
+      if (sec) {
+        sec.items.push({ title: '', desc: '' });
+        renderCustomSectionsForm();
+        renderPreview();
+        saveToLocalStorage();
+      }
+    }
+
+    function removeCustomSectionItem(secId, itemIdx) {
+      const sec = resumeState.customSections.find(s => s.id === secId);
+      if (sec) {
+        sec.items.splice(itemIdx, 1);
+        renderCustomSectionsForm();
+        renderPreview();
+        saveToLocalStorage();
+      }
+    }
+
+    function updateCustomSectionTitle(secId, title) {
+      const sec = resumeState.customSections.find(s => s.id === secId);
+      if (sec) {
+        sec.title = title;
+        renderPreview();
+        renderSectionOrderLists();
+        saveToLocalStorage();
+      }
+    }
+
+    function updateCustomSectionItemField(secId, itemIdx, field, val) {
+      const sec = resumeState.customSections.find(s => s.id === secId);
+      if (sec) {
+        sec.items[itemIdx][field] = val;
+        renderPreview();
+        saveToLocalStorage();
+      }
+    }
+
+    function renderCustomSectionsForm() {
+      const container = document.getElementById('custom-sections-list');
+      container.innerHTML = '';
+
+      resumeState.customSections.forEach(sec => {
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        div.style.marginBottom = '1.5rem';
+        
+        let itemsHTML = '';
+        sec.items.forEach((item, itemIdx) => {
+          itemsHTML += `
+            <div style="background-color: rgba(255,255,255,0.02); border: 1px dashed var(--editor-border); padding: 0.75rem; border-radius: 0.375rem; position: relative; margin-bottom: 0.75rem;">
+              <button class="remove-btn" onclick="removeCustomSectionItem('${sec.id}', ${itemIdx})" title="Remove item" style="top: 0.5rem; right: 0.5rem;">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label>Entry Title</label>
+                <input type="text" value="${item.title || ''}" placeholder="e.g. AWS Certified Architect" oninput="updateCustomSectionItemField('${sec.id}', ${itemIdx}, 'title', this.value)">
+              </div>
+              <div class="form-group">
+                <label>Entry Details / Description</label>
+                <textarea placeholder="e.g. Completed certification in cloud deployment..." oninput="updateCustomSectionItemField('${sec.id}', ${itemIdx}, 'desc', this.value)">${item.desc || ''}</textarea>
+              </div>
+            </div>
+          `;
+        });
+
+        div.innerHTML = `
+          <button class="remove-btn" onclick="removeCustomSection('${sec.id}')" title="Delete section" style="top: 0.5rem; right: 0.5rem; color: var(--editor-danger);">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 0.5rem; background-color: rgba(255,255,255,0.02); padding: 0.4rem 0.6rem; border-radius: 0.25rem; border: 1px dashed var(--editor-border); margin-bottom: 0.75rem; width: calc(100% - 2.5rem);">
+            <input type="checkbox" id="hide-sec-${sec.id}" ${resumeState.hiddenSections.includes(sec.id) ? 'checked' : ''} onchange="toggleSectionHide('${sec.id}', this.checked)" style="width: auto; cursor: pointer; margin: 0;">
+            <label for="hide-sec-${sec.id}" style="text-transform: none; font-size: 0.75rem; cursor: pointer; color: var(--editor-text-muted); margin: 0; user-select: none;">Hide this section from CV</label>
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem; width: calc(100% - 2.5rem);">
+            <label style="color: var(--editor-accent); font-weight: 700;">Section Name</label>
+            <input type="text" value="${sec.title || ''}" placeholder="e.g. Languages" oninput="updateCustomSectionTitle('${sec.id}', this.value)" style="font-weight: 600; border-color: var(--editor-accent);">
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem;">Section Entries</label>
+            ${itemsHTML}
+            <button class="add-btn" onclick="addCustomSectionItem('${sec.id}')" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; font-size: 0.8rem;">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4.5v15m7.5-7.5h-15"></path></svg>
+              Add Entry
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function toggleSectionHide(sectionId, isChecked) {
+      if (isChecked) {
+        if (!resumeState.hiddenSections.includes(sectionId)) {
+          resumeState.hiddenSections.push(sectionId);
+        }
+      } else {
+        resumeState.hiddenSections = resumeState.hiddenSections.filter(id => id !== sectionId);
+      }
+      renderPreview();
+      renderSectionOrderLists();
+      saveToLocalStorage();
+    }
+
+    /* ==========================================================================
+       F. Section Reordering Manager
+       ========================================================================== */
+    function renderSectionOrderLists() {
+      const mainEl = document.getElementById('main-sections-order-list');
+      const sideEl = document.getElementById('side-sections-order-list');
+      
+      const friendlyNames = {
+        summary: 'Summary',
+        work: 'Work Experience',
+        projects: 'Projects',
+        education: 'Education',
+        skills: 'Skills'
+      };
+
+      resumeState.customSections.forEach(sec => {
+        friendlyNames[sec.id] = sec.title || 'Custom Section';
+      });
+
+      mainEl.innerHTML = '';
+      sideEl.innerHTML = '';
+
+      resumeState.mainSectionsOrder.forEach((sectionId, idx) => {
+        if (sectionId.startsWith('custom-') && !resumeState.customSections.some(s => s.id === sectionId)) {
+          return;
+        }
+        const isHidden = resumeState.hiddenSections.includes(sectionId);
+        const label = friendlyNames[sectionId] || sectionId;
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.alignItems = 'center';
+        div.style.padding = '0.35rem 0.5rem';
+        div.style.backgroundColor = 'rgba(255,255,255,0.03)';
+        div.style.border = '1px solid var(--editor-border)';
+        div.style.borderRadius = '0.25rem';
+        if (isHidden) {
+          div.style.opacity = '0.5';
+        }
+        div.innerHTML = `
+          <span style="font-size: 0.75rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; ${isHidden ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${label} ${isHidden ? '<span style="font-size: 0.65rem; color: var(--editor-danger); font-weight: 700; margin-left: 0.25rem;">[HIDDEN]</span>' : ''}</span>
+          <div style="display: flex; gap: 0.2rem;">
+            <button onclick="moveSection('main', ${idx}, -1)" ${idx === 0 ? 'disabled' : ''} style="cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.65rem; background: none; border: 1px solid var(--editor-border); color: #fff; border-radius: 3px;">▲</button>
+            <button onclick="moveSection('main', ${idx}, 1)" ${idx === resumeState.mainSectionsOrder.length - 1 ? 'disabled' : ''} style="cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.65rem; background: none; border: 1px solid var(--editor-border); color: #fff; border-radius: 3px;">▼</button>
+            <button onclick="moveSectionColumn('main', ${idx})" style="cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.65rem; background: none; border: 1px solid var(--editor-border); color: var(--editor-accent); border-radius: 3px;">➔</button>
+          </div>
+        `;
+        mainEl.appendChild(div);
+      });
+
+      resumeState.sideSectionsOrder.forEach((sectionId, idx) => {
+        if (sectionId.startsWith('custom-') && !resumeState.customSections.some(s => s.id === sectionId)) {
+          return;
+        }
+        const isHidden = resumeState.hiddenSections.includes(sectionId);
+        const label = friendlyNames[sectionId] || sectionId;
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.alignItems = 'center';
+        div.style.padding = '0.35rem 0.5rem';
+        div.style.backgroundColor = 'rgba(255,255,255,0.03)';
+        div.style.border = '1px solid var(--editor-border)';
+        div.style.borderRadius = '0.25rem';
+        if (isHidden) {
+          div.style.opacity = '0.5';
+        }
+        div.innerHTML = `
+          <span style="font-size: 0.75rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; ${isHidden ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${label} ${isHidden ? '<span style="font-size: 0.65rem; color: var(--editor-danger); font-weight: 700; margin-left: 0.25rem;">[HIDDEN]</span>' : ''}</span>
+          <div style="display: flex; gap: 0.2rem;">
+            <button onclick="moveSection('side', ${idx}, -1)" ${idx === 0 ? 'disabled' : ''} style="cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.65rem; background: none; border: 1px solid var(--editor-border); color: #fff; border-radius: 3px;">▲</button>
+            <button onclick="moveSection('side', ${idx}, 1)" ${idx === resumeState.sideSectionsOrder.length - 1 ? 'disabled' : ''} style="cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.65rem; background: none; border: 1px solid var(--editor-border); color: #fff; border-radius: 3px;">▼</button>
+            <button onclick="moveSectionColumn('side', ${idx})" style="cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.65rem; background: none; border: 1px solid var(--editor-border); color: var(--editor-accent); border-radius: 3px;">➔</button>
+          </div>
+        `;
+        sideEl.appendChild(div);
+      });
+    }
+
+    function moveSection(col, idx, dir) {
+      const arr = col === 'main' ? resumeState.mainSectionsOrder : resumeState.sideSectionsOrder;
+      const targetIdx = idx + dir;
+      if (targetIdx >= 0 && targetIdx < arr.length) {
+        const temp = arr[idx];
+        arr[idx] = arr[targetIdx];
+        arr[targetIdx] = temp;
+        renderSectionOrderLists();
+        applySectionOrder();
+        saveToLocalStorage();
+      }
+    }
+
+    function moveSectionColumn(col, idx) {
+      const sourceArr = col === 'main' ? resumeState.mainSectionsOrder : resumeState.sideSectionsOrder;
+      const destArr = col === 'main' ? resumeState.sideSectionsOrder : resumeState.mainSectionsOrder;
+      const item = sourceArr.splice(idx, 1)[0];
+      destArr.push(item);
+      renderSectionOrderLists();
+      applySectionOrder();
+      saveToLocalStorage();
+    }
+
+    function applySectionOrder() {
+      const mainCol = document.getElementById('resume-main-content');
+      const sideCol = document.getElementById('resume-side-content');
+
+      function getSectionElement(id) {
+        if (id === 'summary') return document.getElementById('view-sec-summary');
+        if (id === 'work') return document.getElementById('view-sec-work');
+        if (id === 'projects') return document.getElementById('view-sec-projects');
+        if (id === 'education') return document.getElementById('view-sec-education');
+        if (id === 'skills') return document.getElementById('view-sec-skills');
+        if (id.startsWith('custom-')) {
+          return document.getElementById(`view-${id}`);
+        }
+        return null;
+      }
+
+      resumeState.mainSectionsOrder.forEach(id => {
+        const el = getSectionElement(id);
+        if (el) mainCol.appendChild(el);
+      });
+
+      resumeState.sideSectionsOrder.forEach(id => {
+        const el = getSectionElement(id);
+        if (el) sideCol.appendChild(el);
+      });
+      
+      // Handle Modern Layout Sidebar positioning overrides
+      const doc = document.getElementById('resume-document');
+      const tplName = resumeState.template || 'classic';
+      if (tplName === 'modern') {
+        const sidebarItemsContainer = doc.querySelector('.resume-sidebar-items');
+        sidebarItemsContainer.innerHTML = '';
+        
+        // Relocate all side column sections to left sidebar
+        resumeState.sideSectionsOrder.forEach(id => {
+          const el = getSectionElement(id);
+          if (el) sidebarItemsContainer.appendChild(el);
+        });
+      }
+    }
+
+    /* ==========================================================================
+       G. Rendering Live CV Preview & Placeholder Logic
+       ========================================================================== */
+    function renderPreview() {
+      // Helper function to resolve actual field text or its ghosted placeholder
+      function getVal(key) {
+        if (resumeState[key] && resumeState[key].trim() !== '') {
+          return { text: resumeState[key], isPlaceholder: false };
+        }
+        if (key === 'fullname') {
+          return { text: 'Your Name', isPlaceholder: true };
+        }
+        if (key === 'jobtitle') {
+          return { text: 'Professional Title', isPlaceholder: true };
+        }
+        return { text: '', isPlaceholder: true };
+      }
+
+      // Build elements with proper classes
+      const nameObj = getVal('fullname');
+      const titleObj = getVal('jobtitle');
+      const emailObj = getVal('email');
+      const phoneObj = getVal('phone');
+      const locationObj = getVal('location');
+      const websiteObj = getVal('website');
+      const githubObj = getVal('github');
+      const linkedinObj = getVal('linkedin');
+      const summaryObj = getVal('summary');
+
+      // Update basic fields
+      const viewFullname = document.getElementById('view-fullname');
+      if (nameObj.text === '') {
+        viewFullname.style.display = 'none';
+      } else {
+        viewFullname.style.display = '';
+        viewFullname.textContent = nameObj.text;
+        viewFullname.className = `resume-name ${nameObj.isPlaceholder ? 'placeholder-text' : ''}`;
+      }
+
+      const viewJobtitle = document.getElementById('view-jobtitle');
+      if (titleObj.text === '') {
+        viewJobtitle.style.display = 'none';
+      } else {
+        viewJobtitle.style.display = '';
+        viewJobtitle.textContent = titleObj.text;
+        viewJobtitle.className = `resume-title ${titleObj.isPlaceholder ? 'placeholder-text' : ''}`;
+      }
+
+      const viewSummary = document.getElementById('view-summary');
+      const viewSecSummary = document.getElementById('view-sec-summary');
+      const isSummaryHidden = resumeState.hiddenSections.includes('summary') || summaryObj.text.trim() === '';
+      if (viewSecSummary) {
+        if (isSummaryHidden) {
+          viewSecSummary.style.display = 'none';
+        } else {
+          viewSecSummary.style.display = '';
+          viewSummary.textContent = summaryObj.text;
+        }
+      }
+
+      // Update Contact Bar Elements
+      const contactBar = document.getElementById('view-contact-bar');
+      contactBar.innerHTML = '';
+      
+      const contacts = [
+        { val: emailObj, icon: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>' },
+        { val: phoneObj, icon: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>' },
+        { val: locationObj, icon: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>' },
+        { val: websiteObj, icon: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>' },
+        { val: githubObj, icon: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>' },
+        { val: linkedinObj, icon: '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>' }
+      ];
+
+      contacts.forEach(c => {
+        if (c.val.text && c.val.text.trim() !== '') {
+          const itemDiv = document.createElement('div');
+          itemDiv.innerHTML = `${c.icon}<span>${c.val.text}</span>`;
+          contactBar.appendChild(itemDiv);
+        }
+      });
+
+      // Update Dynamic Experience lists
+      renderPreviewList('work', 'view-work-entries');
+      renderPreviewList('education', 'view-education-entries');
+      renderPreviewList('projects', 'view-projects-entries');
+
+      // Render Skills pills
+      const skillsContainer = document.getElementById('view-skills-entries');
+      skillsContainer.innerHTML = '';
+      const skillsVal = getVal('skills');
+      const skillTags = skillsVal.text.split(',').map(s => s.trim()).filter(s => s !== '');
+      const viewSecSkills = document.getElementById('view-sec-skills');
+      const isSkillsHidden = resumeState.hiddenSections.includes('skills') || skillTags.length === 0;
+
+      if (viewSecSkills) {
+        if (isSkillsHidden) {
+          viewSecSkills.style.display = 'none';
+        } else {
+          viewSecSkills.style.display = '';
+          skillTags.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'resume-skill-pill';
+            span.textContent = tag;
+            skillsContainer.appendChild(span);
+          });
+        }
+      }
+
+      // Render Custom Sections preview
+      resumeState.customSections.forEach(sec => {
+        let viewSec = document.getElementById(`view-${sec.id}`);
+        if (!viewSec) {
+          viewSec = document.createElement('div');
+          viewSec.id = `view-${sec.id}`;
+          viewSec.style.marginTop = '0.5rem';
+          document.getElementById('resume-main-content').appendChild(viewSec);
+        }
+
+        const isSecHidden = resumeState.hiddenSections.includes(sec.id) || sec.items.length === 0 || sec.items.every(item => !item.title && !item.desc);
+        if (isSecHidden) {
+          viewSec.style.display = 'none';
+          return;
+        }
+        viewSec.style.display = '';
+
+        let itemsHTML = '';
+        sec.items.forEach(item => {
+          if (!item.title && !item.desc) return; // skip empty entries
+          itemsHTML += `
+            <div class="resume-item">
+              <div class="resume-item-header">
+                <div>
+                  <span class="resume-item-title">${item.title || 'Untitled Entry'}</span>
+                </div>
+              </div>
+              <div class="resume-item-desc">${item.desc || ''}</div>
+            </div>
+          `;
+        });
+
+        viewSec.innerHTML = `
+          <div class="resume-section-title">${sec.title || 'Untitled Section'}</div>
+          <div class="resume-grid">${itemsHTML}</div>
+        `;
+      });
+
+      // Apply Layout Custom Orderings
+      applySectionOrder();
+    }
+
+    /* Render items inside specific resume preview panes */
+    function renderPreviewList(type, previewContainerId) {
+      const target = document.getElementById(previewContainerId);
+      target.innerHTML = '';
+
+      const items = resumeState[type] || [];
+      const sectionEl = document.getElementById(`view-sec-${type}`);
+      const isHidden = resumeState.hiddenSections.includes(type) || items.length === 0 || items.every(item => {
+        if (type === 'work') return !item.company && !item.position && !item.location && !item.startdate && !item.enddate && !item.description;
+        if (type === 'education') return !item.institution && !item.degree && !item.startdate && !item.enddate && !item.details;
+        if (type === 'projects') return !item.title && !item.role && !item.description && !item.link;
+        return true;
+      });
+
+      if (sectionEl) {
+        if (isHidden) {
+          sectionEl.style.display = 'none';
+          return false;
+        } else {
+          sectionEl.style.display = '';
+        }
+      }
+
+      items.forEach(item => {
+        const isEmpty = (type === 'work' && !item.company && !item.position && !item.location && !item.startdate && !item.enddate && !item.description) ||
+                        (type === 'education' && !item.institution && !item.degree && !item.startdate && !item.enddate && !item.details) ||
+                        (type === 'projects' && !item.title && !item.role && !item.description && !item.link);
+        if (isEmpty) return;
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'resume-item';
+
+        if (type === 'work') {
+          itemDiv.innerHTML = `
+            <div class="resume-item-header">
+              <div>
+                <span class="resume-item-title">${item.position || 'Software Engineer'}</span>
+                <span style="opacity: 0.6; margin: 0 0.25rem;">|</span>
+                <span class="resume-item-org">${item.company || 'Enterprise Corp'}</span>
+              </div>
+              <div class="resume-item-meta">
+                <div>${item.startdate || 'Start Date'} - ${item.enddate || 'Present'}</div>
+                <div style="font-size: 0.8rem; font-style: italic; opacity: 0.8;">${item.location || ''}</div>
+              </div>
+            </div>
+            <div class="resume-item-desc">${item.description || 'Job tasks summary and bullets...'}</div>
+          `;
+        } else if (type === 'education') {
+          itemDiv.innerHTML = `
+            <div class="resume-item-header">
+              <div>
+                <span class="resume-item-title">${item.degree || 'Degree Title'}</span>
+                <span style="opacity: 0.6; margin: 0 0.25rem;">|</span>
+                <span class="resume-item-org">${item.institution || 'University Name'}</span>
+              </div>
+              <div class="resume-item-meta">
+                <div>${item.startdate || 'Year'} - ${item.enddate || 'Year'}</div>
+              </div>
+            </div>
+            <div class="resume-item-desc" style="font-size: 0.8rem; opacity: 0.85;">${item.details || ''}</div>
+          `;
+        } else if (type === 'projects') {
+          itemDiv.innerHTML = `
+            <div class="resume-item-header">
+              <div>
+                <span class="resume-item-title">${item.title || 'Project Name'}</span>
+                <span style="opacity: 0.6; margin: 0 0.25rem;">|</span>
+                <span class="resume-item-org" style="font-weight: 400; font-size: 0.8rem;">${item.role || 'Creator'}</span>
+              </div>
+              <div class="resume-item-meta" style="font-size: 0.8rem; font-family: 'Fira Code', monospace; font-weight: 500;">
+                <span>${item.link || ''}</span>
+              </div>
+            </div>
+            <div class="resume-item-desc">${item.description || 'Project details, features, scale...'}</div>
+          `;
+        }
+        target.appendChild(itemDiv);
+      });
+      return true;
+    }
+
+    /* ==========================================================================
+       H. Template Switcher & Sidebar Layout Operations
+       ========================================================================== */
+    function setTemplate(tplName) {
+      const doc = document.getElementById('resume-document');
+      
+      // Remove all template classes
+      doc.className = 'resume-paper';
+      
+      // Add target template
+      doc.classList.add(`tpl-${tplName}`);
+      resumeState.template = tplName;
+      saveToLocalStorage();
+
+      // Highlight active switcher button
+      document.querySelectorAll('.template-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`btn-tpl-${tplName}`).classList.add('active');
+
+      // Adjust structure based on Modern Layout sidebar requirements
+      const sidebarItemsContainer = doc.querySelector('.resume-sidebar-items');
+      const sidebarHeader = doc.querySelector('.resume-sidebar .resume-header');
+      const mainCol = doc.querySelector('#resume-main-content');
+      const sideCol = doc.querySelector('#resume-side-content');
+      
+      const educationBox = doc.querySelector('#view-sec-education');
+      const skillsBox = doc.querySelector('#view-sec-skills');
+      const contactBox = doc.querySelector('#view-contact-bar');
+      const headerBox = doc.querySelector('.resume-sidebar');
+
+      // Reset DOM insertions to default structure first
+      mainCol.appendChild(educationBox);
+      sideCol.appendChild(skillsBox);
+      
+      if (tplName === 'modern') {
+        // In modern layout: Skills & Education move to the left sidebar
+        sidebarItemsContainer.innerHTML = '';
+        sidebarItemsContainer.appendChild(skillsBox);
+        sidebarItemsContainer.appendChild(educationBox);
+      } else {
+        // Classic, Executive, Creative, Tech, Compact restore default locations
+        mainCol.appendChild(educationBox);
+        sideCol.appendChild(skillsBox);
+      }
+
+      // Reapply ordering
+      applySectionOrder();
+    }
+
+    /* Toggle mobile Edit / Preview panes */
+    function setMobileView(viewName) {
+      const body = document.body;
+      const btnEdit = document.getElementById('mob-btn-edit');
+      const btnView = document.getElementById('mob-btn-view');
+
+      if (viewName === 'view') {
+        body.classList.add('show-preview');
+        btnEdit.classList.remove('active');
+        btnView.classList.add('active');
+      } else {
+        body.classList.remove('show-preview');
+        btnEdit.classList.add('active');
+        btnView.classList.remove('active');
+      }
+    }
+
+    /* ==========================================================================
+       I. Clear All Data & Actions
+       ========================================================================== */
+    function openClearModal() {
+      document.getElementById('clear-modal').classList.add('active');
+    }
+
+    function closeClearModal() {
+      document.getElementById('clear-modal').classList.remove('active');
+    }
+
+    function confirmClearAll() {
+      // Clear data to empty structure
+      resumeState = {
+        fullname: '',
+        jobtitle: '',
+        email: '',
+        phone: '',
+        location: '',
+        website: '',
+        github: '',
+        linkedin: '',
+        summary: '',
+        skills: '',
+        work: [],
+        education: [],
+        projects: [],
+        template: resumeState.template || 'classic',
+        fontScale: 1.0,
+        customAccent: '',
+        mainSectionsOrder: ['summary', 'work', 'projects'],
+        sideSectionsOrder: ['education', 'skills'],
+        customSections: [],
+        hiddenSections: []
+      };
+      
+      // Clean preview custom section elements
+      document.querySelectorAll('[id^="view-custom-"]').forEach(el => el.remove());
+
+      fillFormFromState();
+      renderPreview();
+      saveToLocalStorage();
+      closeClearModal();
+    }
+
+    /* ==========================================================================
+       J. Print PDF Command
+       ========================================================================== */
+    function exportToPDF() {
+      window.print();
+    }
+
+    /* ==========================================================================
+       K. Supabase Database Sync & Share Resume
+       ========================================================================== */
+    const supabaseUrl = 'https://nbmvodklvnmnuntbmvvb.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibXZvZGtsdm5tbnVudGJtdnZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTA1ODcsImV4cCI6MjA4OTU2NjU4N30.JcpIlozE-J2DmcCExeNWt0pgtDBL70VX7jAXOBnix6E';
+    
+    // Initialize the Supabase client
+    const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
+    
+    // Flag to check if we are in read-only mode
+    let isReadOnly = false;
+
+    async function shareResume() {
+      if (!supabase) {
+        alert("Supabase integration is not initialized properly.");
+        return;
+      }
+      
+      const btnShare = document.getElementById('btn-share');
+      const originalHTML = btnShare.innerHTML;
+      btnShare.disabled = true;
+      btnShare.innerHTML = `<span class="spinner" style="display: inline-block; width: 0.8rem; height: 0.8rem; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.25rem; vertical-align: middle;"></span> Sharing...`;
+      
+      try {
+        const { data, error } = await supabase
+          .from('resumes')
+          .insert([{ data: resumeState }])
+          .select('id')
+          .single();
+          
+        if (error) throw error;
+        
+        // Generate share URL
+        const shareId = data.id;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?share=${shareId}`;
+        
+        // Copy to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        
+        alert(`Success! Your CV has been saved to the database.\nThe share link has been copied to your clipboard:\n\n${shareUrl}`);
+      } catch (err) {
+        console.error('Error sharing resume:', err);
+        alert(`Failed to share resume: ${err.message || err}`);
+      } finally {
+        btnShare.disabled = false;
+        btnShare.innerHTML = originalHTML;
+      }
+    }
+
+    async function checkSharedResume(shareId) {
+      if (!supabase) return;
+      try {
+        // Show loading preview overlay or placeholder text
+        document.getElementById('resume-document').innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--resume-primary); font-family: sans-serif; font-weight: 600;">Loading Shared CV...</div>';
+        
+        const { data, error } = await supabase
+          .from('resumes')
+          .select('data')
+          .eq('id', shareId)
+          .single();
+          
+        if (error) throw error;
+        
+        if (data && data.data) {
+          resumeState = data.data;
+          isReadOnly = true;
+          
+          // Adjust page view for read-only mode
+          document.body.classList.add('show-preview'); // switch to preview on mobile
+          document.getElementById('shared-banner').style.display = 'block';
+          
+          // Disable editing inputs/sections
+          disableEditingControls();
+          
+          // Render the CV
+          fillFormFromState();
+          renderPreview();
+        }
+      } catch (err) {
+        console.error('Error loading shared resume:', err);
+        alert('Could not load the shared resume. It may have been deleted or the link is invalid.');
+        window.location.href = window.location.origin + window.location.pathname;
+      }
+    }
+
+    function disableEditingControls() {
+      // Hide the editor panel on desktop and sidebar configurations
+      const editorPane = document.querySelector('.editor-pane');
+      if (editorPane) {
+        editorPane.style.opacity = '0.3';
+        editorPane.style.pointerEvents = 'none';
+        
+        // Add a visual block overlay to the editor pane
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.right = '0';
+        overlay.style.bottom = '0';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+        overlay.style.zIndex = '10';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.color = 'var(--editor-text-muted)';
+        overlay.style.fontWeight = 'bold';
+        overlay.style.fontSize = '1.1rem';
+        overlay.innerHTML = 'Read-Only Mode';
+        
+        editorPane.style.position = 'relative';
+        editorPane.appendChild(overlay);
+      }
+      
+      // Hide Load Demo and Clear All buttons in toolbar
+      document.querySelectorAll('.header-actions button:not(.btn-primary):not(#btn-share)').forEach(btn => {
+        btn.style.display = 'none';
+      });
+      
+      // Hide mobile edit switch button
+      const mobBtnEdit = document.getElementById('mob-btn-edit');
+      const mobBtnView = document.getElementById('mob-btn-view');
+      if (mobBtnEdit) mobBtnEdit.style.display = 'none';
+      if (mobBtnView) mobBtnView.style.width = '100%';
+    }
+
+    function createNewResume() {
+      // Redirect to the clean CV Studio app URL
+      window.location.href = window.location.origin + window.location.pathname;
+    }
+  </script>
+</body>
+</html>

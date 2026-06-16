@@ -3,414 +3,829 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml">
+  <title>Learn with Marineo - Premium Developer Hub</title>
+  <meta name="description" content="Explore advanced developer tools, coding projects, and learning resources by Syed Awais Shah (Marineo).">
   
-  <title>MarineoFPS — FPS Guides, Blogs & Pro Settings</title>
-  <link rel="canonical" href="https://marineofps.dev/">
-  <meta name="title" content="MarineoFPS — FPS Guides, Blogs & Pro Settings">
-  <meta name="description" content="MarineoFPS: CS2 (Counter-Strike/CS), Valorant, Dota 2, Minecraft and R6 guides, pro settings, tier lists, and blogs. Built by gamers, for gamers.">
-  <meta name="keywords" content="MarineoFPS, marineofps, marinefps, CS2, Counter-Strike, CS, Valorant, Dota 2, Minecraft, R6 Siege, FPS guides, pro settings, tier lists">
-  <meta name="application-name" content="MarineoFPS">
-
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://marineofps.dev/">
-  <meta property="og:title" content="MarineoFPS | Level Up Your Game">
-  <meta property="og:description" content="MarineoFPS guides and blogs for CS2 (Counter-Strike/CS), Valorant, Dota 2, Minecraft and R6 Siege.">
-  <meta property="og:site_name" content="MarineoFPS">
-  <meta property="og:image" content="https://marineofps.dev/1.jpg">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://marineofps.dev/">
-  <meta property="twitter:title" content="MarineoFPS | Tactical Excellence">
-  <meta property="twitter:description" content="CS2 (Counter-Strike/CS), Valorant, Dota 2, Minecraft and R6 guides, blogs and pro settings.">
-  <meta property="twitter:image" content="https://marineofps.dev/1.jpg">
-  <meta name="theme-color" content="#e8c84a">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "MarineoFPS",
-    "alternateName": ["MarineFPS", "Marineo FPS"],
-    "url": "https://marineofps.dev/",
-    "description": "Community-driven guides and blogs for CS2, Counter-Strike, Valorant, Dota 2, Minecraft and R6.",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://marineofps.dev/guides.html",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "MarineoFPS",
-    "url": "https://marineofps.dev/",
-    "logo": "https://marineofps.dev/favicon.svg"
-  }
-  </script>
-
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    .social-card { transition: transform 0.2s, border-color 0.2s; }
-    .social-card:hover { transform: scale(1.02); border-color: var(--gold) !important; }
-    #main-search:focus { border-color: var(--gold) !important; box-shadow: 0 0 10px rgba(232, 200, 74, 0.1); }
-    :root { --gold: #e8c84a; --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a; --border: #222; --border2: #2a2a2a; --text: #e0e0e0; --text-muted: #666; --text-dim: #999; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; background: rgba(8,8,8,0.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(8px); }
-    .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-decoration: none; }
-    .logo span { color: #fff; }
-    .nav-links { display: flex; gap: 28px; }
-    .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--gold); }
-    .nav-right { display: flex; gap: 10px; align-items: center; }
-    .auth-pending { visibility: hidden; }
-    .btn-login { font-size: 13px; padding: 7px 18px; background: transparent; border: 1px solid var(--border2); color: var(--text-dim); border-radius: 3px; cursor: pointer; text-decoration: none; }
-    .btn-signup { font-size: 13px; padding: 7px 18px; background: var(--gold); border: none; color: #080808; border-radius: 3px; cursor: pointer; font-weight: 600; text-decoration: none; }
-    .btn-logout { font-size: 12px; padding: 6px 14px; background: transparent; border: 1px solid var(--border2); color: var(--text-muted); border-radius: 3px; cursor: pointer; font-family: 'Barlow', sans-serif; }
-    .hero { padding: 80px 0 60px; background: var(--bg); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 0%, rgba(232,200,74,0.05) 0%, transparent 70%); pointer-events: none; }
-    .hero-shell { max-width: 1480px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
-    .hero-inner { max-width: 640px; position: relative; }
-    .hero-social { display: flex; flex-direction: column; gap: 16px; min-width: 0; width: 100%; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gold); border: 1px solid rgba(232,200,74,0.22); background: rgba(232,200,74,0.06); padding: 7px 14px; border-radius: 999px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
-    .hero-badge span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; display: inline-block; }
-    .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 64px; font-weight: 700; line-height: 1.0; color: #fff; margin-bottom: 16px; letter-spacing: 1px; }
-    .hero h1 em { color: var(--gold); font-style: normal; }
-    .hero p { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
-    .hero-btns { display: flex; gap: 12px; }
-    .hero-btn-main { padding: 12px 28px; background: linear-gradient(180deg, var(--gold), #d5b43e); color: #080808; font-weight: 600; font-size: 14px; border: none; border-radius: 999px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s; text-decoration: none; box-shadow: 0 10px 24px rgba(232,200,74,0.18); }
-    .hero-btn-main:hover { transform: translateY(-1px); opacity: 0.95; }
-    .hero-btn-sec { padding: 12px 28px; background: rgba(255,255,255,0.03); color: var(--text-dim); font-size: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; cursor: pointer; text-decoration: none; transition: transform 0.2s, border-color 0.2s, color 0.2s; }
-    .hero-btn-sec:hover { transform: translateY(-1px); border-color: rgba(232,200,74,0.2); color: #fff; }
-    .game-bar { background: var(--bg2); border-bottom: 1px solid var(--border); }
-    .game-bar-inner { max-width: 1480px; margin: 0 auto; padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; }
-    .game-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 14px 18px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; background: none; border-left: none; border-right: none; border-top: none; }
-    .game-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-    .game-tab.special-resource { color: var(--gold); border-bottom-color: rgba(232,200,74,0.45); }
-    .game-tab.special-resource:hover { color: var(--gold); border-bottom-color: var(--gold); }
-    .main { max-width: 1480px; margin: 0 auto; padding: 24px 20px; display: grid; grid-template-columns: 1fr 280px; gap: 24px; }
-    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 10px; }
-    .section-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--gold); }
-    .create-btn { font-size: 12px; color: var(--gold); text-decoration: none; border: 1px solid rgba(232,200,74,0.3); padding: 5px 12px; border-radius: 3px; }
-    .posts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 32px; align-items: stretch; }
-    .post-card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; min-width: 0; box-shadow: 0 14px 32px rgba(0,0,0,0.18); }
-    .post-card:hover { border-color: rgba(232,200,74,0.22); transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,0.26); }
-    .card-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-    .card-game { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .card-title { font-size: 13px; color: var(--text); line-height: 1.45; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; line-clamp: 3; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
-    .card-author { font-size: 11px; color: var(--text-muted); min-width: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-author a { color: var(--gold); text-decoration: none; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
-    .card-votes { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
-    .sidebar-box { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 18px; margin-bottom: 16px; box-shadow: 0 14px 28px rgba(0,0,0,0.14); }
-    .sidebar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-    .sidebar-title::before { content: ''; width: 10px; height: 2px; background: var(--gold); display: inline-block; }
-    .join-btn { width: 100%; padding: 10px; background: var(--gold); color: #080808; font-weight: 700; font-size: 13px; border: none; border-radius: 3px; cursor: pointer; text-decoration: none; display: block; text-align: center; }
-    footer { border-top: 1px solid var(--border); padding: 24px 20px; background: var(--bg2); }
-    footer a { transition: opacity 0.2s ease, text-decoration-color 0.2s ease; }
-    footer a:hover { opacity: 0.92; text-decoration: underline !important; }
-    .footer-inner { max-width: 1480px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-    .footer-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); }
-    .footer-logo span { color: #555; }
-    .footer-text { font-size: 12px; color: var(--text-muted); }
-    @media (max-width: 900px) { .nav-links { display: none; } .hero-shell { grid-template-columns: 1fr; } .main { grid-template-columns: 1fr; } .posts-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 600px) { .posts-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 44px; } }
+    /* ==========================================================================
+       1. Base Reset & Design System
+       ========================================================================== */
+    :root {
+      --bg-dark: #030303;
+      --bg-card: rgba(255, 255, 255, 0.02);
+      --bg-card-hover: rgba(255, 255, 255, 0.04);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-color-hover: rgba(255, 255, 255, 0.15);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-purple: #8b5cf6;
+      --accent-violet: #6d28d9;
+      --accent-gold: #f3cd59;
+      --accent-gold-dark: #b8860b;
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    /* Ambient glowing background blur nodes */
+    .ambient-glow-1 {
+      position: absolute;
+      top: 15%;
+      left: 10%;
+      width: 40vw;
+      height: 40vw;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ambient-glow-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 5%;
+      width: 35vw;
+      height: 35vw;
+      background: radial-gradient(circle, rgba(243, 205, 89, 0.08) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #08080a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* ==========================================================================
+       2. Layout Shell & Glassmorphic Navigation
+       ========================================================================== */
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(3, 3, 3, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 1rem 2.5rem;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo svg {
+      width: 2.25rem;
+      height: 2.25rem;
+      color: var(--accent-gold);
+    }
+
+    .logo h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #f5d06b, #c49419);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       3. Main Container & Hero Grid
+       ========================================================================== */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 6rem;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+      gap: 4rem;
+      min-height: 50vh;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .badge {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      padding: 0.4rem 0.85rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge svg {
+      width: 0.85rem;
+      height: 0.85rem;
+    }
+
+    .hero-title {
+      font-size: 4rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 40%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 580px;
+    }
+
+    /* DNA Visual Interactive Canvas Column */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 450px;
+    }
+
+    #dna-canvas {
+      width: 100%;
+      height: 100%;
+      max-width: 450px;
+      cursor: grab;
+    }
+
+    #dna-canvas:active {
+      cursor: grabbing;
+    }
+
+    /* ==========================================================================
+       4. Glassmorphic Cards & Grid Layouts
+       ========================================================================== */
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -0.5rem;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-gold));
+      border-radius: 2px;
+    }
+
+    /* CV App Cards & Featured apps */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .app-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1.25rem;
+      padding: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 3rem;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, rgba(0,0,0,0) 50%);
+      pointer-events: none;
+    }
+
+    .app-card:hover {
+      border-color: var(--border-color-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.1);
+    }
+
+    .app-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .app-name {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-main);
+      background: linear-gradient(135deg, #ffffff, var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .app-description {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .app-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .app-preview-visual {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    /* Small Mockup CV preview layout inside card */
+    .mock-cv-header {
+      width: 60%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+    }
+    .mock-cv-sub {
+      width: 40%;
+      height: 8px;
+      background: var(--accent-gold);
+      border-radius: 4px;
+      opacity: 0.7;
+    }
+    .mock-cv-line {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-violet));
+      color: #ffffff;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 0.8rem 1.75rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 15px rgba(109, 40, 217, 0.3);
+      transition: all 0.2s ease;
+      align-self: flex-start;
+      cursor: pointer;
+      border: none;
+    }
+
+    .launch-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(109, 40, 217, 0.5);
+    }
+
+    .launch-btn svg {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    /* ==========================================================================
+       5. Developer Profile Section
+       ========================================================================== */
+    .profile-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: flex-start;
+    }
+
+    .profile-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .profile-para {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .profile-matrix-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .matrix-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .matrix-card svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      color: var(--accent-gold);
+    }
+
+    .matrix-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .matrix-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       6. Responsive Overrides (Screen width < 900px)
+       ========================================================================== */
+    @media (max-width: 900px) {
+      main {
+        padding: 2rem 1.5rem;
+        gap: 4rem;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+      }
+
+      .badge {
+        align-self: center;
+      }
+
+      .hero-title {
+        font-size: 2.75rem;
+      }
+
+      .hero-desc {
+        margin: 0 auto;
+      }
+
+      .hero-visual {
+        height: 300px;
+        order: -1; /* DNA goes above text on mobile */
+      }
+
+      .app-card {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 1.75rem;
+      }
+
+      .app-preview-visual {
+        display: none; /* Hide mini mockup on mobile */
+      }
+
+      .profile-section {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .profile-matrix-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       7. Footer Design
+       ========================================================================== */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem;
+      background: #020203;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 10;
+      position: relative;
+    }
+
+    footer a {
+      color: var(--accent-gold);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    footer a:hover {
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
 
-<nav>
-  <a class="logo" href="index.html">MARINEO<span>FPS</span></a>
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="search.html">Search</a>
-    <a href="guides.html">Guides</a>
-    <a href="blog.html">Blog</a>
-    <a href="tierlists.html">Tier Lists</a>
-    <a href="prosettings.html">Pro Settings</a>
-    <a href="leaderboard.html">Leaderboard</a>
-    <a href="about.html">About Us</a>
-  </div>
-  <div class="nav-right auth-pending" id="nav-right">
-    <a class="btn-login" href="login.html">Log in</a>
-    <a class="btn-signup" href="signup.html">Sign up</a>
-  </div>
-</nav>
+  <!-- Background Blur Glow Nodes -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
 
-<div class="hero">
-  <div class="hero-shell">
-    <div class="hero-inner">
-      <div class="hero-badge"><span></span> CS2 · Valorant · Dota 2 · More</div>
-      <h1>Your FPS<br><em>Edge</em> Starts<br>Here.</h1>
-      <p>Guides, pro settings, and tactical breakdowns written by players, for players. Level up your game today.</p>
-      <div class="hero-btns">
-        <a class="hero-btn-main" href="guides.html">Browse Guides</a>
-        <a class="hero-btn-sec" href="signup.html" id="community-btn">Join Community</a>
-      </div>
-    </div>
-
-    <div class="hero-social">
-      <a href="https://discord.gg/b3KebadbpA" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);border-left:3px solid #5865F2;padding:16px;border-radius:14px;box-shadow:0 14px 32px rgba(0,0,0,0.18);">
-        <div style="width:40px;height:40px;background:linear-gradient(180deg, #6a77f8, #5865F2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 20px rgba(88,101,242,0.16);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="17" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.7.4a.2.2 0 0 0-.2.1 40.9 40.9 0 0 0-1.8 3.7 54.1 54.1 0 0 0-16.2 0A37.5 37.5 0 0 0 25.6.5a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 11 4.9a.2.2 0 0 0-.1.1C1.6 18.7-.9 32.1.3 45.3a.2.2 0 0 0 .1.2 58.9 58.9 0 0 0 17.7 8.9.2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.5 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36.3 36.3 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .3.1 58.7 58.7 0 0 0 17.8-8.9.2.2 0 0 0 .1-.2C72.9 30 70 16.7 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.1s2.8-7.1 6.4-7.1c3.6 0 6.5 3.2 6.4 7.1 0 3.9-2.8 7.1-6.4 7.1Z"/></svg>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#5865F2;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Official Hub</div>
-          <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">MarineoFPS Discord</div>
-          <div style="font-size:11px;color:#555;margin-top:1px;">Connect with squads →</div>
-        </div>
+  <!-- Navigation Header Bar -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"></path>
+        </svg>
+        <h1>Learn with Marineo</h1>
       </a>
-
-      <a href="https://www.youtube.com/@MarineoFps" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #FF0000;padding:16px;border-radius:4px;">
-        <div style="width:40px;height:40px;background:#FF0000;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8ZM9.5 15.6V8.4L15.8 12l-6.3 3.6Z"/></svg>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#FF0000;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Official Channel</div>
-          <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">MarineoFPS YouTube</div>
-          <div style="font-size:11px;color:#555;margin-top:1px;">Watch guides & highlights →</div>
-        </div>
-      </a>
-
-      <a href="https://www.instagram.com/marineofps/" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #E1306C;padding:16px;border-radius:4px;">
-        <div style="width:40px;height:40px;background:linear-gradient(135deg,#F58529 0%,#DD2A7B 50%,#8134AF 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="white" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="white"/></svg>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#E1306C;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Official Social</div>
-          <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">MarineoFPS Instagram</div>
-          <div style="font-size:11px;color:#555;margin-top:1px;">Behind the scenes & clips →</div>
-        </div>
-      </a>
-
-      <a href="https://www.youtube.com/@SN_AbbaS1" target="_blank" class="social-card" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#0d0d0d;border:1px solid #1a1a1a;border-left:3px solid #FF0000;padding:16px;border-radius:4px;">
-        <div style="width:40px;height:40px;background:#FF0000;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8ZM9.5 15.6V8.4L15.8 12l-6.3 3.6Z"/></svg>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#FF0000;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;">Ambassador</div>
-          <div style="font-size:15px;color:#fff;font-weight:700;font-family:'Barlow Condensed',sans-serif;">SN_AbbaS</div>
-          <div style="font-size:11px;color:#555;margin-top:1px;">Watch tactical plays →</div>
-        </div>
-      </a>
+      <nav>
+        <a href="#apps" class="nav-link">Apps</a>
+        <a href="#profile" class="nav-link">About</a>
+        <a href="mailto:shahawais35@gmail.com" class="nav-link">Contact</a>
+      </nav>
     </div>
-  </div>
-</div>
+  </header>
 
-<div class="game-bar">
-  <div class="game-bar-inner">
-    <button class="game-tab active" onclick="setGame(this, '')">All Games</button>
-    <button class="game-tab" onclick="setGame(this, 'Counter-Strike 2')">Counter-Strike 2</button>
-    <button class="game-tab" onclick="setGame(this, 'Valorant')">Valorant</button>
-    <button class="game-tab" onclick="setGame(this, 'Dota 2')">Dota 2</button>
-    <button class="game-tab" onclick="setGame(this, 'Minecraft')">Minecraft</button>
-    <button class="game-tab" onclick="setGame(this, 'R6 Siege')">R6 Siege</button>
-  </div>
-</div>
-
-<div style="max-width: 1200px; margin: 0 auto; padding: 24px 32px 0;">
-  <div style="position: relative;">
-    <input type="text" id="main-search" placeholder="Search guides, players, or games..."
-      style="width: 100%; background: var(--bg3); border: 1px solid var(--border); color: #fff; padding: 14px 20px; border-radius: 4px; font-family: 'Barlow', sans-serif; outline: none; font-size: 15px; transition: border-color 0.2s;">
-    <span style="position: absolute; right: 20px; top: 14px; color: var(--text-muted); pointer-events: none;">🔍</span>
-  </div>
-</div>
-
-<div class="main">
-  <div>
-    <div class="section-head">
-      <div class="section-label">Latest Guides</div>
-      <a class="create-btn" href="create.html">+ Create Guide</a>
-    </div>
-    <div id="guides-section"><div style="color:var(--text-muted);font-size:13px;padding:20px 0;">Loading...</div></div>
-
-    <div class="section-head">
-      <div class="section-label">Recent Blog Posts</div>
-      <a class="create-btn" href="create.html">+ Write Post</a>
-    </div>
-    <div id="blogs-section"><div style="color:var(--text-muted);font-size:13px;padding:20px 0;">Loading...</div></div>
-  </div>
-
-  <div class="sidebar">
-    <div class="sidebar-box" id="auth-sidebar">
-      <div class="sidebar-title" style="justify-content:center;">Join the Community</div>
-      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;">Create a free account to write guides and climb the Discord ranks.</p>
-      <a class="join-btn" href="signup.html">Create Free Account</a>
-      <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: center;">Already a member? <a href="login.html" style="color:var(--gold); text-decoration:none;">Log in</a></div>
-    </div>
-
-    <div class="sidebar-box">
-      <div class="sidebar-title">Trending Now</div>
-      <div id="trending-list">
-        <div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Loading trends...</div>
-      </div>
-    </div>
-
-    <div class="sidebar-box">
-      <div class="sidebar-title" style="justify-content:center;">Support MarineoFPS</div>
-      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:14px; text-align:center;">Enjoying the content? Help us keep the servers running!</p>
-      <a href="https://ko-fi.com/marineofps" target="_blank" style="display:block;padding:10px;background:#FF5E5B;color:#fff;font-weight:700;font-size:13px;border-radius:3px;text-decoration:none;text-align:center;">☕ Buy Me a Coffee</a>
-    </div>
-  </div>
-</div>
-
-<footer data-footer-links="support,discord,leaderboard" data-footer-justify="center">
-  <div class="footer-inner">
-    <div class="footer-logo">MARINEO<span>FPS</span></div>
-    <div class="footer-links"></div>
-    <div class="footer-text">© 2026 MarineoFPS. Built for players, by players.</div>
-  </div>
-</footer>
-
-<script src="footer.js"></script>
-
-<script>
-  let currentGame = '';
-  let searchDebounceTimer = null;
-
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
-  function safeParam(value) {
-    return encodeURIComponent(String(value ?? ''));
-  }
-
-  async function init() {
-    const navRight = document.getElementById('nav-right');
-    if (window.authUtils?.getCurrentUser) {
-      const user = await window.authUtils.getCurrentUser();
-      if (user) {
-        const profile = await window.authUtils.getProfile(user.id, 'username, is_admin');
-        document.getElementById('community-btn').href = 'create.html';
-        document.getElementById('community-btn').textContent = 'Create a Post';
-
-        navRight.innerHTML = `
-          <a href="profile.html?id=${encodeURIComponent(user.id)}" style="text-decoration:none; color:inherit; display:flex; align-items:center;">
-            <span style="font-size:13px;color:var(--text-dim);cursor:pointer;margin-right:12px;">${escapeHtml(profile?.username || user.email || '')}</span>
-          </a>
-          ${profile?.is_admin ? '<a href="admin.html" style="font-size:12px;color:var(--gold);text-decoration:none;border:1px solid rgba(232,200,74,0.3);padding:5px 10px;border-radius:3px;margin-right:10px;">Admin</a>' : ''}
-          <button class="btn-logout" onclick="logout()">Log out</button>
-        `;
-
-        document.getElementById('auth-sidebar').innerHTML = `
-          <div class="sidebar-title" style="justify-content:center;">Welcome back!</div>
-          <p style="text-align:center; margin-bottom:15px; font-size:13px; color:var(--text-muted);">Logged in as <a href="profile.html?id=${encodeURIComponent(user.id)}" style="color:var(--gold); text-decoration:none; font-weight:600;">${escapeHtml(profile?.username || user.email || '')}</a>.</p>
-          <a class="join-btn" href="create.html">+ Create a Post</a>
-        `;
-      }
-    }
-
-    navRight?.classList.remove('auth-pending');
-
-    loadPosts();
-    loadTrending();
-
-    // FIX: debounced search — waits 300ms after user stops typing before querying
-    const searchInput = document.getElementById('main-search');
-    searchInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        const term = searchInput.value.trim();
-        window.location.href = term ? `search.html?q=${encodeURIComponent(term)}` : 'search.html';
-      }
-    });
-    searchInput.addEventListener('input', (e) => {
-      clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => {
-        const term = e.target.value.trim();
-        loadSection('guide', 'guides-section', term);
-        loadSection('blog', 'blogs-section', term);
-      }, 300);
-    });
-  }
-
-  async function logout() {
-    await window.sb.auth.signOut();
-    window.location.reload();
-  }
-
-  async function loadPosts() {
-    await loadSection('guide', 'guides-section');
-    await loadSection('blog', 'blogs-section');
-  }
-
-  async function loadTrending() {
-    const { data: posts } = await window.sb.from('posts')
-      .select('id, title, views, game')
-      .eq('status', 'approved')
-      .order('views', { ascending: false })
-      .limit(3);
-
-    const list = document.getElementById('trending-list');
-    if (!posts?.length) {
-      list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No trends yet.</div>';
-      return;
-    }
-
-    list.innerHTML = posts.map(p => `
-      <a href="post.html?id=${safeParam(p.id)}" style="display:block; text-decoration:none; padding:10px; border-radius:4px; margin-bottom:4px; transition:background 0.2s;" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background=''">
-        <div style="font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom:2px;">${escapeHtml(p.game)}</div>
-        <div style="font-size:13px; color:var(--text); font-weight:600; line-height: 1.2;">${escapeHtml(p.title)}</div>
-        <div style="font-size: 11px; color: var(--text-muted); margin-top:4px;">👁️ ${p.views || 0} views</div>
-      </a>
-    `).join('');
-  }
-
-  async function loadSection(type, sectionId, searchTerm = '') {
-    let query = window.sb.from('posts')
-      .select('*, profiles!posts_user_id_fkey(username)')
-      .eq('status', 'approved')
-      .eq('type', type)
-      .order('created_at', { ascending: false });
-
-    if (currentGame) query = query.eq('game', currentGame);
-    if (searchTerm) query = query.ilike('title', `%${searchTerm}%`);
-
-    const { data: posts } = await query.limit(searchTerm ? 12 : 3);
-    const section = document.getElementById(sectionId);
+  <!-- Main Grid Page Layout -->
+  <main>
     
-    if (!posts?.length) {
-      section.innerHTML = `
-        <div style="background:var(--bg3); border:1px dashed var(--border2); border-radius:4px; padding:30px; text-align:center; margin-bottom:32px;">
-          <div style="font-size:13px; color:var(--text-muted);">${searchTerm ? `No results for "${searchTerm}"` : 'No posts yet.'}</div>
-        </div>`;
-      return;
-    }
+    <!-- Hero Intro Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="badge">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
+          </svg>
+          Developer Portal
+        </div>
+        <h2 class="hero-title">Engineering ideas into responsive code.</h2>
+        <p class="hero-desc">Welcome to <strong>Learn with Marineo</strong>. Here, I build modern web applications, design electrical grid solutions, and package premium developer tools.</p>
+        <a href="#apps" class="launch-btn" style="padding: 0.9rem 2.2rem; font-size: 1rem; border-radius: 30px;">
+          Explore Applications
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width: 1.15rem; height: 1.15rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7-7.5M12 21V3"></path></svg>
+        </a>
+      </div>
+      <div class="hero-visual">
+        <canvas id="dna-canvas"></canvas>
+      </div>
+    </section>
 
-    section.innerHTML = `<div class="posts-grid">${posts.map(p => `
-      <div class="post-card" role="link" tabindex="0" onclick="window.location='post.html?id=${safeParam(p.id)}'" onkeydown="if(event.key==='Enter'||event.key===' '){ event.preventDefault(); window.location='post.html?id=${safeParam(p.id)}'; }">
-        <div class="card-body">
-          <div class="card-game">${escapeHtml(p.game)} · ${escapeHtml(p.category)}</div>
-          <div class="card-title">${escapeHtml(p.title)}</div>
-          <div class="card-footer">
-            <div class="card-author">by <a href="profile.html?id=${safeParam(p.user_id)}" onclick="event.stopPropagation()">${escapeHtml(p.profiles?.username || 'unknown')}</a></div>
-            <div class="card-votes">▲ ${p.upvotes || 0}</div>
+    <!-- Apps Directory Grid Section -->
+    <section id="apps">
+      <h3 class="section-title">Featured Applications</h3>
+      <div class="apps-grid">
+        
+        <!-- CV Studio card -->
+        <div class="app-card">
+          <div class="app-info">
+            <h4 class="app-name">Marineo CV Studio</h4>
+            <p class="app-description">A high-fidelity, split-pane Resume Builder that translates updates in real-time. Choose from six print-optimized templates, toggle section columns, override accent colors, and download styled PDFs instantly.</p>
+            <div class="app-tags">
+              <span class="tag">HTML5</span>
+              <span class="tag">CSS variables</span>
+              <span class="tag">Vanilla JS</span>
+              <span class="tag">Print CSS</span>
+              <span class="tag">LocalStorage</span>
+            </div>
+            <a href="./cv-studio/" class="launch-btn">
+              Launch CV Studio
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
+              </svg>
+            </a>
+          </div>
+          
+          <!-- Mockup visual showing grid structure -->
+          <div class="app-preview-visual">
+            <div class="mock-cv-header"></div>
+            <div class="mock-cv-sub"></div>
+            <div class="mock-cv-line" style="margin-top: 1rem;"></div>
+            <div class="mock-cv-line"></div>
+            <div class="mock-cv-line" style="width: 80%;"></div>
+            <div class="mock-cv-line" style="margin-top: 1rem; width: 60%; background: var(--accent-purple);"></div>
+            <div class="mock-cv-line" style="width: 90%;"></div>
           </div>
         </div>
-      </div>`).join('')}</div>`;
-  }
 
-  function setGame(el, game) {
-    document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    currentGame = game;
-    loadPosts();
-  }
+      </div>
+    </section>
 
-  init();
-</script>
+    <!-- Developer Bio Profile Section -->
+    <section id="profile" class="profile-section">
+      <div class="profile-text">
+        <h3 class="section-title">About the Developer</h3>
+        <p class="profile-para">I am <strong>Syed Awais Shah (Marineo)</strong>, studying Electrical Engineering (Power) at the <strong>University of Engineering and Technology (UET), Peshawar</strong>. I am a passionate coding enthusiast and professional application developer who loves connecting software logic with hardware physics.</p>
+        <p class="profile-para">My background blends grid infrastructure designs with modern frontend architectures. I have engineered web tools for grid operations and built custom templates using JavaScript, React, and Flutter.</p>
+      </div>
+      <div class="profile-matrix-grid">
+        
+        <div class="matrix-card">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
+          </svg>
+          <div class="matrix-title">Power Systems & HVDC</div>
+          <div class="matrix-desc">In-depth studies in High Voltage Direct Current (HVDC) transmission link controls, load flows, and grid simulations.</div>
+        </div>
+
+        <div class="matrix-card">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"></path>
+          </svg>
+          <div class="matrix-title">App Development</div>
+          <div class="matrix-desc">Proficient in building fluid, user-centered layouts using HTML, CSS, JavaScript, React, and Flutter.</div>
+        </div>
+
+        <div class="matrix-card">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <div class="matrix-title">Open Source Tools</div>
+          <div class="matrix-desc">Committed to developing and publishing tools that reduce friction for developers and students globally.</div>
+        </div>
+
+        <div class="matrix-card">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
+          </svg>
+          <div class="matrix-title">Mentorship & Learning</div>
+          <div class="matrix-desc">Creating straightforward tutorials and articles under the "Learn with Marineo" identity.</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Page Footer -->
+  <footer>
+    <div>Developed by <span style="color: var(--text-main); font-weight: 600;">Syed Awais Shah ( Marineo )</span></div>
+    <div style="font-size: 0.8rem; opacity: 0.85;">Contact: <a href="mailto:shahawais35@gmail.com">shahawais35@gmail.com</a></div>
+    <div style="font-size: 0.75rem; opacity: 0.5; margin-top: 0.5rem;">© 2026 Syed Awais Shah. All rights reserved. Custom domain connected via <a href="https://name.com" target="_blank">Name.com</a>.</div>
+  </footer>
+
+  <!-- HTML5 Canvas 3D DNA Particle Animation Script -->
+  <script>
+    const canvas = document.getElementById('dna-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Handle high DPI display pixel ratios
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // DNA Animation parameters
+    let angle = 0;
+    const numNodes = 28;
+    const radius = 60;
+    const spacing = 11;
+    let rotationSpeed = 0.012;
+    let targetSpeed = 0.012;
+
+    // Track mouse dragging or movement to interact
+    let mouseX = 0;
+    let mouseY = 0;
+    let isHovered = false;
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left - rect.width / 2;
+      mouseY = e.clientY - rect.top - rect.height / 2;
+      
+      // Speed up or change tilt dynamically on hover
+      targetSpeed = 0.003 + (Math.abs(mouseX) / rect.width) * 0.04;
+      isHovered = true;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      targetSpeed = 0.012;
+      isHovered = false;
+    });
+
+    function drawDNA() {
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      
+      ctx.clearRect(0, 0, width, height);
+
+      // Smoothly transition speed
+      rotationSpeed += (targetSpeed - rotationSpeed) * 0.1;
+      angle += rotationSpeed;
+
+      const nodes = [];
+
+      // Calculate 3D positions of the two threads
+      for (let i = 0; i < numNodes; i++) {
+        const theta = (i * 0.35) + angle;
+        const y = (i - numNodes / 2) * spacing + height / 2;
+        
+        // Tilt helix based on mouse vertical position
+        const tilt = isHovered ? (mouseY / height) * 0.8 : -0.25;
+        const cosTilt = Math.cos(tilt);
+        const sinTilt = Math.sin(tilt);
+
+        // Raw 3D coordinates for Thread 1
+        const x1Raw = Math.cos(theta) * radius;
+        const z1Raw = Math.sin(theta) * radius;
+
+        // Apply tilt rotation on YZ plane
+        const x1 = x1Raw;
+        const y1 = (y - height / 2) * cosTilt - z1Raw * sinTilt + height / 2;
+        const z1 = (y - height / 2) * sinTilt + z1Raw * cosTilt;
+
+        // Raw 3D coordinates for Thread 2 (opposite phase +PI)
+        const x2Raw = Math.cos(theta + Math.PI) * radius;
+        const z2Raw = Math.sin(theta + Math.PI) * radius;
+
+        // Apply tilt rotation for Thread 2
+        const x2 = x2Raw;
+        const y2 = (y - height / 2) * cosTilt - z2Raw * sinTilt + height / 2;
+        const z2 = (y - height / 2) * sinTilt + z2Raw * cosTilt;
+
+        // Perspective depth calculations
+        const d = 160; // camera distance
+        const scale1 = d / (d + z1);
+        const scale2 = d / (d + z2);
+
+        nodes.push({
+          x1: width / 2 + x1 * scale1,
+          y1: y1,
+          z1: z1,
+          scale1: scale1,
+          x2: width / 2 + x2 * scale2,
+          y2: y2,
+          z2: z2,
+          scale2: scale2
+        });
+      }
+
+      // Sort nodes back-to-front so rungs draw behind foreground particles
+      const sortedIndexes = Array.from({length: numNodes}, (_, i) => i);
+      
+      // Draw DNA rungs (connector ladders)
+      sortedIndexes.forEach(i => {
+        const node = nodes[i];
+        
+        // Depth cueing opacity
+        const avgZ = (node.z1 + node.z2) / 2;
+        const alpha = Math.max(0.1, 1 - (avgZ + radius) / (radius * 2));
+        
+        ctx.beginPath();
+        ctx.moveTo(node.x1, node.y1);
+        ctx.lineTo(node.x2, node.y2);
+        
+        // Gradient color for connecting rungs
+        const gradient = ctx.createLinearGradient(node.x1, node.y1, node.x2, node.y2);
+        gradient.addColorStop(0, `rgba(243, 205, 89, ${alpha * 0.4})`); // Gold
+        gradient.addColorStop(1, `rgba(139, 92, 246, ${alpha * 0.4})`); // Purple
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 1.5 * ((node.scale1 + node.scale2) / 2);
+        ctx.stroke();
+      });
+
+      // Draw Thread 1 nodes (Gold/Amber)
+      nodes.forEach(node => {
+        const alpha = Math.max(0.15, 1 - (node.z1 + radius) / (radius * 2));
+        ctx.beginPath();
+        ctx.arc(node.x1, node.y1, 4.5 * node.scale1, 0, Math.PI * 2);
+        
+        ctx.fillStyle = `rgba(243, 205, 89, ${alpha})`;
+        ctx.shadowBlur = 12 * node.scale1;
+        ctx.shadowColor = 'rgba(243, 205, 89, 0.6)';
+        ctx.fill();
+      });
+
+      // Draw Thread 2 nodes (Purple/Violet)
+      nodes.forEach(node => {
+        const alpha = Math.max(0.15, 1 - (node.z2 + radius) / (radius * 2));
+        ctx.beginPath();
+        ctx.arc(node.x2, node.y2, 4.5 * node.scale2, 0, Math.PI * 2);
+        
+        ctx.fillStyle = `rgba(139, 92, 246, ${alpha})`;
+        ctx.shadowBlur = 12 * node.scale2;
+        ctx.shadowColor = 'rgba(139, 92, 246, 0.6)';
+        ctx.fill();
+      });
+
+      // Reset shadows
+      ctx.shadowBlur = 0;
+
+      requestAnimationFrame(drawDNA);
+    }
+
+    drawDNA();
+  </script>
 </body>
 </html>
