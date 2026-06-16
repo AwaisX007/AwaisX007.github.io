@@ -3,39 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learn with Marineo - Premium Developer Hub</title>
+  <title>Marineo – Developer Portfolio</title>
   <meta name="description" content="Explore advanced developer tools, coding projects, and learning resources by Syed Awais Shah (Marineo).">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
        1. Base Reset & Design System
-       ========================================================================== */
+    ========================================================================== */
     :root {
-      --bg-dark: #030303;
-      --bg-card: rgba(255, 255, 255, 0.02);
-      --bg-card-hover: rgba(255, 255, 255, 0.04);
-      --border-color: rgba(255, 255, 255, 0.08);
-      --border-color-hover: rgba(255, 255, 255, 0.15);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-purple: #8b5cf6;
-      --accent-violet: #6d28d9;
-      --accent-gold: #f3cd59;
-      --accent-gold-dark: #b8860b;
+      --bg-dark: #050505;
+      --bg-card: rgba(255, 215, 0, 0.03);
+      --bg-card-hover: rgba(255, 215, 0, 0.06);
+      --border-color: rgba(212, 175, 55, 0.12);
+      --border-color-hover: rgba(212, 175, 55, 0.35);
+      --text-main: #f8f4e8;
+      --text-muted: #9a8f72;
+      --gold: #d4af37;
+      --gold-bright: #f3cd59;
+      --gold-dim: #8a6e1c;
+      --gold-glow: rgba(212, 175, 55, 0.18);
       --font-sans: 'Outfit', sans-serif;
       --font-mono: 'Fira Code', monospace;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: var(--font-sans);
@@ -43,60 +41,161 @@
       color: var(--text-main);
       min-height: 100vh;
       overflow-x: hidden;
-      line-height: 1.5;
+      line-height: 1.6;
+    }
+
+    body.intro-active {
+      overflow: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0900; }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+    /* ==========================================================================
+       2. Fullscreen Intro Overlay
+    ========================================================================== */
+    #intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+      transition: opacity 1.2s ease, visibility 1.2s ease;
+    }
+
+    #intro-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    #intro-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .intro-label {
       position: relative;
-    }
-
-    /* Ambient glowing background blur nodes */
-    .ambient-glow-1 {
-      position: absolute;
-      top: 15%;
-      left: 10%;
-      width: 40vw;
-      height: 40vw;
-      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+      z-index: 2;
+      text-align: center;
+      animation: introLabelPulse 2s ease-in-out infinite alternate;
       pointer-events: none;
-      z-index: 1;
     }
 
-    .ambient-glow-2 {
-      position: absolute;
-      bottom: 10%;
-      right: 5%;
-      width: 35vw;
-      height: 35vw;
-      background: radial-gradient(circle, rgba(243, 205, 89, 0.08) 0%, rgba(0,0,0,0) 70%);
-      pointer-events: none;
-      z-index: 1;
+    .intro-label h1 {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff6d0 0%, #d4af37 45%, #8a6e1c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: none;
+      filter: drop-shadow(0 0 40px rgba(212,175,55,0.5));
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
+    .intro-label p {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: rgba(212,175,55,0.6);
+      font-family: var(--font-mono);
+      letter-spacing: 0.15em;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
     }
-    ::-webkit-scrollbar-track {
-      background: #08080a;
+
+    .intro-skip {
+      position: relative;
+      z-index: 2;
+      background: transparent;
+      border: 1px solid rgba(212,175,55,0.3);
+      color: rgba(212,175,55,0.5);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      padding: 0.5rem 1.5rem;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeInUp 1s 0.8s both;
     }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
+
+    .intro-skip:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(212,175,55,0.05);
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.2);
+
+    @keyframes introLabelPulse {
+      0% { filter: drop-shadow(0 0 20px rgba(212,175,55,0.3)); }
+      100% { filter: drop-shadow(0 0 60px rgba(212,175,55,0.7)); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* ==========================================================================
-       2. Layout Shell & Glassmorphic Navigation
-       ========================================================================== */
+       3. Main Site Content (starts hidden)
+    ========================================================================== */
+    #site-content {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s;
+    }
+
+    #site-content.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       4. Ambient glow orbs
+    ========================================================================== */
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(80px);
+      z-index: 0;
+    }
+
+    .orb-1 {
+      top: -10%;
+      left: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+    }
+
+    .orb-2 {
+      bottom: -5%;
+      right: -5%;
+      width: 40vw;
+      height: 40vw;
+      background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%);
+    }
+
+    /* ==========================================================================
+       5. Navigation Header
+    ========================================================================== */
     header {
       position: sticky;
       top: 0;
-      background: rgba(3, 3, 3, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(5, 5, 5, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
-      z-index: 1000;
-      padding: 1rem 2.5rem;
+      z-index: 100;
+      padding: 0.9rem 2.5rem;
     }
 
     .nav-container {
@@ -115,24 +214,34 @@
       color: inherit;
     }
 
-    .logo svg {
-      width: 2.25rem;
-      height: 2.25rem;
-      color: var(--accent-gold);
+    .logo-icon {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #d4af37, #8a6e1c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 900;
+      color: #000;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 20px rgba(212,175,55,0.3);
     }
 
     .logo h1 {
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      letter-spacing: -0.025em;
-      background: linear-gradient(135deg, #f5d06b, #c49419);
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #f3cd59, #b8860b);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     nav {
       display: flex;
-      gap: 1.5rem;
+      gap: 2rem;
+      align-items: center;
     }
 
     .nav-link {
@@ -141,105 +250,218 @@
       font-size: 0.9rem;
       font-weight: 500;
       transition: color 0.2s ease;
+      letter-spacing: 0.01em;
     }
 
-    .nav-link:hover {
-      color: var(--text-main);
+    .nav-link:hover { color: var(--gold-bright); }
+
+    .nav-cta {
+      background: linear-gradient(135deg, #d4af37, #a07c10);
+      color: #000 !important;
+      padding: 0.45rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 700 !important;
+      font-size: 0.85rem !important;
+      transition: all 0.2s ease !important;
+      box-shadow: 0 0 16px rgba(212,175,55,0.2);
+    }
+
+    .nav-cta:hover {
+      color: #000 !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 24px rgba(212,175,55,0.4) !important;
     }
 
     /* ==========================================================================
-       3. Main Container & Hero Grid
-       ========================================================================== */
+       6. Main Container
+    ========================================================================== */
     main {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 4rem 2rem;
+      padding: 5rem 2rem;
       position: relative;
       z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 6rem;
+      gap: 7rem;
     }
 
+    /* ==========================================================================
+       7. Hero Section
+    ========================================================================== */
     .hero {
       display: grid;
       grid-template-columns: 1.2fr 0.8fr;
       align-items: center;
       gap: 4rem;
-      min-height: 50vh;
+      min-height: 55vh;
     }
 
     .hero-content {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.75rem;
     }
 
     .badge {
       align-self: flex-start;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      color: #a78bfa;
-      padding: 0.4rem 0.85rem;
+      background: rgba(212,175,55,0.08);
+      border: 1px solid rgba(212,175,55,0.25);
+      color: var(--gold);
+      padding: 0.4rem 1rem;
       border-radius: 30px;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
+      font-family: var(--font-mono);
     }
 
-    .badge svg {
-      width: 0.85rem;
-      height: 0.85rem;
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--gold-bright);
+      border-radius: 50%;
+      animation: pulseDot 1.8s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.6); }
     }
 
     .hero-title {
-      font-size: 4rem;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 40%, #a78bfa 100%);
+      font-size: clamp(2.75rem, 5vw, 4.25rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      color: var(--text-main);
+    }
+
+    .hero-title .gold-word {
+      background: linear-gradient(135deg, #f3cd59 0%, #d4af37 50%, #8a6e1c 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .hero-desc {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       color: var(--text-muted);
-      max-width: 580px;
+      max-width: 560px;
+      line-height: 1.7;
     }
 
-    /* DNA Visual Interactive Canvas Column */
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: linear-gradient(135deg, #d4af37, #8a6e1c);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(212,175,55,0.35);
+      transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 36px rgba(212,175,55,0.5);
+      background: linear-gradient(135deg, #f3cd59, #d4af37);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: transparent;
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      border: 1px solid rgba(212,175,55,0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(212,175,55,0.07);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* DNA Canvas in hero */
     .hero-visual {
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
-      height: 450px;
+      height: 480px;
     }
 
     #dna-canvas {
       width: 100%;
       height: 100%;
-      max-width: 450px;
-      cursor: grab;
+      max-width: 480px;
     }
 
-    #dna-canvas:active {
-      cursor: grabbing;
+    /* Stats bar */
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      padding-top: 0.5rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      letter-spacing: -0.03em;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     /* ==========================================================================
-       4. Glassmorphic Cards & Grid Layouts
-       ========================================================================== */
+       8. Section Headings
+    ========================================================================== */
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+    }
+
     .section-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 2rem;
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
       position: relative;
       display: inline-block;
     }
@@ -247,51 +469,72 @@
     .section-title::after {
       content: '';
       position: absolute;
-      bottom: -0.5rem;
+      bottom: -0.6rem;
       left: 0;
-      width: 40px;
+      width: 36px;
       height: 3px;
-      background: linear-gradient(90deg, var(--accent-purple), var(--accent-gold));
+      background: linear-gradient(90deg, var(--gold-bright), transparent);
       border-radius: 2px;
     }
 
-    /* CV App Cards & Featured apps */
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       9. App Cards
+    ========================================================================== */
     .apps-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 2rem;
+      gap: 1.5rem;
     }
 
     .app-card {
-      background: var(--bg-card);
+      background: rgba(212,175,55,0.02);
       border: 1px solid var(--border-color);
-      border-radius: 1.25rem;
+      border-radius: 1.5rem;
       padding: 2.5rem;
       display: grid;
-      grid-template-columns: 1fr 300px;
+      grid-template-columns: 1fr 280px;
       gap: 3rem;
       align-items: center;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
 
     .app-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, rgba(0,0,0,0) 50%);
+      inset: 0;
+      background: radial-gradient(ellipse at 15% 50%, rgba(212,175,55,0.04) 0%, transparent 60%);
       pointer-events: none;
     }
 
     .app-card:hover {
-      border-color: var(--border-color-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.1);
+      border-color: rgba(212,175,55,0.3);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(212,175,55,0.08), 0 0 0 1px rgba(212,175,55,0.08);
+    }
+
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(212,175,55,0.1);
+      border: 1px solid rgba(212,175,55,0.2);
+      color: var(--gold);
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--font-mono);
+      align-self: flex-start;
     }
 
     .app-info {
@@ -301,105 +544,80 @@
     }
 
     .app-name {
-      font-size: 1.75rem;
+      font-size: 1.8rem;
       font-weight: 800;
-      color: var(--text-main);
-      background: linear-gradient(135deg, #ffffff, var(--accent-gold));
+      background: linear-gradient(135deg, #fff, var(--gold-bright));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.025em;
     }
 
     .app-description {
       font-size: 1rem;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
     .app-tags {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.45rem;
       flex-wrap: wrap;
     }
 
     .tag {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 0.25rem 0.65rem;
-      border-radius: 6px;
+      font-size: 0.72rem;
+      background: rgba(212,175,55,0.05);
+      border: 1px solid rgba(212,175,55,0.1);
+      color: rgba(212,175,55,0.7);
+      padding: 0.2rem 0.6rem;
+      border-radius: 5px;
     }
 
+    /* Mockup visual in card */
     .app-preview-visual {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border-color);
-      border-radius: 0.75rem;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(212,175,55,0.1);
+      border-radius: 1rem;
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+      gap: 0.6rem;
+      box-shadow: inset 0 2px 12px rgba(0,0,0,0.8);
       position: relative;
+      overflow: hidden;
     }
 
-    /* Small Mockup CV preview layout inside card */
-    .mock-cv-header {
-      width: 60%;
-      height: 12px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 6px;
+    .app-preview-visual::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright), var(--gold-dim));
     }
-    .mock-cv-sub {
-      width: 40%;
+
+    .mock-bar {
       height: 8px;
-      background: var(--accent-gold);
+      background: rgba(212,175,55,0.15);
       border-radius: 4px;
-      opacity: 0.7;
-    }
-    .mock-cv-line {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
     }
 
-    .launch-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-violet));
-      color: #ffffff;
-      font-weight: 600;
-      text-decoration: none;
-      padding: 0.8rem 1.75rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 15px rgba(109, 40, 217, 0.3);
-      transition: all 0.2s ease;
-      align-self: flex-start;
-      cursor: pointer;
-      border: none;
-    }
+    .mock-bar.gold { background: rgba(212,175,55,0.5); }
+    .mock-bar.short { width: 45%; }
+    .mock-bar.medium { width: 75%; }
+    .mock-bar.full { width: 100%; }
 
-    .launch-btn:hover {
-      opacity: 0.95;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(109, 40, 217, 0.5);
-    }
-
-    .launch-btn svg {
-      width: 1.15rem;
-      height: 1.15rem;
-    }
+    .mock-sep { height: 1px; background: rgba(255,255,255,0.04); margin: 0.3rem 0; }
 
     /* ==========================================================================
-       5. Developer Profile Section
-       ========================================================================== */
+       10. Profile / About Section
+    ========================================================================== */
     .profile-section {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      gap: 5rem;
       align-items: flex-start;
     }
 
@@ -411,421 +629,764 @@
 
     .profile-para {
       color: var(--text-muted);
-      font-size: 1.05rem;
-      line-height: 1.6;
+      font-size: 1rem;
+      line-height: 1.75;
     }
 
-    .profile-matrix-grid {
+    .profile-para strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .skill-chip {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: rgba(212,175,55,0.06);
+      border: 1px solid rgba(212,175,55,0.15);
+      color: var(--gold);
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .skill-chip:hover {
+      background: rgba(212,175,55,0.12);
+      border-color: rgba(212,175,55,0.3);
+      color: var(--gold-bright);
+    }
+
+    /* Matrix Cards */
+    .matrix-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+      gap: 1rem;
     }
 
     .matrix-card {
-      background: var(--bg-card);
+      background: rgba(212,175,55,0.02);
       border: 1px solid var(--border-color);
       border-radius: 1rem;
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+      transition: all 0.25s ease;
+      cursor: default;
     }
 
-    .matrix-card svg {
-      width: 1.75rem;
-      height: 1.75rem;
-      color: var(--accent-gold);
+    .matrix-card:hover {
+      border-color: rgba(212,175,55,0.25);
+      background: rgba(212,175,55,0.04);
+      transform: translateY(-2px);
     }
+
+    .matrix-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212,175,55,0.1);
+      border-radius: 8px;
+      color: var(--gold);
+    }
+
+    .matrix-icon svg { width: 1.25rem; height: 1.25rem; }
 
     .matrix-title {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
       color: var(--text-main);
     }
 
     .matrix-desc {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
+      line-height: 1.5;
     }
 
     /* ==========================================================================
-       6. Responsive Overrides (Screen width < 900px)
-       ========================================================================== */
-    @media (max-width: 900px) {
-      main {
-        padding: 2rem 1.5rem;
-        gap: 4rem;
-      }
-
-      .hero {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 2rem;
-      }
-
-      .badge {
-        align-self: center;
-      }
-
-      .hero-title {
-        font-size: 2.75rem;
-      }
-
-      .hero-desc {
-        margin: 0 auto;
-      }
-
-      .hero-visual {
-        height: 300px;
-        order: -1; /* DNA goes above text on mobile */
-      }
-
-      .app-card {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        padding: 1.75rem;
-      }
-
-      .app-preview-visual {
-        display: none; /* Hide mini mockup on mobile */
-      }
-
-      .profile-section {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-      }
-
-      .profile-matrix-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* ==========================================================================
-       7. Footer Design
-       ========================================================================== */
-    footer {
-      border-top: 1px solid var(--border-color);
-      padding: 3rem 2rem;
-      background: #020203;
+       11. Contact / CTA Banner
+    ========================================================================== */
+    .cta-banner {
+      background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.12) 0%, transparent 70%);
+      border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 2rem;
+      padding: 4rem 3rem;
       text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-muted);
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      align-items: center;
+      gap: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+    }
+
+    .cta-banner h3 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 20%, var(--gold-bright) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cta-banner p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 480px;
+    }
+
+    .cta-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+    /* ==========================================================================
+       12. Footer
+    ========================================================================== */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2.5rem;
+      background: #020201;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
       z-index: 10;
       position: relative;
     }
 
-    footer a {
-      color: var(--accent-gold);
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: linear-gradient(135deg, #f3cd59, #b8860b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: rgba(154,143,114,0.6);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
       text-decoration: none;
-      transition: color 0.15s ease;
+      font-size: 0.85rem;
+      transition: color 0.2s ease;
     }
 
-    footer a:hover {
-      color: #ffffff;
-    }
-  </style>
-</head>
-<body>
+    .footer-links a:hover { color: var(--gold-bright); }
 
-  <!-- Background Blur Glow Nodes -->
-  <div class="ambient-glow-1"></div>
-  <div class="ambient-glow-2"></div>
+    /* ==========================================================================
+       13. Responsive
+    ========================================================================== */
+    @media (max-width: 960px) {
+      main { padding: 3rem 1.5rem; gap: 5rem; }
 
-  <!-- Navigation Header Bar -->
-  <header>
-    <div class="nav-container">
-      <a href="#" class="logo">
-        <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"></path>
-        </svg>
-        <h1>Learn with Marineo</h1>
-      </a>
-      <nav>
-        <a href="#apps" class="nav-link">Apps</a>
-        <a href="#profile" class="nav-link">About</a>
-        <a href="mailto:shahawais35@gmail.com" class="nav-link">Contact</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- Main Grid Page Layout -->
-  <main>
-    
-    <!-- Hero Intro Section -->
-    <section class="hero">
-      <div class="hero-content">
-        <div class="badge">
-          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
-          </svg>
-          Developer Portal
-        </div>
-        <h2 class="hero-title">Engineering ideas into responsive code.</h2>
-        <p class="hero-desc">Welcome to <strong>Learn with Marineo</strong>. Here, I build modern web applications, design electrical grid solutions, and package premium developer tools.</p>
-        <a href="#apps" class="launch-btn" style="padding: 0.9rem 2.2rem; font-size: 1rem; border-radius: 30px;">
-          Explore Applications
-          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width: 1.15rem; height: 1.15rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7-7.5M12 21V3"></path></svg>
-        </a>
-      </div>
-      <div class="hero-visual">
-        <canvas id="dna-canvas"></canvas>
-      </div>
-    </section>
-
-    <!-- Apps Directory Grid Section -->
-    <section id="apps">
-      <h3 class="section-title">Featured Applications</h3>
-      <div class="apps-grid">
-        
-        <!-- CV Studio card -->
-        <div class="app-card">
-          <div class="app-info">
-            <h4 class="app-name">Marineo CV Studio</h4>
-            <p class="app-description">A high-fidelity, split-pane Resume Builder that translates updates in real-time. Choose from six print-optimized templates, toggle section columns, override accent colors, and download styled PDFs instantly.</p>
-            <div class="app-tags">
-              <span class="tag">HTML5</span>
-              <span class="tag">CSS variables</span>
-              <span class="tag">Vanilla JS</span>
-              <span class="tag">Print CSS</span>
-              <span class="tag">LocalStorage</span>
-            </div>
-            <a href="./cv-studio/" class="launch-btn">
-              Launch CV Studio
-              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
-              </svg>
-            </a>
-          </div>
-          
-          <!-- Mockup visual showing grid structure -->
-          <div class="app-preview-visual">
-            <div class="mock-cv-header"></div>
-            <div class="mock-cv-sub"></div>
-            <div class="mock-cv-line" style="margin-top: 1rem;"></div>
-            <div class="mock-cv-line"></div>
-            <div class="mock-cv-line" style="width: 80%;"></div>
-            <div class="mock-cv-line" style="margin-top: 1rem; width: 60%; background: var(--accent-purple);"></div>
-            <div class="mock-cv-line" style="width: 90%;"></div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Developer Bio Profile Section -->
-    <section id="profile" class="profile-section">
-      <div class="profile-text">
-        <h3 class="section-title">About the Developer</h3>
-        <p class="profile-para">I am <strong>Syed Awais Shah (Marineo)</strong>, studying Electrical Engineering (Power) at the <strong>University of Engineering and Technology (UET), Peshawar</strong>. I am a passionate coding enthusiast and professional application developer who loves connecting software logic with hardware physics.</p>
-        <p class="profile-para">My background blends grid infrastructure designs with modern frontend architectures. I have engineered web tools for grid operations and built custom templates using JavaScript, React, and Flutter.</p>
-      </div>
-      <div class="profile-matrix-grid">
-        
-        <div class="matrix-card">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"></path>
-          </svg>
-          <div class="matrix-title">Power Systems & HVDC</div>
-          <div class="matrix-desc">In-depth studies in High Voltage Direct Current (HVDC) transmission link controls, load flows, and grid simulations.</div>
-        </div>
-
-        <div class="matrix-card">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"></path>
-          </svg>
-          <div class="matrix-title">App Development</div>
-          <div class="matrix-desc">Proficient in building fluid, user-centered layouts using HTML, CSS, JavaScript, React, and Flutter.</div>
-        </div>
-
-        <div class="matrix-card">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <div class="matrix-title">Open Source Tools</div>
-          <div class="matrix-desc">Committed to developing and publishing tools that reduce friction for developers and students globally.</div>
-        </div>
-
-        <div class="matrix-card">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
-          </svg>
-          <div class="matrix-title">Mentorship & Learning</div>
-          <div class="matrix-desc">Creating straightforward tutorials and articles under the "Learn with Marineo" identity.</div>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Page Footer -->
-  <footer>
-    <div>Developed by <span style="color: var(--text-main); font-weight: 600;">Syed Awais Shah ( Marineo )</span></div>
-    <div style="font-size: 0.8rem; opacity: 0.85;">Contact: <a href="mailto:shahawais35@gmail.com">shahawais35@gmail.com</a></div>
-    <div style="font-size: 0.75rem; opacity: 0.5; margin-top: 0.5rem;">© 2026 Syed Awais Shah. All rights reserved. Custom domain connected via <a href="https://name.com" target="_blank">Name.com</a>.</div>
-  </footer>
-
-  <!-- HTML5 Canvas 3D DNA Particle Animation Script -->
-  <script>
-    const canvas = document.getElementById('dna-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Handle high DPI display pixel ratios
-    function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * window.devicePixelRatio;
-      canvas.height = rect.height * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    }
-    
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // DNA Animation parameters
-    let angle = 0;
-    const numNodes = 28;
-    const radius = 60;
-    const spacing = 11;
-    let rotationSpeed = 0.012;
-    let targetSpeed = 0.012;
-
-    // Track mouse dragging or movement to interact
-    let mouseX = 0;
-    let mouseY = 0;
-    let isHovered = false;
-
-    canvas.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left - rect.width / 2;
-      mouseY = e.clientY - rect.top - rect.height / 2;
-      
-      // Speed up or change tilt dynamically on hover
-      targetSpeed = 0.003 + (Math.abs(mouseX) / rect.width) * 0.04;
-      isHovered = true;
-    });
-
-    canvas.addEventListener('mouseleave', () => {
-      targetSpeed = 0.012;
-      isHovered = false;
-    });
-
-    function drawDNA() {
-      const rect = canvas.getBoundingClientRect();
-      const width = rect.width;
-      const height = rect.height;
-      
-      ctx.clearRect(0, 0, width, height);
-
-      // Smoothly transition speed
-      rotationSpeed += (targetSpeed - rotationSpeed) * 0.1;
-      angle += rotationSpeed;
-
-      const nodes = [];
-
-      // Calculate 3D positions of the two threads
-      for (let i = 0; i < numNodes; i++) {
-        const theta = (i * 0.35) + angle;
-        const y = (i - numNodes / 2) * spacing + height / 2;
-        
-        // Tilt helix based on mouse vertical position
-        const tilt = isHovered ? (mouseY / height) * 0.8 : -0.25;
-        const cosTilt = Math.cos(tilt);
-        const sinTilt = Math.sin(tilt);
-
-        // Raw 3D coordinates for Thread 1
-        const x1Raw = Math.cos(theta) * radius;
-        const z1Raw = Math.sin(theta) * radius;
-
-        // Apply tilt rotation on YZ plane
-        const x1 = x1Raw;
-        const y1 = (y - height / 2) * cosTilt - z1Raw * sinTilt + height / 2;
-        const z1 = (y - height / 2) * sinTilt + z1Raw * cosTilt;
-
-        // Raw 3D coordinates for Thread 2 (opposite phase +PI)
-        const x2Raw = Math.cos(theta + Math.PI) * radius;
-        const z2Raw = Math.sin(theta + Math.PI) * radius;
-
-        // Apply tilt rotation for Thread 2
-        const x2 = x2Raw;
-        const y2 = (y - height / 2) * cosTilt - z2Raw * sinTilt + height / 2;
-        const z2 = (y - height / 2) * sinTilt + z2Raw * cosTilt;
-
-        // Perspective depth calculations
-        const d = 160; // camera distance
-        const scale1 = d / (d + z1);
-        const scale2 = d / (d + z2);
-
-        nodes.push({
-          x1: width / 2 + x1 * scale1,
-          y1: y1,
-          z1: z1,
-          scale1: scale1,
-          x2: width / 2 + x2 * scale2,
-          y2: y2,
-          z2: z2,
-          scale2: scale2
-        });
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2.5rem;
       }
 
-      // Sort nodes back-to-front so rungs draw behind foreground particles
-      const sortedIndexes = Array.from({length: numNodes}, (_, i) => i);
-      
-      // Draw DNA rungs (connector ladders)
-      sortedIndexes.forEach(i => {
-        const node = nodes[i];
-        
-        // Depth cueing opacity
-        const avgZ = (node.z1 + node.z2) / 2;
-        const alpha = Math.max(0.1, 1 - (avgZ + radius) / (radius * 2));
-        
-        ctx.beginPath();
-        ctx.moveTo(node.x1, node.y1);
-        ctx.lineTo(node.x2, node.y2);
-        
-        // Gradient color for connecting rungs
-        const gradient = ctx.createLinearGradient(node.x1, node.y1, node.x2, node.y2);
-        gradient.addColorStop(0, `rgba(243, 205, 89, ${alpha * 0.4})`); // Gold
-        gradient.addColorStop(1, `rgba(139, 92, 246, ${alpha * 0.4})`); // Purple
-        
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 1.5 * ((node.scale1 + node.scale2) / 2);
-        ctx.stroke();
-      });
+      .badge, .hero-actions { align-self: center; justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .hero-desc { margin: 0 auto; }
+      .hero-visual { height: 320px; order: -1; }
 
-      // Draw Thread 1 nodes (Gold/Amber)
-      nodes.forEach(node => {
-        const alpha = Math.max(0.15, 1 - (node.z1 + radius) / (radius * 2));
-        ctx.beginPath();
-        ctx.arc(node.x1, node.y1, 4.5 * node.scale1, 0, Math.PI * 2);
-        
-        ctx.fillStyle = `rgba(243, 205, 89, ${alpha})`;
-        ctx.shadowBlur = 12 * node.scale1;
-        ctx.shadowColor = 'rgba(243, 205, 89, 0.6)';
-        ctx.fill();
-      });
+      .app-card { grid-template-columns: 1fr; gap: 2rem; padding: 2rem; }
+      .app-preview-visual { display: none; }
 
-      // Draw Thread 2 nodes (Purple/Violet)
-      nodes.forEach(node => {
-        const alpha = Math.max(0.15, 1 - (node.z2 + radius) / (radius * 2));
-        ctx.beginPath();
-        ctx.arc(node.x2, node.y2, 4.5 * node.scale2, 0, Math.PI * 2);
-        
-        ctx.fillStyle = `rgba(139, 92, 246, ${alpha})`;
-        ctx.shadowBlur = 12 * node.scale2;
-        ctx.shadowColor = 'rgba(139, 92, 246, 0.6)';
-        ctx.fill();
-      });
+      .profile-section { grid-template-columns: 1fr; gap: 3rem; }
+      .matrix-grid { grid-template-columns: 1fr; }
 
-      // Reset shadows
-      ctx.shadowBlur = 0;
-
-      requestAnimationFrame(drawDNA);
+      footer { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
     }
 
-    drawDNA();
+    @media (max-width: 600px) {
+      header { padding: 0.75rem 1.25rem; }
+      nav .nav-link { display: none; }
+      nav .nav-cta { display: flex; }
+      .cta-banner { padding: 2.5rem 1.5rem; }
+    }
+
+    /* ==========================================================================
+       14. Scroll Reveal Animations
+    ========================================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+  </style>
+</head>
+<body class="intro-active">
+
+  <!-- ======================================================================
+       FULLSCREEN DNA INTRO OVERLAY
+  ====================================================================== -->
+  <div id="intro-overlay">
+    <canvas id="intro-canvas"></canvas>
+    <div class="intro-label">
+      <h1>Marineo</h1>
+      <p>// initializing portfolio</p>
+    </div>
+    <button class="intro-skip" id="intro-skip-btn">skip intro ↓</button>
+  </div>
+
+  <!-- ======================================================================
+       MAIN SITE CONTENT
+  ====================================================================== -->
+  <div id="site-content">
+
+    <!-- Ambient glow orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <!-- Navigation -->
+    <header>
+      <div class="nav-container">
+        <a href="#" class="logo">
+          <div class="logo-icon">M</div>
+          <h1>marineofps.dev</h1>
+        </a>
+        <nav>
+          <a href="#apps" class="nav-link">Apps</a>
+          <a href="#about" class="nav-link">About</a>
+          <a href="mailto:shahawais35@gmail.com" class="nav-link">Contact</a>
+          <a href="./cv-studio/" class="nav-link nav-cta">CV Studio ↗</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-content">
+          <div class="badge">
+            <span class="badge-dot"></span>
+            Open for Collaboration
+          </div>
+          <h2 class="hero-title">
+            Engineering ideas<br>into <span class="gold-word">responsive</span><br>digital experiences.
+          </h2>
+          <p class="hero-desc">
+            Welcome to my developer hub. I build modern web applications, design electrical grid solutions, and craft premium developer tools that push boundaries.
+          </p>
+          <div class="hero-actions">
+            <a href="#apps" class="btn-primary">
+              Explore Apps
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+            <a href="#about" class="btn-secondary">About Me</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <span class="stat-number">6+</span>
+              <span class="stat-label">Templates</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Offline Ready</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">∞</span>
+              <span class="stat-label">Possibilities</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <canvas id="dna-canvas"></canvas>
+        </div>
+      </section>
+
+      <!-- Apps Section -->
+      <section id="apps" class="reveal">
+        <div class="section-head">
+          <h3 class="section-title">Featured Applications</h3>
+          <span class="section-subtitle">// projects[]</span>
+        </div>
+        <div class="apps-grid">
+          
+          <div class="app-card reveal reveal-delay-1">
+            <div class="app-info">
+              <span class="app-badge">✦ Live</span>
+              <h4 class="app-name">Marineo CV Studio</h4>
+              <p class="app-description">A high-fidelity, split-pane Resume Builder with real-time preview. Choose from six print-optimized templates, reorder sections, override accent colors, share via link, and export print-ready PDFs instantly — all offline capable.</p>
+              <div class="app-tags">
+                <span class="tag">HTML5</span>
+                <span class="tag">CSS Variables</span>
+                <span class="tag">Vanilla JS</span>
+                <span class="tag">Print CSS</span>
+                <span class="tag">LocalStorage</span>
+                <span class="tag">Supabase</span>
+              </div>
+              <a href="./cv-studio/" class="btn-primary" style="align-self:flex-start;margin-top:0.25rem;">
+                Launch CV Studio
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+              </a>
+            </div>
+
+            <div class="app-preview-visual">
+              <div class="mock-bar gold short"></div>
+              <div class="mock-bar short" style="width:35%;opacity:.5"></div>
+              <div class="mock-sep"></div>
+              <div class="mock-bar full"></div>
+              <div class="mock-bar medium"></div>
+              <div class="mock-bar full"></div>
+              <div class="mock-bar" style="width:60%"></div>
+              <div class="mock-sep"></div>
+              <div class="mock-bar gold" style="width:50%;opacity:.7"></div>
+              <div class="mock-bar full"></div>
+              <div class="mock-bar medium"></div>
+              <div class="mock-bar full"></div>
+              <div class="mock-bar" style="width:80%"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="profile-section reveal">
+        <div class="profile-text">
+          <h3 class="section-title">About the Developer</h3>
+          <p class="profile-para">I am <strong>Syed Awais Shah (Marineo)</strong>, an Electrical Engineering (Power) student at the <strong>University of Engineering and Technology (UET), Peshawar</strong>. I bridge the gap between hardware engineering and modern software architectures.</p>
+          <p class="profile-para">My background blends power grid infrastructure with modern frontend design. I've built web tools for grid operations and crafted fluid user interfaces using JavaScript, React, and Flutter.</p>
+          <div class="skills-list">
+            <span class="skill-chip">JavaScript</span>
+            <span class="skill-chip">React</span>
+            <span class="skill-chip">Flutter</span>
+            <span class="skill-chip">Node.js</span>
+            <span class="skill-chip">Python</span>
+            <span class="skill-chip">MATLAB</span>
+            <span class="skill-chip">HVDC Systems</span>
+            <span class="skill-chip">Power Systems</span>
+            <span class="skill-chip">CSS / HTML5</span>
+            <span class="skill-chip">Supabase</span>
+          </div>
+        </div>
+        <div class="matrix-grid">
+
+          <div class="matrix-card reveal reveal-delay-1">
+            <div class="matrix-icon">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+            </div>
+            <div class="matrix-title">Power Systems & HVDC</div>
+            <div class="matrix-desc">Deep expertise in High Voltage Direct Current transmission, load flows, and grid simulation tools.</div>
+          </div>
+
+          <div class="matrix-card reveal reveal-delay-2">
+            <div class="matrix-icon">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
+            </div>
+            <div class="matrix-title">App Development</div>
+            <div class="matrix-desc">Building fluid, user-centered interfaces with HTML, CSS, JavaScript, React, and Flutter.</div>
+          </div>
+
+          <div class="matrix-card reveal reveal-delay-3">
+            <div class="matrix-icon">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div class="matrix-title">Open Source Tools</div>
+            <div class="matrix-desc">Committed to publishing quality tools that reduce friction for developers and students worldwide.</div>
+          </div>
+
+          <div class="matrix-card reveal reveal-delay-4">
+            <div class="matrix-icon">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+            </div>
+            <div class="matrix-title">Mentorship & Learning</div>
+            <div class="matrix-desc">Creating tutorials and learning resources under the "Learn with Marineo" identity.</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- CTA Banner -->
+      <section class="reveal">
+        <div class="cta-banner">
+          <h3>Let's build something great together.</h3>
+          <p>Have a project idea, collaboration proposal, or just want to connect? My inbox is always open.</p>
+          <div class="cta-actions">
+            <a href="mailto:shahawais35@gmail.com" class="btn-primary">
+              Get in Touch
+              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:1rem;height:1rem"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+            </a>
+            <a href="./cv-studio/" class="btn-secondary">View CV Studio</a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-left">
+        <span class="footer-brand">Syed Awais Shah — Marineo</span>
+        <span class="footer-copy">© 2026 All rights reserved · marineofps.dev</span>
+      </div>
+      <div class="footer-links">
+        <a href="mailto:shahawais35@gmail.com">Email</a>
+        <a href="https://github.com/MarineoFPS" target="_blank">GitHub</a>
+        <a href="./cv-studio/">CV Studio</a>
+      </div>
+    </footer>
+
+  </div><!-- /#site-content -->
+
+  <script>
+    /* ========================================================================
+       INTRO: Fullscreen DNA + Particle Burst Animation
+       Plays on load → 3.5s → dissolves away → site reveals
+    ======================================================================== */
+    (function() {
+      const overlay  = document.getElementById('intro-overlay');
+      const canvas   = document.getElementById('intro-canvas');
+      const ctx      = canvas.getContext('2d');
+      const skipBtn  = document.getElementById('intro-skip-btn');
+      const site     = document.getElementById('site-content');
+      let   animId   = null;
+      let   done     = false;
+
+      // Resize canvas to fill screen
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const W = () => canvas.width;
+      const H = () => canvas.height;
+
+      /* --- Floating ambient particles --- */
+      const particles = Array.from({ length: 120 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: Math.random() * 1.8 + 0.4,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.5 + 0.1
+      }));
+
+      /* --- DNA helix parameters --- */
+      const NUM_NODES = 32;
+      const RADIUS    = 80;
+      const SPACING   = 14;
+      let   angle     = 0;
+
+      /* --- Dissolve state --- */
+      let dissolve = 0;   // 0 → 1: how dissolved the intro is
+      let dissolving = false;
+
+      function startDissolve() {
+        if (done) return;
+        done = true;
+        dissolving = true;
+      }
+
+      function endIntro() {
+        overlay.classList.add('fade-out');
+        document.body.classList.remove('intro-active');
+        site.classList.add('revealed');
+        cancelAnimationFrame(animId);
+      }
+
+      /* Trigger dissolve after 3.8s automatically */
+      setTimeout(startDissolve, 3800);
+
+      /* Skip button */
+      skipBtn.addEventListener('click', startDissolve);
+
+      /* --- Draw frame --- */
+      function draw() {
+        const w = W(), h = H();
+        ctx.clearRect(0, 0, w, h);
+
+        /* Background gradient */
+        const bg = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h) * 0.7);
+        bg.addColorStop(0, `rgba(20, 14, 3, ${1 - dissolve})`);
+        bg.addColorStop(1, `rgba(0, 0, 0, ${1 - dissolve})`);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, w, h);
+
+        const alpha = 1 - dissolve;
+
+        /* --- Floating particles --- */
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = w;
+          if (p.x > w) p.x = 0;
+          if (p.y < 0) p.y = h;
+          if (p.y > h) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha * alpha * 0.6})`;
+          ctx.fill();
+        });
+
+        /* --- DNA Helix (centered on screen) --- */
+        angle += 0.018;
+        const cx = w / 2;
+        const cy = h / 2;
+
+        const nodes = [];
+        for (let i = 0; i < NUM_NODES; i++) {
+          const theta = (i * 0.38) + angle;
+          const yOff  = (i - NUM_NODES / 2) * SPACING;
+          const y     = cy + yOff;
+
+          const z1 = Math.sin(theta) * RADIUS;
+          const z2 = Math.sin(theta + Math.PI) * RADIUS;
+          const d  = 200;
+
+          const scale1 = d / (d + z1);
+          const scale2 = d / (d + z2);
+
+          nodes.push({
+            x1: cx + Math.cos(theta) * RADIUS * scale1,
+            y1: y,
+            z1, scale1,
+            x2: cx + Math.cos(theta + Math.PI) * RADIUS * scale2,
+            y2: y,
+            z2, scale2
+          });
+        }
+
+        /* Draw rungs */
+        nodes.forEach(n => {
+          const avgZ = (n.z1 + n.z2) / 2;
+          const depth = Math.max(0.05, 1 - (avgZ + RADIUS) / (RADIUS * 2));
+
+          ctx.beginPath();
+          ctx.moveTo(n.x1, n.y1);
+          ctx.lineTo(n.x2, n.y2);
+
+          const grad = ctx.createLinearGradient(n.x1, n.y1, n.x2, n.y2);
+          grad.addColorStop(0, `rgba(212, 175, 55, ${depth * 0.5 * alpha})`);
+          grad.addColorStop(0.5, `rgba(255, 255, 200, ${depth * 0.3 * alpha})`);
+          grad.addColorStop(1, `rgba(212, 175, 55, ${depth * 0.5 * alpha})`);
+
+          ctx.strokeStyle = grad;
+          ctx.lineWidth   = 1.5 * ((n.scale1 + n.scale2) / 2);
+          ctx.stroke();
+        });
+
+        /* Draw strand 1 nodes (bright gold) */
+        nodes.forEach(n => {
+          const depth = Math.max(0.1, 1 - (n.z1 + RADIUS) / (RADIUS * 2));
+          const glow  = ctx.createRadialGradient(n.x1, n.y1, 0, n.x1, n.y1, 8 * n.scale1);
+          glow.addColorStop(0,   `rgba(255, 230, 120, ${depth * alpha})`);
+          glow.addColorStop(0.5, `rgba(212, 175, 55, ${depth * alpha * 0.7})`);
+          glow.addColorStop(1,   'rgba(0,0,0,0)');
+
+          ctx.beginPath();
+          ctx.arc(n.x1, n.y1, 8 * n.scale1, 0, Math.PI * 2);
+          ctx.fillStyle = glow;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(n.x1, n.y1, 3.5 * n.scale1, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 230, 120, ${depth * alpha})`;
+          ctx.shadowBlur  = 18 * n.scale1;
+          ctx.shadowColor = `rgba(212, 175, 55, ${alpha})`;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+
+        /* Draw strand 2 nodes (dimmer gold) */
+        nodes.forEach(n => {
+          const depth = Math.max(0.1, 1 - (n.z2 + RADIUS) / (RADIUS * 2));
+          ctx.beginPath();
+          ctx.arc(n.x2, n.y2, 3.5 * n.scale2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180, 130, 30, ${depth * alpha})`;
+          ctx.shadowBlur  = 12 * n.scale2;
+          ctx.shadowColor = `rgba(160, 110, 20, ${alpha * 0.6})`;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        });
+
+        /* Handle dissolve progression */
+        if (dissolving) {
+          dissolve += 0.018;
+          if (dissolve >= 1) {
+            endIntro();
+            return;
+          }
+        }
+
+        animId = requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+
+
+    /* ========================================================================
+       HERO: Compact DNA canvas (sidebar animation)
+    ======================================================================== */
+    (function() {
+      const canvas = document.getElementById('dna-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width  = rect.width  * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      let angle = 0;
+      const NUM   = 28;
+      const R     = 62;
+      const SP    = 11;
+      let speed   = 0.013;
+      let tSpeed  = 0.013;
+      let mX = 0, mY = 0, hovered = false;
+
+      canvas.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        mX = e.clientX - rect.left - rect.width / 2;
+        mY = e.clientY - rect.top  - rect.height / 2;
+        tSpeed  = 0.003 + (Math.abs(mX) / rect.width) * 0.04;
+        hovered = true;
+      });
+      canvas.addEventListener('mouseleave', () => { tSpeed = 0.013; hovered = false; });
+
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        const w = rect.width, h = rect.height;
+        ctx.clearRect(0, 0, w, h);
+
+        speed += (tSpeed - speed) * 0.08;
+        angle += speed;
+
+        const tilt = hovered ? (mY / h) * 0.8 : -0.2;
+        const cosT = Math.cos(tilt);
+        const sinT = Math.sin(tilt);
+
+        const nodes = [];
+        for (let i = 0; i < NUM; i++) {
+          const theta = (i * 0.35) + angle;
+          const yBase = (i - NUM / 2) * SP + h / 2;
+
+          const x1r = Math.cos(theta) * R;
+          const z1r = Math.sin(theta) * R;
+          const y1  = (yBase - h/2) * cosT - z1r * sinT + h/2;
+          const z1  = (yBase - h/2) * sinT + z1r * cosT;
+
+          const x2r = Math.cos(theta + Math.PI) * R;
+          const z2r = Math.sin(theta + Math.PI) * R;
+          const y2  = (yBase - h/2) * cosT - z2r * sinT + h/2;
+          const z2  = (yBase - h/2) * sinT + z2r * cosT;
+
+          const D = 160;
+          const s1 = D / (D + z1), s2 = D / (D + z2);
+
+          nodes.push({
+            x1: w/2 + x1r * s1, y1, z1, scale1: s1,
+            x2: w/2 + x2r * s2, y2, z2, scale2: s2
+          });
+        }
+
+        /* Rungs */
+        nodes.forEach(n => {
+          const avgZ = (n.z1 + n.z2) / 2;
+          const a    = Math.max(0.05, 1 - (avgZ + R) / (R * 2));
+          const g    = ctx.createLinearGradient(n.x1, n.y1, n.x2, n.y2);
+          g.addColorStop(0, `rgba(212,175,55,${a * 0.45})`);
+          g.addColorStop(1, `rgba(180,130,30,${a * 0.45})`);
+          ctx.beginPath();
+          ctx.moveTo(n.x1, n.y1);
+          ctx.lineTo(n.x2, n.y2);
+          ctx.strokeStyle = g;
+          ctx.lineWidth   = 1.4 * ((n.scale1 + n.scale2) / 2);
+          ctx.stroke();
+        });
+
+        /* Strand 1 – bright gold */
+        nodes.forEach(n => {
+          const a = Math.max(0.15, 1 - (n.z1 + R) / (R * 2));
+          ctx.beginPath();
+          ctx.arc(n.x1, n.y1, 4.5 * n.scale1, 0, Math.PI * 2);
+          ctx.fillStyle   = `rgba(243,205,89,${a})`;
+          ctx.shadowBlur  = 14 * n.scale1;
+          ctx.shadowColor = 'rgba(212,175,55,0.7)';
+          ctx.fill();
+          ctx.shadowBlur  = 0;
+        });
+
+        /* Strand 2 – warm gold */
+        nodes.forEach(n => {
+          const a = Math.max(0.1, 1 - (n.z2 + R) / (R * 2));
+          ctx.beginPath();
+          ctx.arc(n.x2, n.y2, 4 * n.scale2, 0, Math.PI * 2);
+          ctx.fillStyle   = `rgba(180,130,30,${a})`;
+          ctx.shadowBlur  = 10 * n.scale2;
+          ctx.shadowColor = 'rgba(160,110,20,0.5)';
+          ctx.fill();
+          ctx.shadowBlur  = 0;
+        });
+
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+
+
+    /* ========================================================================
+       SCROLL REVEAL
+    ======================================================================== */
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer  = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
   </script>
 </body>
 </html>
