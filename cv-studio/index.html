@@ -2989,13 +2989,13 @@
     const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibXZvZGtsdm5tbnVudGJtdnZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5OTA1ODcsImV4cCI6MjA4OTU2NjU4N30.JcpIlozE-J2DmcCExeNWt0pgtDBL70VX7jAXOBnix6E';
     
     // Initialize the Supabase client
-    const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
+    const supabaseClient = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
     
     // Flag to check if we are in read-only mode
     let isReadOnly = false;
 
     async function shareResume() {
-      if (!supabase) {
+      if (!supabaseClient) {
         alert("Supabase integration is not initialized properly.");
         return;
       }
@@ -3006,7 +3006,7 @@
       btnShare.innerHTML = `<span class="spinner" style="display: inline-block; width: 0.8rem; height: 0.8rem; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.25rem; vertical-align: middle;"></span> Sharing...`;
       
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('resumes')
           .insert([{ data: resumeState }])
           .select('id')
@@ -3032,12 +3032,12 @@
     }
 
     async function checkSharedResume(shareId) {
-      if (!supabase) return;
+      if (!supabaseClient) return;
       try {
         // Show loading preview overlay or placeholder text
         document.getElementById('resume-document').innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--resume-primary); font-family: sans-serif; font-weight: 600;">Loading Shared CV...</div>';
         
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('resumes')
           .select('data')
           .eq('id', shareId)
